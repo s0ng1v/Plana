@@ -8,7 +8,7 @@
 
 ### Native, Local-First Desktop Tasks, Calendar Widgets & AI Schedule Assistant
 
-Keep what matters today right on your desktop — visible at a glance, editable in one click, always undoable.
+Keep what matters today right on your desktop — visible at a glance, editable in one click, always undoable, with **Lana** built in to help organize your schedule.
 
 <p>
   <a href="README.md">简体中文</a> ·
@@ -18,7 +18,7 @@ Keep what matters today right on your desktop — visible at a glance, editable 
 </p>
 
 <p>
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/github/v/release/s0ng1v/Plana?style=flat-square&color=2F6BFF" alt="Latest Release" /></a>
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.10-2F6BFF?style=flat-square" alt="Release v0.1.10" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-1F8A5B?style=flat-square" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/.NET-10_LTS-512BD4?style=flat-square" alt=".NET 10 LTS" />
   <img src="https://img.shields.io/badge/Avalonia-12.1.6-8B5CF6?style=flat-square" alt="Avalonia 12.1.6" />
@@ -27,62 +27,72 @@ Keep what matters today right on your desktop — visible at a glance, editable 
 
 <br />
 
-<img src="docs/screenshots/01-tasks-main.png" alt="Plana Main Window & Task Details" width="100%" />
+<img src="docs/screenshots/02-lana-chat.png" alt="Plana · Lana AI Schedule Assistant" width="100%" />
 
 </div>
 
 ---
 
-## ✨ Highlights
+## ✨ Meet Lana: Your Built-In AI Schedule Assistant
 
-- **Truly Native Desktop App**: Built with **.NET 10 + Avalonia 12 + SkiaSharp** — zero Electron or WebView overhead. The AI assistant assembly is strictly lazy-loaded so startup and idle footprints remain ultra-light.
-- **Local-First & Private**: Tasks, subtasks, rules, memories, and chat history live locally in **SQLite (WAL)**. API keys are encrypted on Windows via **DPAPI**. No mandatory cloud account, no telemetry.
-- **Live-Synced Desktop Widgets**: Borderless transparent **Today** and **Month** desktop tool windows (hidden from taskbar & `Alt+Tab`) share the exact same repository as the main window — changes sync across every window instantaneously.
-- **Built-in Offline Chinese Calendar & NL Dates**: Ships offline 1901–2100 lunar dates, 24 solar terms, and public/traditional holidays alongside an offline Chinese natural-language date parser (zero token cost).
-- **Undoable AI Scheduling**: Every schedule change applied by the Lana assistant or an external MCP client records a `ChangeSet`, supporting **per-item, multi-select, and full-batch undo (`Ctrl+Z`)**.
-- **Dual Themes & Embedded Typography**: Switch live between **Classic Blue (`ClassicBlue`)** and **Plana Cherry Pink (`Plana`)**, backed by bundled typography resources (`Anthropic Sans / Serif / Mono` + re-baselined `Noto Sans SC / Noto Serif SC`).
+Lana lives inside Plana — lazy-loaded so the app stays featherweight until you open her, and ready to help plan whenever you do:
+
+- **Natural-Language Scheduling & Breakdown**: Ask Lana to reschedule meetings, set exact reminder offsets, prioritize tasks, or break big goals into subtasks in plain language.
+- **Multimodal & Document Understanding**: Drag or paste screenshots, PDFs, Word, Excel, PowerPoint, `.ics` calendars, HTML, or code/text files (reference them cleanly with `@`) to turn notes and schedules directly into actionable tasks.
+- **Interactive & Granularly Undoable Cards**: Watch live tool progress while Lana inspects your schedule; tweak task priority or reminders directly inside the synced card, and undo **per item, multi-selected items, or the entire batch (`Ctrl+Z`)**.
+- **Rules, Memory & Weekly Review**: Set daily task caps, high-priority limits, and rest-day preferences; inspect or edit your local profile and memories; and generate weekly productivity reviews.
+- **20 Model Presets + Local Ollama**: Pre-configured presets for DeepSeek, Anthropic, OpenAI, Google Gemini, Kimi, Zhipu GLM, Qwen, OpenRouter, Ollama, and custom OpenAI/Anthropic-compatible endpoints — with API keys encrypted locally via DPAPI on Windows.
+- **External AI via Local MCP**: Optionally enable the bundled local MCP server so Claude Desktop, Cursor, or Antigravity can safely read and update your Plana tasks with confirmation gates.
 
 ---
 
 ## 🖼️ Screenshots (v0.1.10)
 
+### Plana Cherry-Pink Theme · Personalized Welcome Stage
+
+Switch live between **Classic Blue** and **Plana Cherry Pink** with time-aware greetings, lunar date summary, and an expressive companion stage.
+
+<img src="docs/screenshots/06-plana-theme-welcome.png" alt="Plana Cherry-Pink Theme & Lana Welcome Stage" width="100%" />
+
+---
+
+### Tasks Workspace & Detail Panel
+
+Smart views (**Today**, **Next 7 Days**, **Inbox**, **Completed**, **30-day Trash**), custom lists, inline natural-language Chinese date parsing, `#tag` & recurrence filters, subtask tracking, and exact-time reminders.
+
+<img src="docs/screenshots/01-tasks-main.png" alt="Plana Tasks Workspace & Task Detail Panel" width="100%" />
+
+---
+
 ### Desktop Today & Month Widgets
+
+Borderless transparent tool windows (hidden from taskbar and `Alt+Tab`) synced instantaneously with the main window — featuring 40%–100% opacity, free scaling, lock & click-through modes, and one-click overdue postponement.
 
 <img src="docs/screenshots/07-desktop-widgets.png" alt="Plana Today and Month Desktop Widgets" width="100%" />
 
-### Lana AI Assistant & Dual Themes
+---
 
-<table>
-  <tr>
-    <td width="50%">
-      <img src="docs/screenshots/02-lana-chat.png" alt="Lana Chat with Undoable Schedule Card" width="100%" />
-      <p align="center"><sub><strong>Lana Chat & Undoable Schedule Cards</strong> (Classic Blue): streaming tool progress, responsive Markdown tables, inline priority/reminder tuning, and granular undo</sub></p>
-    </td>
-    <td width="50%">
-      <img src="docs/screenshots/06-plana-theme-welcome.png" alt="Plana Pink Theme & Live Skia Lana" width="100%" />
-      <p align="center"><sub><strong>Plana Cherry-Pink Theme</strong>: 5-state Skia-rendered live Lana avatar (<code>Sleep / Idle / Listening / Thinking / Happy</code>) with window-wide gaze tracking</sub></p>
-    </td>
-  </tr>
-</table>
+### Eisenhower Matrix
 
-### Eisenhower Matrix · Calendar · 20 Model Providers
+Maps task priorities automatically into four quadrants with drag-and-drop reprioritization and floating edit cards.
 
-<table>
-  <tr>
-    <td width="33.3%">
-      <img src="docs/screenshots/03-eisenhower.png" alt="Eisenhower Matrix" width="100%" />
-      <p align="center"><sub><strong>Eisenhower Matrix</strong>: 1-to-1 priority quadrant mapping with drag-and-drop reprioritization and floating edit cards</sub></p>
-    </td>
-    <td width="33.3%">
-      <img src="docs/screenshots/04-calendar-month.png" alt="Monthly Calendar View" width="100%" />
-      <p align="center"><sub><strong>Month / Week Calendar</strong>: offline lunar & solar-term annotations, drag-to-reschedule chips, and quick-create popovers</sub></p>
-    </td>
-    <td width="33.3%">
-      <img src="docs/screenshots/05-model-settings.png" alt="Model Services Settings" width="100%" />
-      <p align="center"><sub><strong>20 Providers + Local Ollama</strong>: curated presets (DeepSeek, Anthropic, OpenAI, Gemini, Kimi, Zhipu, Qwen, etc.) and custom OpenAI/Anthropic URLs</sub></p>
-    </td>
-  </tr>
-</table>
+<img src="docs/screenshots/03-eisenhower.png" alt="Plana Eisenhower Matrix" width="100%" />
+
+---
+
+### Month / Week Calendar
+
+Built-in offline 1901–2100 Chinese lunar dates, 24 solar terms, and holidays alongside drag-to-reschedule task chips and quick-create popovers.
+
+<img src="docs/screenshots/04-calendar-month.png" alt="Plana Monthly Calendar View" width="100%" />
+
+---
+
+### Model Services (20 Official Presets + Custom Endpoints)
+
+Paste an API key and test connectivity in seconds, with automatic vision/multimodal detection and multi-variant endpoint switching.
+
+<img src="docs/screenshots/05-model-settings.png" alt="Plana Model Services Settings" width="100%" />
 
 ---
 
