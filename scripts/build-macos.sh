@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${1:-0.1.9}"
+VERSION="${1:-0.1.10}"
 BUILD_NUMBER="${VERSION##*.}"
 if ! [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
   BUILD_NUMBER="1"

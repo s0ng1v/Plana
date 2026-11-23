@@ -13,7 +13,7 @@
 <p>
   <a href="README.md"><strong>简体中文</strong></a> ·
   <a href="README_EN.md">English</a> ·
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>下载最新版 (v0.1.9)</strong></a> ·
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>下载最新版 (v0.1.10)</strong></a> ·
   <a href="CHANGELOG.md">更新日志</a>
 </p>
 
@@ -44,7 +44,7 @@
 
 ---
 
-## 🖼️ 界面预览（v0.1.9 实机渲染）
+## 🖼️ 界面预览（v0.1.10 实机渲染）
 
 ### 1. 今日日程 + 月历桌面小组件（独立工具窗口，透明可调）
 
@@ -137,14 +137,14 @@
 前往 **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)** 下载对应平台安装包：
 
 ### Windows 10 / 11 (x64)（主力支持）
-- **安装版（推荐）**：下载 `Plana-Setup-0.1.9.exe` 运行即可。
+- **安装版（推荐）**：下载 `Plana-Setup-0.1.10.exe` 运行即可。
   - 免管理员权限安装至当前用户目录；
   - 后续版本覆盖安装会自动沿用路径、结束托盘旧进程并完整保留任务数据库、设置、模型配置与 Lana 记忆。
-- **绿色便携版**：下载 `Plana-win-x64-portable-0.1.9.zip` 解压后运行 `VGList.exe`。
+- **绿色便携版**：下载 `Plana-win-x64-portable-0.1.10.zip` 解压后运行 `VGList.exe`。
 
 ### macOS（预览体验版）
-- **Apple Silicon (M1 / M2 / M3 / M4)**：下载 `Plana-mac-arm64-0.1.9.zip`。
-- **Intel Mac**：下载 `Plana-mac-x64-0.1.9.zip`。
+- **Apple Silicon (M1 / M2 / M3 / M4)**：下载 `Plana-mac-arm64-0.1.10.zip`。
+- **Intel Mac**：下载 `Plana-mac-x64-0.1.10.zip`。
 - 解压后保持 `Plana.app`、`首次运行.command` 与 `安装说明.txt` 在同一目录，**双击（或右键 → 打开）`首次运行.command`**，脚本会自动清除隔离属性并完成本地 ad-hoc 签名后启动。
 
 > **macOS 预览版提示**：当前未做 Apple Developer ID 签名与公证；系统通知通过脚本触发；开机自启、点击穿透与剪贴板图片/文件粘贴暂未在 macOS 端实现。完整特性建议优先使用 Windows 版。
@@ -171,15 +171,15 @@ dotnet run --project src/VGList.Desktop/VGList.Desktop.csproj -f net10.0-windows
 # 3. 运行单元测试
 dotnet test tests/VGList.Tests/VGList.Tests.csproj -c Release
 
-# 4. 打包 Windows 安装程序（输出至 dist/Plana-Setup-0.1.9.exe）
-pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.9
+# 4. 打包 Windows 安装程序（输出至 dist/Plana-Setup-0.1.10.exe）
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.10
 ```
 
 在 macOS 上构建双架构预览包：
 
 ```bash
 chmod +x scripts/build-macos.sh
-bash scripts/build-macos.sh 0.1.9
+bash scripts/build-macos.sh 0.1.10
 ```
 
 ---
