@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VGList.Core\VGList.Core.csproj" />
+    <ProjectReference Include="..\VGList.Platform\VGList.Platform.csproj" />
+  </ItemGroup>
+
+</Project>

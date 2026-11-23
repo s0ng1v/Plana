@@ -1,0 +1,536 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ItemsControl 的行容器默认按内容宽度收缩，导致 hover 框左右偏短；强制铺满 -->
+  <Style Selector="ItemsControl ContentPresenter">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  </Style>
+
+  <!-- 输入框：无描边；进入编辑态默认低优先级，边框颜色即当前优先级 -->
+  <Style Selector="Border.input">
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="11" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Input}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.18" Easing="CubicEaseOut" />
+        <BrushTransition Property="Background" Duration="0:0:0.16" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.input.focused">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Border.input.low">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+  </Style>
+  <Style Selector="Border.input.medium">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.input.high">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+  </Style>
+
+
+  <!-- 任务行：整行 hover 保持原样；复选框另有仅包裹自身的独立 hover -->
+  <Style Selector="Border.taskrow">
+    <Setter Property="Height" Value="40" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+        <DoubleTransition Property="Height" Duration="0:0:0.22" Delay="0:0:0.14" Easing="CubicEaseIn" />
+        <DoubleTransition Property="Opacity" Duration="0:0:0.18" Delay="0:0:0.14" Easing="CubicEaseIn" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.22" Delay="0:0:0.14" Easing="CubicEaseIn" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.taskrow:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.taskrow.completing">
+    <Setter Property="Height" Value="0" />
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="RenderTransform" Value="translateX(26px) scaleY(0.82)" />
+  </Style>
+
+  <Style Selector="Border.check">
+    <Setter Property="Width" Value="18" />
+    <Setter Property="Height" Value="18" />
+    <Setter Property="CornerRadius" Value="5" />
+    <Setter Property="BorderThickness" Value="1.5" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.None}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.14" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <!-- 复选框自己的 hover：只包裹 18×18 的框 -->
+  <Style Selector="Border.check:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+    <Setter Property="RenderTransform" Value="scale(1.12)" />
+  </Style>
+  <Style Selector="Border.check.high">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.check.medium">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.check.low">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+  </Style>
+  <Style Selector="Border.check.done">
+    <Setter Property="Background" Value="{DynamicResource Checkbox.Done}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Border.check.completing">
+    <Setter Property="Background" Value="{DynamicResource Checkbox.Done}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Border.check.completing.high">
+    <Setter Property="Background" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.check.completing.medium">
+    <Setter Property="Background" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.check.completing.low">
+    <Setter Property="Background" Value="{DynamicResource Priority.Low}" />
+  </Style>
+
+  <!-- 勾：完成时从 0.4 弹到 1，配合整行收起 -->
+  <Style Selector="Path.checkmark">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="RenderTransform" Value="scale(0.4)" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="BackEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Path.checkmark.shown">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="RenderTransform" Value="scale(1)" />
+  </Style>
+
+  <Style Selector="TextBlock.task-title">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="LineHeight" Value="20" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Foreground" Duration="0:0:0.16" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="TextBlock.task-title.done">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+  </Style>
+
+  <!-- 删除线：从左向右生长，代替无法动画的 TextDecorations -->
+  <Style Selector="Border.strike">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="RenderTransform" Value="scaleX(0)" />
+    <Setter Property="RenderTransformOrigin" Value="0%,50%" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.08" Easing="LinearEasing" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.strike.shown">
+    <Setter Property="Opacity" Value="0.9" />
+    <Setter Property="RenderTransform" Value="scaleX(1)" />
+  </Style>
+
+  <Style Selector="TextBlock.task-date">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="LineHeight" Value="20" />
+    <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.task-date.done">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+  </Style>
+  <Style Selector="TextBlock.task-date.overdue">
+    <Setter Property="Foreground" Value="{DynamicResource Priority.High}" />
+  </Style>
+
+  <!-- 「已过期」分组头右侧「顺延到今天」快捷按钮 -->
+  <Style Selector="Border.postpone-btn">
+    <Setter Property="Padding" Value="8,3" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="{DynamicResource Accent.Soft}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.postpone-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <!-- 「所有」视图的日期分组标题 -->
+  <Style Selector="Border.date-header">
+    <Setter Property="Height" Value="36" />
+    <Setter Property="Margin" Value="0,6,0,0" />
+    <Setter Property="Padding" Value="6,0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <!-- 已完成分组标题：hover 覆盖整行；箭头 150ms 平滑旋转 -->
+  <Style Selector="Border.group-header">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Margin" Value="0,2,0,0" />
+    <Setter Property="Padding" Value="6,0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.group-header:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Path.completed-chevron">
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <Setter Property="RenderTransform" Value="rotate(0deg)" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Path.completed-chevron.expanded">
+    <Setter Property="RenderTransform" Value="rotate(90deg)" />
+  </Style>
+
+  <!-- 日期 chip：仅编辑态渐入渐出 + 轻滑入 -->
+  <Style Selector="Border.date-chip">
+    <Setter Property="Height" Value="24" />
+    <Setter Property="CornerRadius" Value="7" />
+    <!-- 底部多留 2：中文字形在中性行盒里视觉重心偏下，整体上移 1px 才居中对齐 -->
+    <Setter Property="Padding" Value="7,0,7,2" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="RenderTransform" Value="translateX(4px)" />
+    <Setter Property="IsHitTestVisible" Value="False" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+        <DoubleTransition Property="Opacity" Duration="0:0:0.16" Easing="CubicEaseOut" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.date-chip.shown">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="RenderTransform" Value="translateX(0px)" />
+    <Setter Property="IsHitTestVisible" Value="True" />
+  </Style>
+  <Style Selector="Border.date-chip:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <!-- 日历 -->
+  <Style Selector="Border.day-cell">
+    <Setter Property="Width" Value="30" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="CornerRadius" Value="15" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.day-cell:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.day-cell.outside">
+    <Setter Property="Opacity" Value="0.35" />
+  </Style>
+  <Style Selector="Border.day-cell.selected">
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="Border.day-cell.selected:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+  </Style>
+
+  <Style Selector="Border.day-cell TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+  </Style>
+  <Style Selector="Border.day-cell.today TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="Border.day-cell.selected TextBlock">
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="Border.quick-btn">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="10,0" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Border.quick-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <Style Selector="Border.dialog-btn">
+    <Setter Property="Height" Value="34" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.dialog-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+  <Style Selector="Border.dialog-btn.primary">
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="Border.dialog-btn.primary:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Accent.Muted}" />
+  </Style>
+
+  <!-- 标题按钮 / 更多按钮 / 菜单项 -->
+  <Style Selector="Border.title-btn">
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Padding" Value="6,0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.title-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <Style Selector="Border.more-btn">
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.more-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <Style Selector="Border.menu-item">
+    <Setter Property="Height" Value="36" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.menu-item:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <!-- 覆盖式滚动条：轨道透明不占布局宽度，滑块悬浮在列表右缘 -->
+  <Style Selector="Border.scroll-thumb">
+    <Setter Property="Width" Value="6" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Background" Value="{DynamicResource Scroll.Thumb}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.scroll-thumb:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Scroll.Thumb.Hover}" />
+  </Style>
+
+  <!-- 任务详情面板 -->
+  <Style Selector="Border.priority-dot">
+    <Setter Property="Width" Value="18" />
+    <Setter Property="Height" Value="18" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="BorderThickness" Value="1.5" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.None}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Border.priority-dot.high">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.priority-dot.medium">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.priority-dot.low">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+  </Style>
+  <Style Selector="Border.priority-dot Ellipse">
+    <Setter Property="Fill" Value="{DynamicResource Priority.None}" />
+  </Style>
+  <Style Selector="Border.priority-dot.high Ellipse">
+    <Setter Property="Fill" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.priority-dot.medium Ellipse">
+    <Setter Property="Fill" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.priority-dot.low Ellipse">
+    <Setter Property="Fill" Value="{DynamicResource Priority.Low}" />
+  </Style>
+
+  <Style Selector="TextBox.detail-title">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LineHeight" Value="26" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,4,0,4" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="CaretBrush" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="TextBox.detail-title /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <Style Selector="TextBox.detail-content">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="LineHeight" Value="22" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,4,0,4" />
+    <Setter Property="VerticalContentAlignment" Value="Top" />
+    <Setter Property="CaretBrush" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="TextBox.detail-content /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <Style Selector="Border.slash-item">
+    <Setter Property="Height" Value="30" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="6,0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Border.slash-item:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <Style Selector="Border.list-chip">
+    <Setter Property="Height" Value="26" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Border.list-chip:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <Style Selector="Border.icon-btn">
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.icon-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <Style Selector="TextBox#InputBox">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="LineHeight" Value="20" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,9,0,9" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="MaxHeight" Value="118" />
+    <Setter Property="VerticalContentAlignment" Value="Top" />
+    <Setter Property="CaretBrush" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Height" Duration="0:0:0.12" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="TextBox#InputBox /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <!-- 占位文案随当前优先级着色：低=蓝、中=黄、高=红 -->
+  <Style Selector="TextBox#InputBox.low">
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Priority.Low}" />
+  </Style>
+  <Style Selector="TextBox#InputBox.medium">
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="TextBox#InputBox.high">
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <!-- 「无优先级」用中性灰 -->
+  <Style Selector="TextBox#InputBox.none">
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Priority.None}" />
+  </Style>
+  <!-- 提示语（尚未按 Tab 选优先级）用中性色，必须排在优先级色之后 -->
+  <Style Selector="TextBox#InputBox.hint">
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Text.Secondary}" />
+  </Style>
+
+</Styles>

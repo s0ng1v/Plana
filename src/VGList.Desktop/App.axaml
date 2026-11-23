@@ -1,0 +1,65 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="VGList.Desktop.App"
+             RequestedThemeVariant="Light">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://VGList.Widgets/Themes/BlueTokens.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <!-- 系统托盘及全局浅色圆角右键菜单（ADR-0060：纯白瓷底 + Font.Ui 字体 + 柔影） -->
+    <Style Selector="ContextMenu">
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="5" />
+      <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+      <Setter Property="MinWidth" Value="168" />
+    </Style>
+    <Style Selector="ContextMenu MenuItem">
+      <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Primary}" />
+      <Setter Property="Padding" Value="12,7" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_LayoutRoot"
+                  Background="Transparent"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.11" Easing="CubicEaseOut" />
+              </Transitions>
+            </Border.Transitions>
+            <ContentPresenter Name="PART_HeaderPresenter"
+                              Content="{TemplateBinding Header}"
+                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                              VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ContextMenu MenuItem:pointerover /template/ Border#PART_LayoutRoot">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+    <Style Selector="ContextMenu Separator">
+      <Setter Property="Background" Value="{DynamicResource Main.Border.Subtle}" />
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Margin" Value="8,4" />
+    </Style>
+  </Application.Styles>
+
+</Application>

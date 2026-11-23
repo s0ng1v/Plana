@@ -1,0 +1,301 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VGList.Widgets.Today.WidgetSettingsWindow"
+        Title="设置"
+        Width="440"
+        Height="600"
+        WindowDecorations="None"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        FontFamily="{DynamicResource Font.Ui}"
+        RequestedThemeVariant="Light">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.s-section">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource Settings.Text}" />
+    </Style>
+    <Style Selector="Border.s-card">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Settings.Group}" />
+    </Style>
+    <Style Selector="Border.s-row">
+      <Setter Property="MinHeight" Value="42" />
+      <Setter Property="Padding" Value="14,0" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="TextBlock.s-label">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource Settings.Text}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.s-value">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource Settings.Text.Secondary}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.s-close">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Border.s-close:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Settings.Hover}" />
+    </Style>
+    <Style Selector="Border.s-slider">
+      <Setter Property="Width" Value="140" />
+      <Setter Property="Height" Value="20" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- 开关：40 × 22 胶囊，开启为品牌蓝，旋钮上下刚好填满并平移过渡 -->
+    <Style Selector="CheckBox.s-toggle">
+      <Setter Property="Width" Value="40" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="Track" CornerRadius="11" Background="{DynamicResource Settings.Toggle.Off}">
+            <Border.Transitions>
+              <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.16" Easing="CubicEaseOut" />
+              </Transitions>
+            </Border.Transitions>
+            <Border Name="Knob"
+                    Width="22"
+                    Height="22"
+                    CornerRadius="11"
+                    Background="{DynamicResource Settings.Knob}"
+                    HorizontalAlignment="Left">
+              <Border.Transitions>
+                <Transitions>
+                  <ThicknessTransition Property="Margin" Duration="0:0:0.16" Easing="CubicEaseOut" />
+                </Transitions>
+              </Border.Transitions>
+            </Border>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="CheckBox.s-toggle:checked /template/ Border#Track">
+      <Setter Property="Background" Value="{DynamicResource Settings.Accent}" />
+    </Style>
+    <Style Selector="CheckBox.s-toggle:checked /template/ Border#Knob">
+      <Setter Property="Margin" Value="18,0,0,0" />
+    </Style>
+  </Window.Styles>
+
+  <Border Width="440"
+          Height="600"
+          CornerRadius="12"
+          Background="{DynamicResource Settings.Surface}"
+          BoxShadow="0 18 48 0 #33000000"
+          ClipToBounds="True">
+    <Grid RowDefinitions="48,*">
+
+      <!-- 标题栏：整条可拖动 -->
+      <Grid Grid.Row="0"
+            ColumnDefinitions="*,Auto"
+            Margin="28,0,22,0"
+            Background="Transparent"
+            PointerPressed="OnDragAreaPressed">
+        <TextBlock Text="配置桌面小部件"
+                   FontSize="15"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Settings.Text}"
+                   VerticalAlignment="Center" />
+        <Border Grid.Column="1"
+                Classes="s-close"
+                Width="24"
+                Height="24"
+                VerticalAlignment="Center"
+                PointerPressed="OnClosePressed">
+          <Path Data="M1,1 L11,11 M11,1 L1,11"
+                Stroke="{DynamicResource Settings.Text.Secondary}"
+                StrokeThickness="1.4"
+                StrokeLineCap="Round"
+                Stretch="None"
+                Width="12"
+                Height="12"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </Border>
+      </Grid>
+
+      <ScrollViewer Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="28,16,28,20" Spacing="18">
+
+          <StackPanel Spacing="10">
+            <TextBlock Classes="s-section" Text="主题与样式" />
+            <Border Classes="s-card">
+              <StackPanel>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="主题" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Classes="s-value" Text="深色" />
+                      <Path Data="M1,1 L4.5,4.5 L8,1"
+                            Stroke="{DynamicResource Settings.Chevron}"
+                            StrokeThickness="1.4"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="9"
+                            Height="6"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="不透明度" />
+                    <Border x:Name="OpacitySlider"
+                            Grid.Column="1"
+                            Classes="s-slider"
+                            PointerPressed="OnOpacitySliderPressed"
+                            PointerMoved="OnOpacitySliderMoved"
+                            PointerReleased="OnOpacitySliderReleased">
+                      <Grid>
+                        <Border Height="3"
+                                CornerRadius="1.5"
+                                Background="{DynamicResource Settings.Track}"
+                                VerticalAlignment="Center" />
+                        <Border x:Name="OpacityFill"
+                                Height="3"
+                                CornerRadius="1.5"
+                                Background="{DynamicResource Settings.Accent}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center" />
+                        <Ellipse x:Name="OpacityKnob"
+                                 Width="11"
+                                 Height="11"
+                                 Fill="{DynamicResource Settings.Accent}"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Center" />
+                      </Grid>
+                    </Border>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Spacing="10">
+            <TextBlock Classes="s-section" Text="分组排序" />
+            <Border Classes="s-card">
+              <StackPanel>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="分组" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Classes="s-value" Text="时间" />
+                      <Path Data="M1,1 L4.5,4.5 L8,1"
+                            Stroke="{DynamicResource Settings.Chevron}"
+                            StrokeThickness="1.4"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="9"
+                            Height="6"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="排序" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Classes="s-value" Text="时间" />
+                      <Path Data="M1,1 L4.5,4.5 L8,1"
+                            Stroke="{DynamicResource Settings.Chevron}"
+                            StrokeThickness="1.4"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="9"
+                            Height="6"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="顺序" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Classes="s-value" Text="从旧到新" />
+                      <Path Data="M1,1 L4.5,4.5 L8,1"
+                            Stroke="{DynamicResource Settings.Chevron}"
+                            StrokeThickness="1.4"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="9"
+                            Height="6"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Spacing="10">
+            <TextBlock Classes="s-section" Text="小部件显示" />
+            <Border Classes="s-card">
+              <StackPanel>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="置于顶层" />
+                    <CheckBox x:Name="TopmostToggle" Grid.Column="1" Classes="s-toggle" />
+                  </Grid>
+                </Border>
+                <Border x:Name="ShowInputRow" Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="显示添加输入框" />
+                    <CheckBox x:Name="ShowInputToggle" Grid.Column="1" Classes="s-toggle" />
+                  </Grid>
+                </Border>
+                <Border x:Name="ShowLunarRow" Classes="s-row" IsVisible="False">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="显示农历与节日" />
+                    <CheckBox x:Name="ShowLunarToggle" Grid.Column="1" Classes="s-toggle" />
+                  </Grid>
+                </Border>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="显示已完成" />
+                    <CheckBox x:Name="ShowCompletedToggle" Grid.Column="1" Classes="s-toggle" />
+                  </Grid>
+                </Border>
+                <Border Classes="s-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Classes="s-label" Text="日期显示为" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Classes="s-value" Text="任务时间" />
+                      <Path Data="M1,1 L4.5,4.5 L8,1"
+                            Stroke="{DynamicResource Settings.Chevron}"
+                            StrokeThickness="1.4"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="9"
+                            Height="6"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+    </Grid>
+  </Border>
+</Window>

@@ -1,0 +1,2302 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VGList.Desktop.Main.Settings"
+             xmlns:models="using:VGList.App.Models"
+             xmlns:svc="using:VGList.Desktop.Services"
+             x:Class="VGList.Desktop.Main.Settings.SettingsPageView"
+             x:DataType="vm:SettingsPageViewModel">
+
+  <UserControl.Styles>
+    <!-- 左侧设置分类导航项 -->
+    <Style Selector="Border.set-nav-item">
+      <Setter Property="Height" Value="38" />
+      <Setter Property="Margin" Value="10,2" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.set-nav-item:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+    <Style Selector="Border.set-nav-item.selected">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+    </Style>
+    <Style Selector="Border.set-nav-item Path">
+      <Setter Property="Stroke" Value="{DynamicResource Main.Text.Secondary}" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Stroke" Duration="0:0:0.14" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.set-nav-item.selected Path">
+      <Setter Property="Stroke" Value="{DynamicResource Main.Accent}" />
+    </Style>
+    <Style Selector="Border.set-nav-item TextBlock.nav-label">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Primary}" />
+    </Style>
+    <Style Selector="Border.set-nav-item.selected TextBlock.nav-label">
+      <Setter Property="Foreground" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.set-section">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Primary}" />
+      <Setter Property="Margin" Value="2,0,0,10" />
+    </Style>
+
+    <Style Selector="Border.set-card">
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="Padding" Value="18,4" />
+    </Style>
+
+    <Style Selector="Border.set-row">
+      <Setter Property="MinHeight" Value="54" />
+      <Setter Property="Padding" Value="0,12" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.set-row:nth-last-child(1)">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="TextBlock.set-title">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Primary}" />
+    </Style>
+    <Style Selector="TextBlock.set-desc">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Secondary}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="Border.set-slider">
+      <Setter Property="Width" Value="180" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Border.set-action-btn">
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" Easing="CubicEaseOut" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.set-action-btn:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent.Border}" />
+    </Style>
+
+    <Style Selector="Border.set-danger-btn">
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Main.Danger}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.set-danger-btn:pointerover">
+      <Setter Property="Opacity" Value="0.88" />
+    </Style>
+
+    <Style Selector="Border.kbd-chip">
+      <Setter Property="Padding" Value="7,2" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- 主题 / 协议 / 筛选胶囊按钮 -->
+    <Style Selector="Border.theme-option">
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.14" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.theme-option:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+    <Style Selector="Border.theme-option.selected">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+    </Style>
+    <Style Selector="Border.theme-option TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Secondary}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.theme-option.selected TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- 模型厂商卡片（ccswitch 风格 + 真实公司 Logo 容器 + 舒适悬停微抬；顶部留 3px 余量避免悬停上浮时被裁切） -->
+    <Style Selector="Border.provider-card">
+      <Setter Property="MinHeight" Value="68" />
+      <Setter Property="Padding" Value="14,11" />
+      <Setter Property="Margin" Value="0,3,10,7" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Background" Value="{DynamicResource Provider.Card.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Provider.Card.Border}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="RenderTransform" Value="translateY(0px)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.15" Easing="CubicEaseOut" />
+          <BrushTransition Property="Background" Duration="0:0:0.15" Easing="CubicEaseOut" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.provider-card:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource Provider.Card.HoverBorder}" />
+      <Setter Property="Background" Value="{DynamicResource Main.Surface.Subtle}" />
+      <Setter Property="RenderTransform" Value="translateY(-1.5px)" />
+    </Style>
+    <Style Selector="Border.provider-card.active">
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="Background" Value="{DynamicResource Main.Surface.Subtle}" />
+    </Style>
+
+    <!-- 厂商真实 Logo 白底圆角容器 -->
+    <Style Selector="Border.provider-logo-tile">
+      <Setter Property="Width" Value="42" />
+      <Setter Property="Height" Value="42" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="6" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Border.Subtle}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.provider-badge">
+      <Setter Property="Padding" Value="8,2" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+    </Style>
+    <Style Selector="Border.provider-badge.active">
+      <Setter Property="Background" Value="{DynamicResource Provider.Badge.Bg}" />
+    </Style>
+    <Style Selector="Border.provider-badge TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Secondary}" />
+    </Style>
+    <Style Selector="Border.provider-badge.active TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Provider.Badge.Fg}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- 抽屉表单输入框 -->
+    <Style Selector="Border.drawer-field">
+      <Setter Property="MinHeight" Value="36" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.14" Easing="CubicEaseOut" />
+          <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.drawer-field:focus-within">
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+    </Style>
+
+    <Style Selector="Border.drawer-chip">
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="CornerRadius" Value="13" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.drawer-chip:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+    <Style Selector="Border.drawer-chip.selected">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+    </Style>
+
+    <Style Selector="Border.drawer-primary-btn">
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="14,0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.drawer-primary-btn:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Hover}" />
+    </Style>
+    <Style Selector="Border.drawer-primary-btn.disabled">
+      <Setter Property="Opacity" Value="0.45" />
+      <Setter Property="Cursor" Value="Arrow" />
+    </Style>
+
+    <Style Selector="Border.test-banner">
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="12,10" />
+      <Setter Property="Background" Value="{DynamicResource Provider.Badge.Bg}" />
+    </Style>
+    <Style Selector="Border.test-banner TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Provider.Badge.Fg}" />
+    </Style>
+    <Style Selector="Border.test-banner.error">
+      <Setter Property="Background" Value="{DynamicResource Main.Danger.Soft}" />
+    </Style>
+    <Style Selector="Border.test-banner.error TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Main.Danger}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Panel Background="{DynamicResource Main.Bg}">
+    <Grid ColumnDefinitions="196,*">
+
+      <!-- ===== 左侧设置二级导航栏 ===== -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource Main.Surface.Subtle}"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="0,0,1,0">
+        <StackPanel Margin="0,20,0,16">
+          <TextBlock Text="设置"
+                     FontSize="17"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Main.Text.Primary}"
+                     Margin="20,0,0,14" />
+
+          <!-- 常规与外观 -->
+          <Border Classes="set-nav-item"
+                  Classes.selected="{Binding IsGeneralSection}"
+                  Tag="General"
+                  PointerPressed="OnNavSectionPressed">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Path Data="M8,3.2 A4.8,4.8 0 1 0 8,12.8 A4.8,4.8 0 1 0 8,3.2 M8,5.8 V8 L9.8,9.2"
+                    StrokeThickness="1.45"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Width="16"
+                    Height="16"
+                    Stretch="None"
+                    VerticalAlignment="Center" />
+              <TextBlock Classes="nav-label" Text="常规与外观" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <!-- 模型服务（独立一页） -->
+          <Border Classes="set-nav-item"
+                  Classes.selected="{Binding IsModelsSection}"
+                  Tag="Models"
+                  PointerPressed="OnNavSectionPressed">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Path Grid.Column="0"
+                    Data="M3.5,6.2 L8,3.2 L12.5,6.2 V10.8 L8,13.8 L3.5,10.8 Z M8,3.2 V8.5 M3.5,6.2 L8,8.5 L12.5,6.2"
+                    StrokeThickness="1.45"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Width="16"
+                    Height="16"
+                    Stretch="None"
+                    VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1"
+                         Classes="nav-label"
+                         Text="模型服务"
+                         Margin="10,0,0,0"
+                         VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+
+          <!-- 助理与记忆（A5：我的规则 / 本地画像 / 记忆 / 周复盘） -->
+          <Border Classes="set-nav-item"
+                  Classes.selected="{Binding IsAssistantSection}"
+                  Tag="Assistant"
+                  PointerPressed="OnNavSectionPressed">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Path Data="M8,2.5 C5.2,2.5 3,4.6 3,7.3 C3,9.2 4.1,10.8 5.6,11.6 V13.2 H10.4 V11.6 C11.9,10.8 13,9.2 13,7.3 C13,4.6 10.8,2.5 8,2.5 Z M6.2,13.2 H9.8"
+                    StrokeThickness="1.45"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Width="16"
+                    Height="16"
+                    Stretch="None"
+                    VerticalAlignment="Center" />
+              <TextBlock Classes="nav-label" Text="助理与记忆" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <!-- 桌面小组件 -->
+          <Border Classes="set-nav-item"
+                  Classes.selected="{Binding IsWidgetsSection}"
+                  Tag="Widgets"
+                  PointerPressed="OnNavSectionPressed">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Path Data="M3,3.5 H7.2 V7.7 H3 Z M8.8,3.5 H13 V7.7 H8.8 Z M3,9.3 H13 V13 H3 Z"
+                    StrokeThickness="1.45"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Width="16"
+                    Height="16"
+                    Stretch="None"
+                    VerticalAlignment="Center" />
+              <TextBlock Classes="nav-label" Text="桌面小组件" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- ===== 右侧独立子页工作区 ===== -->
+      <Panel Grid.Column="1" Background="{DynamicResource Main.Bg}">
+
+        <!-- 子页 1：常规与外观 -->
+        <ScrollViewer IsVisible="{Binding IsGeneralSection}"
+                      svc:RevealMotion.Enabled="True"
+                      svc:RevealMotion.OffsetY="6"
+                      svc:RevealMotion.DurationMs="160"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel MaxWidth="740"
+                      HorizontalAlignment="Stretch"
+                      Margin="36,24,36,48"
+                      Spacing="24">
+
+            <StackPanel Spacing="4">
+              <TextBlock Text="常规与外观"
+                         FontFamily="{DynamicResource Font.Display}"
+                         FontSize="22"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Main.Text.Primary}" />
+              <TextBlock Text="个性化主题风格、交互动效、离线中文日期识别与本地数据管理"
+                         FontSize="12"
+                         Foreground="{DynamicResource Main.Text.Secondary}" />
+            </StackPanel>
+
+            <!-- 外观与动效 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="外观与动效" />
+              <Border Classes="set-card">
+                <StackPanel>
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="主题配色" />
+                        <TextBlock Classes="set-desc" Text="经典蓝白（默认）或 Plana 淡粉樱雾，切换后立即生效并记住选择" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1"
+                                  Orientation="Horizontal"
+                                  Spacing="8"
+                                  VerticalAlignment="Center">
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsClassicBlueTheme}"
+                                PointerPressed="OnClassicBlueThemePressed">
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="14"
+                                    Height="14"
+                                    CornerRadius="7"
+                                    Background="{DynamicResource Theme.Swatch.Blue}" />
+                            <TextBlock Text="经典蓝白" />
+                          </StackPanel>
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsPlanaTheme}"
+                                PointerPressed="OnPlanaThemePressed">
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="14"
+                                    Height="14"
+                                    CornerRadius="7"
+                                    Background="{DynamicResource Theme.Swatch.Plana}" />
+                            <TextBlock Text="Plana 淡粉" />
+                          </StackPanel>
+                        </Border>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <StackPanel Spacing="10">
+                      <StackPanel Spacing="2">
+                        <TextBlock Classes="set-title" Text="字体风格" />
+                        <TextBlock Classes="set-desc" Text="切换全局界面与 Lana 对话字体，选择后立即生效并记住偏好" />
+                      </StackPanel>
+                      <WrapPanel Orientation="Horizontal">
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsFontAnthropicSerif}"
+                                Tag="AnthropicSerif"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnFontPresetPressed">
+                          <TextBlock Text="Anthropic + 思源宋体" />
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsFontAnthropicClassic}"
+                                Tag="AnthropicClassic"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnFontPresetPressed">
+                          <TextBlock Text="Claude 经典宋体" />
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsFontCleanSans}"
+                                Tag="CleanSans"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnFontPresetPressed">
+                          <TextBlock Text="纯净黑体" />
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsFontSystem}"
+                                Tag="System"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnFontPresetPressed">
+                          <TextBlock Text="微软雅黑" />
+                        </Border>
+                      </WrapPanel>
+                      <Border Padding="12,8"
+                              CornerRadius="8"
+                              Background="{DynamicResource Main.Surface.Subtle}"
+                              BorderBrush="{DynamicResource Main.Border.Subtle}"
+                              BorderThickness="1">
+                        <StackPanel Spacing="2">
+                          <TextBlock Text="预览 · DeepSeek · deepseek-flash — Lana 正在为你整理今天的安排 ✨"
+                                     FontFamily="{DynamicResource Font.Display}"
+                                     FontSize="13.5"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="正文 UI 预览 · 今天 14:30 完成项目评审并更新日程清单"
+                                     FontFamily="{DynamicResource Font.Ui}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Secondary}"
+                                     TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                      </Border>
+                    </StackPanel>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="减少界面动效" />
+                        <TextBlock Classes="set-desc" Text="关闭页面切换、对话渐入、流式文字淡入与完成收起等过渡动画" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding ReduceMotion, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="关闭主窗口时" />
+                        <TextBlock Classes="set-desc" Text="点击右上角关闭按钮时，选择每次询问、最小化到系统托盘或直接退出 Plana" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1"
+                                  Orientation="Horizontal"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsCloseActionAsk}"
+                                Tag="Ask"
+                                PointerPressed="OnCloseActionPressed">
+                          <TextBlock Text="每次询问" />
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsCloseActionMinimize}"
+                                Tag="Minimize"
+                                PointerPressed="OnCloseActionPressed">
+                          <TextBlock Text="最小化到托盘" />
+                        </Border>
+                        <Border Classes="theme-option"
+                                Classes.selected="{Binding IsCloseActionExit}"
+                                Tag="Exit"
+                                PointerPressed="OnCloseActionPressed">
+                          <TextBlock Text="退出 Plana" />
+                        </Border>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="开机自动启动 Plana" />
+                        <TextBlock Classes="set-desc" Text="登录 Windows 时自动运行（写入当前用户启动项，无需管理员权限）" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding LaunchAtStartup, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="开机自启时静默藏入系统托盘" />
+                        <TextBlock Classes="set-desc" Text="自启动时不弹出主窗口，仅常驻托盘与桌面小组件，点击托盘图标随时唤出" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding StartMinimizedToTray, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+
+            <!-- 日期与快捷操作 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="智能日期与快捷键" />
+              <Border Classes="set-card">
+                <StackPanel>
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="自动识别日期" />
+                        <TextBlock Classes="set-desc" Text="输入「下周三交周报」「月底前续费」「中秋节买月饼」自动设日期并清理标题，完全离线" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding AutoDetectDate, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="允许助理读取任务内容" />
+                        <TextBlock Classes="set-desc" Text="关闭后 Plana 助理无法查询你的任务与清单，仍可进行常规对话与中文历法换算" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding AllowAssistantReadTasks, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="中文日历数据" />
+                        <TextBlock Classes="set-desc" Text="内置 1901–2100 农历、24 节气与公农历节日，完全本地离线计算" />
+                      </StackPanel>
+                      <TextBlock Grid.Column="1"
+                                 Text="离线内置"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Calendar.Festival}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <StackPanel Spacing="10">
+                      <TextBlock Classes="set-title" Text="常用快捷键" />
+                      <WrapPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Ctrl + 1~4" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="切换任务 / 四象限 / 日历 / 助理" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Ctrl + J" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="打开 Plana 助理" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Ctrl + ," FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="打开设置" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Ctrl + B" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="折叠/展开清单栏" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Ctrl + N" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="快速新建任务" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,18,8">
+                          <Border Classes="kbd-chip"><TextBlock Text="Esc" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" /></Border>
+                          <TextBlock Text="关闭弹层 / 抽屉" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </WrapPanel>
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+
+            <!-- 本地数据 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="本地数据" />
+              <Border Classes="set-card">
+                <StackPanel>
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock Classes="set-title" Text="导出数据备份" />
+                        <TextBlock Classes="set-desc" Text="导出全部任务、标签、子待办与重复规则为 JSON、Markdown 清单或通用 ICS 日历文件" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1"
+                                  Orientation="Horizontal"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <Border Classes="set-action-btn"
+                                Tag="json"
+                                PointerPressed="OnExportBackupPressed">
+                          <TextBlock Text="导出 JSON"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                        <Border Classes="set-action-btn"
+                                Tag="md"
+                                PointerPressed="OnExportBackupPressed">
+                          <TextBlock Text="导出 Markdown"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                        <Border Classes="set-action-btn"
+                                Tag="ics"
+                                PointerPressed="OnExportBackupPressed">
+                          <TextBlock Text="导出 ICS 日历"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock Classes="set-title" Text="导入数据与日历" />
+                        <TextBlock Classes="set-desc" Text="支持合并导入 JSON 备份、Markdown 任务列表与 .ics 日历文件（自动去重，导入后支持一键撤销）" />
+                      </StackPanel>
+                      <Border Grid.Column="1"
+                              Classes="set-action-btn"
+                              VerticalAlignment="Center"
+                              PointerPressed="OnImportBackupPressed">
+                        <TextBlock Text="选择文件导入…"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Accent}"
+                                   FontWeight="Medium"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="本地 SQLite 持久化" />
+                        <TextBlock Classes="set-desc" Text="任务与清单永久保存于本机 SQLite（WAL）；重置示例数据支持一键整批撤销" />
+                      </StackPanel>
+
+                      <Panel Grid.Column="1" VerticalAlignment="Center">
+                        <Border Classes="set-action-btn"
+                                IsVisible="{Binding !IsConfirmingResetSample}"
+                                PointerPressed="OnBeginResetSamplePressed">
+                          <TextBlock Text="重置为示例数据"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8"
+                                    IsVisible="{Binding IsConfirmingResetSample}">
+                          <Border Classes="set-action-btn" PointerPressed="OnCancelResetSamplePressed">
+                            <TextBlock Text="取消" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                          </Border>
+                          <Border Classes="set-danger-btn" PointerPressed="OnConfirmResetSamplePressed">
+                            <TextBlock Text="确认重置" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Text.OnAccent}" VerticalAlignment="Center" />
+                          </Border>
+                        </StackPanel>
+                      </Panel>
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- 子页 2：模型服务（独立完整页面 + 真实公司 Logo + 搜索与分类筛选） -->
+        <Panel IsVisible="{Binding IsModelsSection}"
+               svc:RevealMotion.Enabled="True"
+               svc:RevealMotion.OffsetY="6"
+               svc:RevealMotion.DurationMs="160">
+          <ScrollViewer DataContext="{Binding ModelServices}"
+                        x:DataType="vm:ModelServicesViewModel"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel MaxWidth="820"
+                        HorizontalAlignment="Stretch"
+                        Margin="36,24,36,48"
+                        Spacing="18">
+
+              <!-- 顶栏标题 + 自定义服务按钮 -->
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="模型服务"
+                             FontFamily="{DynamicResource Font.Display}"
+                             FontSize="22"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource Main.Text.Primary}" />
+                  <TextBlock Text="预设 20 家主流模型厂商，粘贴 API Key 即可使用；所有密钥仅通过 Windows DPAPI 本机加密保存"
+                             FontSize="12"
+                             Foreground="{DynamicResource Main.Text.Secondary}" />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Classes="drawer-primary-btn"
+                        Height="32"
+                        VerticalAlignment="Center"
+                        PointerPressed="OnOpenCustomModelPressed">
+                  <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Path Data="M5.5,1 V10 M1,5.5 H10"
+                          Stroke="{DynamicResource Text.OnAccent}"
+                          StrokeThickness="1.6"
+                          StrokeLineCap="Round"
+                          Width="11"
+                          Height="11"
+                          Stretch="None"
+                          VerticalAlignment="Center" />
+                    <TextBlock Text="自定义模型"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Text.OnAccent}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+
+              <!-- 异常恢复提醒 -->
+              <Border IsVisible="{Binding HasStoreWarning}"
+                      CornerRadius="10"
+                      Background="{DynamicResource Provider.Warn.Bg}"
+                      Padding="14,10">
+                <TextBlock Text="{Binding StoreWarning}"
+                           FontSize="12"
+                           Foreground="{DynamicResource Provider.Warn.Fg}" />
+              </Border>
+
+              <!-- 当前使用模型状态栏 -->
+              <Border CornerRadius="12"
+                      Background="{DynamicResource Main.Input}"
+                      BorderBrush="{DynamicResource Main.Border.Subtle}"
+                      BorderThickness="1"
+                      Padding="16,12">
+                <Panel>
+                  <!-- 已激活模型 -->
+                  <Grid ColumnDefinitions="Auto,*,Auto" IsVisible="{Binding HasActiveProfile}">
+                    <Panel Width="42" Height="42" VerticalAlignment="Center">
+                      <Border Classes="provider-logo-tile" IsVisible="{Binding HasActiveLogo}">
+                        <Image Source="{Binding ActiveLogoBitmap}"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapInterpolationMode="HighQuality" />
+                      </Border>
+                      <Border Width="42"
+                              Height="42"
+                              CornerRadius="10"
+                              Background="{Binding ActiveBrandBrush}"
+                              IsVisible="{Binding !HasActiveLogo}">
+                        <TextBlock Text="{Binding ActiveMonogram}"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Text.OnAccent}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                    </Panel>
+
+                    <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center" Spacing="3">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding ActiveProviderName}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Main.Text.Primary}"
+                                   VerticalAlignment="Center" />
+                        <Border Padding="8,2"
+                                CornerRadius="10"
+                                Background="{DynamicResource Provider.Badge.Bg}"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="当前使用" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Provider.Badge.Fg}" />
+                        </Border>
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding ActiveModelName}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Text.Secondary}" />
+                        <TextBlock Text="·" FontSize="12" Foreground="{DynamicResource Main.Text.Tertiary}" />
+                        <TextBlock Text="{Binding ActiveMaskedKey}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Text.Tertiary}" />
+                      </StackPanel>
+                    </StackPanel>
+
+                    <Border Grid.Column="2"
+                            Classes="set-action-btn"
+                            VerticalAlignment="Center"
+                            PointerPressed="OnEditActiveModelPressed">
+                      <TextBlock Text="编辑配置"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Primary}"
+                                 VerticalAlignment="Center" />
+                    </Border>
+                  </Grid>
+
+                  <!-- 未配置态 -->
+                  <TextBlock IsVisible="{Binding !HasActiveProfile}"
+                             Text="尚未启用模型 · 点击下方任意厂商卡片，粘贴 API Key 测试通过后即可启用"
+                             FontSize="13"
+                             Foreground="{DynamicResource Main.Text.Secondary}"
+                             VerticalAlignment="Center" />
+                </Panel>
+              </Border>
+
+              <!-- 搜索 + 分类筛选栏 -->
+              <Grid ColumnDefinitions="*,Auto">
+                <Border Classes="drawer-field" MaxWidth="280" HorizontalAlignment="Left" MinWidth="220">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <Path Grid.Column="0"
+                          Data="M6.8,1.8 A5,5 0 1 0 6.8,11.8 A5,5 0 1 0 6.8,1.8 M10.6,10.6 L13.8,13.8"
+                          Stroke="{DynamicResource Main.Text.Tertiary}"
+                          StrokeThickness="1.4"
+                          StrokeLineCap="Round"
+                          Width="15"
+                          Height="15"
+                          Stretch="None"
+                          Margin="0,0,7,0"
+                          VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1"
+                             Classes="bare"
+                             FontSize="13"
+                             Text="{Binding SearchQuery, Mode=TwoWay}"
+                             PlaceholderText="搜索厂商名称或域名…" />
+                  </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <Border Classes="theme-option" Classes.selected="{Binding IsFilterAll}" Tag="All" PointerPressed="OnProviderFilterPressed">
+                    <TextBlock Text="全部" />
+                  </Border>
+                  <Border Classes="theme-option" Classes.selected="{Binding IsFilterDomestic}" Tag="Domestic" PointerPressed="OnProviderFilterPressed">
+                    <TextBlock Text="国内厂商" />
+                  </Border>
+                  <Border Classes="theme-option" Classes.selected="{Binding IsFilterGlobal}" Tag="Global" PointerPressed="OnProviderFilterPressed">
+                    <TextBlock Text="海外与本地" />
+                  </Border>
+                  <Border Classes="theme-option" Classes.selected="{Binding IsFilterConfigured}" Tag="Configured" PointerPressed="OnProviderFilterPressed">
+                    <TextBlock Text="已配置" />
+                  </Border>
+                </StackPanel>
+              </Grid>
+
+              <!-- 模型厂商网格（整页自然滚动，2 列响应，真实官方 Logo；关闭裁切防止首行卡片悬停上浮吞顶边） -->
+              <ItemsControl x:Name="ProviderGridControl"
+                            ItemsSource="{Binding VisibleProviderCards}"
+                            ClipToBounds="False"
+                            Margin="0,0,-10,0">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <UniformGrid x:Name="ProviderUniformGrid"
+                                 Columns="2"
+                                 ClipToBounds="False" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ProviderCardViewModel">
+                    <Border Classes="provider-card"
+                            Classes.active="{Binding IsActive}"
+                            PointerPressed="OnProviderCardPressed">
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <!-- 真实公司 Logo（自定义卡片回退首字母徽标） -->
+                        <Panel Width="42" Height="42" VerticalAlignment="Center">
+                          <Border Classes="provider-logo-tile" IsVisible="{Binding HasLogo}">
+                            <Image Source="{Binding LogoBitmap}"
+                                   Stretch="Uniform"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                          </Border>
+                          <Border Width="42"
+                                  Height="42"
+                                  CornerRadius="10"
+                                  Background="{Binding BrandBrush}"
+                                  IsVisible="{Binding !HasLogo}">
+                            <TextBlock Text="{Binding Monogram}"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Text.OnAccent}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                          </Border>
+                        </Panel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="13,0,8,0"
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+                          <TextBlock Text="{Binding Name}"
+                                     FontSize="14"
+                                     FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding Subtitle}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                                     TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <Border Grid.Column="2"
+                                Classes="provider-badge"
+                                Classes.active="{Binding IsActive}"
+                                IsVisible="{Binding IsConfigured}"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{Binding BadgeText}" />
+                        </Border>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <!-- 筛选无结果提示 -->
+              <Border IsVisible="{Binding HasNoFilteredCards}"
+                      CornerRadius="12"
+                      Background="{DynamicResource Main.Input}"
+                      Padding="24,28"
+                      HorizontalAlignment="Stretch">
+                <TextBlock Text="没有匹配的模型厂商，可清空搜索词或点击右上角「自定义模型」添加任意兼容接口"
+                           FontSize="13"
+                           Foreground="{DynamicResource Main.Text.Secondary}"
+                           HorizontalAlignment="Center" />
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+        </Panel>
+
+        <!-- 子页 3：助理与记忆（A5 规则/画像/记忆/复盘 + A6③ 早安提示 + A7 外部 AI MCP） -->
+        <Panel IsVisible="{Binding IsAssistantSection}"
+               svc:RevealMotion.Enabled="True"
+               svc:RevealMotion.OffsetY="6"
+               svc:RevealMotion.DurationMs="160">
+          <ScrollViewer VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel MaxWidth="760"
+                        HorizontalAlignment="Stretch"
+                        Margin="36,24,36,48"
+                        Spacing="24">
+
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="助理与记忆"
+                             FontFamily="{DynamicResource Font.Display}"
+                             FontSize="22"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource Main.Text.Primary}" />
+                  <TextBlock Text="规则、记忆、画像、早安提示与本机外部 AI（MCP）接入配置；全部数据仅存本机"
+                             FontSize="12"
+                             Foreground="{DynamicResource Main.Text.Secondary}" />
+                </StackPanel>
+                <Border Grid.Column="1" Classes="set-action-btn" VerticalAlignment="Center" PointerPressed="OnOpenAssistantFolderPressed">
+                  <TextBlock Text="打开本地文件夹 ↗" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+
+              <!-- 0. 日常早安提示（A6③） -->
+              <StackPanel>
+                <TextBlock Classes="set-section" Text="日常轻提醒" />
+                <Border Classes="set-card">
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="今日早安提示" />
+                        <TextBlock Classes="set-desc" Text="每天首次打开且存在未完成逾期任务时，在今日小组件顶部轻提示，一键让 Lana 帮你重排今天；无逾期不打扰" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MorningBriefEnabled, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+                </Border>
+              </StackPanel>
+
+              <StackPanel DataContext="{Binding AssistantMemory}"
+                          x:DataType="vm:AssistantMemorySettingsViewModel"
+                          Spacing="24">
+
+              <!-- 1. 我的规则与权限分级 -->
+              <StackPanel>
+                <Grid ColumnDefinitions="*,Auto" Margin="2,0,2,10">
+                  <TextBlock Text="我的日程规则与权限" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                  <Border Grid.Column="1" Classes="set-action-btn" Height="26" Padding="10,0" PointerPressed="OnResetRulesPressed">
+                    <TextBlock Text="恢复默认" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                  </Border>
+                </Grid>
+
+                <Border Classes="set-card">
+                  <StackPanel>
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="8">
+                        <TextBlock Classes="set-title" Text="休息日（尽量不安排任务）" />
+                        <ItemsControl ItemsSource="{Binding RestDays}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:RestDayChipViewModel">
+                              <Border Classes="theme-option"
+                                      Classes.selected="{Binding IsSelected}"
+                                      Margin="0,0,6,4"
+                                      PointerPressed="OnRestDayChipPressed">
+                                <TextBlock Text="{Binding Label}" />
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="6">
+                        <TextBlock Classes="set-title" Text="自然语言排程偏好（≤ 2000 字）" />
+                        <Border Classes="drawer-field" Padding="10,8">
+                          <TextBox Classes="bare"
+                                   Text="{Binding PreferenceText, Mode=TwoWay}"
+                                   PlaceholderText="例如：写作与深度编码尽量排在上午；周五下午不排新会议…"
+                                   AcceptsReturn="True"
+                                   TextWrapping="Wrap"
+                                   MinHeight="56"
+                                   MaxHeight="120"
+                                   VerticalContentAlignment="Top"
+                                   LostFocus="OnRuleFieldLostFocus" />
+                        </Border>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="新建日程自动执行" />
+                          <TextBlock Classes="set-desc" Text="默认开启：Lana 可直接帮你新增任务并即时同步，支持单条/批量撤销" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding AutoCreateTask, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="修改与改期自动执行" />
+                          <TextBlock Classes="set-desc" Text="默认开启：Lana 可直接调整日期、优先级或标题，随时可撤销" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding AutoUpdateTask, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="拆子待办与归类自动执行" />
+                          <TextBlock Classes="set-desc" Text="默认开启：拆分步骤或移动清单可直接生效" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding AutoAppendSubtasks, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="标记完成自动执行" />
+                          <TextBlock Classes="set-desc" Text="默认开启：Lana 可直接帮你勾选完成或重开任务" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding AutoCompleteTask, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="删除任务自动执行" />
+                          <TextBlock Classes="set-desc" Text="默认关闭（删除前先弹窗确认）；若开启，Lana 可直接删除并仍支持撤销" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding AutoDeleteTask, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+
+              <!-- 2. 我的用户画像（结构化清爽卡片，零原始 Markdown 符号） -->
+              <StackPanel>
+                <TextBlock Classes="set-section" Text="我的用户画像" />
+                <Border Classes="set-card">
+                  <StackPanel>
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="在对话中使用我的画像" />
+                          <TextBlock Classes="set-desc" Text="让 Lana 记住你的称呼、作息与偏好，聊天和排程更贴心；本地保存可随时编辑" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding UseProfileInChat, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="14">
+                        <!-- 我的称呼 -->
+                        <StackPanel Spacing="5">
+                          <TextBlock Text="希望 Lana 怎么称呼你" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                          <Border Classes="drawer-field" Padding="10,7">
+                            <TextBox Classes="bare"
+                                     Text="{Binding ProfileNickname, Mode=TwoWay}"
+                                     PlaceholderText="例如：小明、阿宇、老板…留空则刚认识时 Lana 会轻轻问你一次"
+                                     FontSize="13" />
+                          </Border>
+                        </StackPanel>
+
+                        <!-- 两列结构化画像输入 -->
+                        <Grid ColumnDefinitions="*,14,*" RowDefinitions="Auto,12,Auto">
+                          <StackPanel Grid.Row="0" Grid.Column="0" Spacing="5">
+                            <TextBlock Text="作息习惯" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                            <Border Classes="drawer-field" Padding="10,8">
+                              <TextBox Classes="bare"
+                                       Text="{Binding ProfileRoutine, Mode=TwoWay}"
+                                       PlaceholderText="例如：早睡早起 / 晚上 10 点后比较清醒…"
+                                       AcceptsReturn="True"
+                                       TextWrapping="Wrap"
+                                       MinHeight="56"
+                                       MaxHeight="100"
+                                       FontSize="12.5"
+                                       VerticalContentAlignment="Top" />
+                            </Border>
+                          </StackPanel>
+
+                          <StackPanel Grid.Row="0" Grid.Column="2" Spacing="5">
+                            <TextBlock Text="高效时段" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                            <Border Classes="drawer-field" Padding="10,8">
+                              <TextBox Classes="bare"
+                                       Text="{Binding ProfilePeakHours, Mode=TwoWay}"
+                                       PlaceholderText="例如：上午 9:30–12:00 适合专注编码或写作…"
+                                       AcceptsReturn="True"
+                                       TextWrapping="Wrap"
+                                       MinHeight="56"
+                                       MaxHeight="100"
+                                       FontSize="12.5"
+                                       VerticalContentAlignment="Top" />
+                            </Border>
+                          </StackPanel>
+
+                          <StackPanel Grid.Row="2" Grid.Column="0" Spacing="5">
+                            <TextBlock Text="常做的事" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                            <Border Classes="drawer-field" Padding="10,8">
+                              <TextBox Classes="bare"
+                                       Text="{Binding ProfileActivities, Mode=TwoWay}"
+                                       PlaceholderText="例如：产品开发、每周三次健身、阅读复盘…"
+                                       AcceptsReturn="True"
+                                       TextWrapping="Wrap"
+                                       MinHeight="56"
+                                       MaxHeight="100"
+                                       FontSize="12.5"
+                                       VerticalContentAlignment="Top" />
+                            </Border>
+                          </StackPanel>
+
+                          <StackPanel Grid.Row="2" Grid.Column="2" Spacing="5">
+                            <TextBlock Text="容易拖延的类型" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                            <Border Classes="drawer-field" Padding="10,8">
+                              <TextBox Classes="bare"
+                                       Text="{Binding ProfileProcrastination, Mode=TwoWay}"
+                                       PlaceholderText="例如：写长文档、报销与行政琐事…"
+                                       AcceptsReturn="True"
+                                       TextWrapping="Wrap"
+                                       MinHeight="56"
+                                       MaxHeight="100"
+                                       FontSize="12.5"
+                                       VerticalContentAlignment="Top" />
+                            </Border>
+                          </StackPanel>
+                        </Grid>
+
+                        <StackPanel Spacing="5">
+                          <TextBlock Text="其他补充" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" />
+                          <Border Classes="drawer-field" Padding="10,8">
+                            <TextBox Classes="bare"
+                                     Text="{Binding ProfileOther, Mode=TwoWay}"
+                                     PlaceholderText="任何希望 Lana 了解的小习惯或目标…"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     MinHeight="46"
+                                     MaxHeight="90"
+                                     FontSize="12.5"
+                                     VerticalContentAlignment="Top" />
+                          </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                          <Border Classes="set-action-btn" IsVisible="{Binding CanRestoreProfile}" PointerPressed="OnRestoreProfilePressed">
+                            <TextBlock Text="恢复上一版" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                          </Border>
+                          <Border Classes="drawer-primary-btn" Height="30" PointerPressed="OnSaveProfileMarkdownPressed">
+                            <TextBlock Text="保存画像" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Text.OnAccent}" VerticalAlignment="Center" />
+                          </Border>
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+
+              <!-- 3. 助理的记忆（memories.md） -->
+              <StackPanel>
+                <Grid ColumnDefinitions="*,Auto" Margin="2,0,2,10">
+                  <TextBlock Text="助理的长期记忆（memories.md）" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Text="{Binding MemoryCountLabel}" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" VerticalAlignment="Center" />
+                </Grid>
+
+                <Border Classes="set-card">
+                  <StackPanel>
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="启用长期记忆" />
+                          <TextBlock Classes="set-desc" Text="对话中自动记住习惯与偏好（敏感信息如密码/身份证/卡号本地强制拦截）" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1" Classes="m-toggle" IsChecked="{Binding MemoryEnabled, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <Border Classes="drawer-field" Margin="0,0,8,0">
+                            <TextBox Classes="bare"
+                                     Text="{Binding NewMemoryInput, Mode=TwoWay}"
+                                     PlaceholderText="手动添加一条记忆，例如：每周四晚上固定健身…" />
+                          </Border>
+                          <Border Grid.Column="1" Classes="drawer-primary-btn" Height="36" PointerPressed="OnAddManualMemoryPressed">
+                            <TextBlock Text="添加" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Text.OnAccent}" VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+
+                        <TextBlock Text="{Binding MemoryError}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Danger}"
+                                   IsVisible="{Binding HasMemoryError}" />
+
+                        <ItemsControl ItemsSource="{Binding Memories}" IsVisible="{Binding HasMemories}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:MemoryRowViewModel">
+                              <Border Margin="0,4,0,0"
+                                      Padding="10,8"
+                                      CornerRadius="8"
+                                      Background="{DynamicResource Main.Bg}"
+                                      BorderBrush="{DynamicResource Main.Border.Subtle}"
+                                      BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                  <Border Padding="6,2" CornerRadius="5" Background="{DynamicResource Main.Accent.Soft}" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Category}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Main.Accent}" />
+                                  </Border>
+                                  <StackPanel Grid.Column="1" Margin="10,0,8,0" Spacing="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Content}" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding MetaLabel}" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" />
+                                  </StackPanel>
+                                  <Border Grid.Column="2" Classes="set-action-btn" Height="26" Padding="8,0" PointerPressed="OnDeleteMemoryRowPressed">
+                                    <TextBlock Text="删除" FontSize="11" Foreground="{DynamicResource Main.Danger}" VerticalAlignment="Center" />
+                                  </Border>
+                                </Grid>
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                          <TextBlock Text="暂无长期记忆条目"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                                     IsVisible="{Binding !HasMemories}"
+                                     VerticalAlignment="Center" />
+                          <Panel Grid.Column="1">
+                            <Border Classes="set-action-btn" IsVisible="{Binding !IsConfirmingClearMemories}" PointerPressed="OnBeginClearMemoriesPressed">
+                              <TextBlock Text="一键清空记忆与画像" FontSize="12" Foreground="{DynamicResource Main.Danger}" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsConfirmingClearMemories}">
+                              <Border Classes="set-action-btn" PointerPressed="OnCancelClearMemoriesPressed">
+                                <TextBlock Text="取消" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                              </Border>
+                              <Border Classes="set-danger-btn" PointerPressed="OnConfirmClearMemoriesPressed">
+                                <TextBlock Text="确认清空" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Text.OnAccent}" VerticalAlignment="Center" />
+                              </Border>
+                            </StackPanel>
+                          </Panel>
+                        </Grid>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+
+              <!-- 4. 离线习惯统计与周复盘 -->
+              <StackPanel>
+                <TextBlock Classes="set-section" Text="离线习惯统计与周复盘" />
+                <Border Classes="set-card">
+                  <StackPanel>
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="3" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="本地任务统计摘要（0 Token）" />
+                          <TextBlock Classes="set-desc" Text="{Binding HabitSummaryText}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Classes="set-action-btn" VerticalAlignment="Center" PointerPressed="OnGenerateWeeklyReviewPressed">
+                          <TextBlock Text="生成本周复盘" FontSize="12" Foreground="{DynamicResource Main.Accent}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </Border>
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="set-row" IsVisible="{Binding HasWeeklyReviewPreview}">
+                      <SelectableTextBlock Text="{Binding WeeklyReviewPreview}"
+                                           FontSize="12"
+                                           LineHeight="20"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource Main.Text.Secondary}" />
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+              </StackPanel>
+
+              <!-- 5. 外部 AI 接入（A7 · 本地 MCP 服务） -->
+              <StackPanel DataContext="{Binding ExternalMcp}"
+                          x:DataType="vm:ExternalMcpSettingsViewModel">
+                <Grid ColumnDefinitions="*,Auto" Margin="2,0,2,10">
+                  <TextBlock Text="外部 AI 接入（本地 MCP 服务）"
+                             FontSize="13"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource Main.Text.Primary}"
+                             VerticalAlignment="Center" />
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Ellipse Width="7"
+                             Height="7"
+                             Fill="{DynamicResource Provider.Badge.Fg}"
+                             IsVisible="{Binding IsListening}"
+                             VerticalAlignment="Center" />
+                    <Ellipse Width="7"
+                             Height="7"
+                             Fill="{DynamicResource Main.Text.Tertiary}"
+                             IsVisible="{Binding !IsListening}"
+                             VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding StatusText}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Main.Text.Secondary}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </Grid>
+
+                <Border Classes="set-card">
+                  <StackPanel>
+                    <!-- 总开关（默认关） -->
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="启用本机 MCP 服务" />
+                          <TextBlock Classes="set-desc" Text="默认关闭；开启后允许 Claude Desktop、Cursor、Antigravity 等本机 AI 工具读写你的 Plana 日程与日历" />
+                        </StackPanel>
+                        <CheckBox Grid.Column="1"
+                                  Classes="m-toggle"
+                                  IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
+                      </Grid>
+                    </Border>
+
+                    <!-- 权限模式 -->
+                    <Border Classes="set-row">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                          <TextBlock Classes="set-title" Text="外部 AI 权限模式" />
+                          <TextBlock Classes="set-desc" Text="只读仅允许查询任务与农历；读写允许添加/修改/完成，删除及 >5 项改期仍须在主窗口内手动确认" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                          <Border Classes="theme-option"
+                                  Classes.selected="{Binding IsReadOnly}"
+                                  Tag="ReadOnly"
+                                  PointerPressed="OnMcpModePressed">
+                            <TextBlock Text="只读" />
+                          </Border>
+                          <Border Classes="theme-option"
+                                  Classes.selected="{Binding IsReadWrite}"
+                                  Tag="ReadWrite"
+                                  PointerPressed="OnMcpModePressed">
+                            <TextBlock Text="读写" />
+                          </Border>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+
+                    <!-- 安全说明 -->
+                    <Border Classes="set-row">
+                      <Border Padding="12,9"
+                              CornerRadius="8"
+                              Background="{DynamicResource Provider.Warn.Bg}">
+                        <TextBlock Text="安全说明：开启期间，本机当前 Windows 登录账户下的进程可连接命名管道；Plana 绝不向外部 AI 暴露你的长期记忆、用户画像、日程规则、对话历史或模型 API Key；每次外部写入均支持一键撤销，且限流 60 次/分钟。"
+                                   FontSize="11.5"
+                                   LineHeight="18"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Provider.Warn.Fg}" />
+                      </Border>
+                    </Border>
+
+                    <!-- 连接配置片段（一键复制） -->
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <Border Classes="theme-option" Classes.selected="{Binding IsClientClaude}" Tag="Claude" PointerPressed="OnMcpClientPressed">
+                              <TextBlock Text="Claude Desktop" />
+                            </Border>
+                            <Border Classes="theme-option" Classes.selected="{Binding IsClientCursor}" Tag="Cursor" PointerPressed="OnMcpClientPressed">
+                              <TextBlock Text="Cursor" />
+                            </Border>
+                            <Border Classes="theme-option" Classes.selected="{Binding IsClientAntigravity}" Tag="Antigravity" PointerPressed="OnMcpClientPressed">
+                              <TextBlock Text="Antigravity" />
+                            </Border>
+                            <Border Classes="theme-option" Classes.selected="{Binding IsClientGeneric}" Tag="Generic" PointerPressed="OnMcpClientPressed">
+                              <TextBlock Text="通用 stdio" />
+                            </Border>
+                          </StackPanel>
+
+                          <Border Grid.Column="1"
+                                  Classes="drawer-primary-btn"
+                                  Height="30"
+                                  PointerPressed="OnCopyMcpConfigPressed">
+                            <TextBlock Text="复制配置"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Text.OnAccent}"
+                                       VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+
+                        <TextBlock Text="{Binding ConfigLocationHint}"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource Main.Text.Tertiary}"
+                                   TextWrapping="Wrap" />
+
+                        <Border Padding="12,10"
+                                CornerRadius="8"
+                                Background="{DynamicResource Markdown.Code.Bg}"
+                                BorderBrush="{DynamicResource Markdown.Code.Border}"
+                                BorderThickness="1">
+                          <SelectableTextBlock Text="{Binding ConfigSnippet}"
+                                               FontFamily="{DynamicResource Font.Mono}"
+                                               FontSize="12"
+                                               LineHeight="19"
+                                               Foreground="{DynamicResource Main.Text.Primary}"
+                                               TextWrapping="Wrap" />
+                        </Border>
+                      </StackPanel>
+                    </Border>
+
+                    <!-- 最近访问记录（最多 50 条） -->
+                    <Border Classes="set-row">
+                      <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Spacing="1" VerticalAlignment="Center">
+                            <TextBlock Classes="set-title" Text="最近访问记录" />
+                            <TextBlock Classes="set-desc" Text="{Binding AuditCountLabel}" />
+                          </StackPanel>
+                          <Border Grid.Column="1"
+                                  Classes="set-action-btn"
+                                  Height="28"
+                                  IsVisible="{Binding HasAuditEntries}"
+                                  PointerPressed="OnClearMcpAuditPressed">
+                            <TextBlock Text="清空记录" FontSize="11.5" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+
+                        <TextBlock Text="暂无外部 AI 访问记录"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Text.Tertiary}"
+                                   IsVisible="{Binding !HasAuditEntries}" />
+
+                        <ItemsControl ItemsSource="{Binding AuditEntries}" IsVisible="{Binding HasAuditEntries}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:McpAuditRowViewModel">
+                              <Border Margin="0,3,0,0"
+                                      Padding="10,6"
+                                      CornerRadius="7"
+                                      Background="{DynamicResource Main.Bg}"
+                                      BorderBrush="{DynamicResource Main.Border.Subtle}"
+                                      BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                                  <TextBlock Grid.Column="0"
+                                             Text="{Binding TimeText}"
+                                             FontSize="11.5"
+                                             Foreground="{DynamicResource Main.Text.Tertiary}"
+                                             VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="1"
+                                             Margin="10,0,8,0"
+                                             Text="{Binding Client}"
+                                             FontSize="12"
+                                             FontWeight="Medium"
+                                             Foreground="{DynamicResource Main.Text.Primary}"
+                                             TextTrimming="CharacterEllipsis"
+                                             VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="2"
+                                             Margin="0,0,10,0"
+                                             Text="{Binding ToolLabel}"
+                                             FontSize="12"
+                                             Foreground="{DynamicResource Main.Text.Secondary}"
+                                             VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="3"
+                                             Margin="0,0,10,0"
+                                             Text="{Binding CountText}"
+                                             FontSize="11.5"
+                                             Foreground="{DynamicResource Main.Text.Tertiary}"
+                                             VerticalAlignment="Center" />
+                                  <Border Grid.Column="4"
+                                          Padding="6,1"
+                                          CornerRadius="5"
+                                          Background="{DynamicResource Provider.Badge.Bg}"
+                                          IsVisible="{Binding !IsError}"
+                                          VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ResultLabel}" FontSize="11" Foreground="{DynamicResource Provider.Badge.Fg}" />
+                                  </Border>
+                                  <Border Grid.Column="4"
+                                          Padding="6,1"
+                                          CornerRadius="5"
+                                          Background="{DynamicResource Main.Danger.Soft}"
+                                          IsVisible="{Binding IsError}"
+                                          VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ResultLabel}" FontSize="11" Foreground="{DynamicResource Main.Danger}" />
+                                  </Border>
+                                </Grid>
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+
+            </StackPanel>
+          </ScrollViewer>
+        </Panel>
+
+        <!-- 子页 4：桌面小组件 -->
+        <ScrollViewer IsVisible="{Binding IsWidgetsSection}"
+                      svc:RevealMotion.Enabled="True"
+                      svc:RevealMotion.OffsetY="6"
+                      svc:RevealMotion.DurationMs="160"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel MaxWidth="740"
+                      HorizontalAlignment="Stretch"
+                      Margin="36,24,36,48"
+                      Spacing="24">
+
+            <StackPanel Spacing="4">
+              <TextBlock Text="桌面小组件"
+                         FontFamily="{DynamicResource Font.Display}"
+                         FontSize="22"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Main.Text.Primary}" />
+              <TextBlock Text="独立无边框轻量化桌面挂件，常驻不加载任何 AI 模块，与主程序共享 SQLite 实时同步"
+                         FontSize="12"
+                         Foreground="{DynamicResource Main.Text.Secondary}" />
+            </StackPanel>
+
+            <!-- 今日日程小组件 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="今日日程小组件" />
+              <Border Classes="set-card">
+                <StackPanel>
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="在桌面显示" />
+                        <TextBlock Classes="set-desc" Text="独立无边框任务窗口，与主程序实时双向同步" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding ShowTodayWidget, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="置于顶层" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding TodayTopmost, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="锁定位置与尺寸" />
+                        <TextBlock Classes="set-desc" Text="禁止拖动和缩放今日小组件，避免日常点击时误移动" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding TodayLocked, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="鼠标点击穿透" />
+                        <TextBlock Classes="set-desc" Text="开启后鼠标点击直接穿过小组件；可在此关闭或在托盘菜单一键解除" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding TodayClickThrough, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                      <TextBlock Classes="set-title" Text="背景不透明度" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding TodayOpacityText}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Secondary}"
+                                 Margin="0,0,12,0"
+                                 VerticalAlignment="Center" />
+                      <Border x:Name="TodayOpacitySlider"
+                              Grid.Column="2"
+                              Classes="set-slider"
+                              PointerPressed="OnTodayOpacityPressed"
+                              PointerMoved="OnTodayOpacityMoved"
+                              PointerReleased="OnTodayOpacityReleased">
+                        <Grid>
+                          <Border Height="3" CornerRadius="1.5" Background="{DynamicResource Settings.Track}" VerticalAlignment="Center" />
+                          <Border x:Name="TodayOpacityFill" Height="3" CornerRadius="1.5" Background="{DynamicResource Main.Toggle.On}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                          <Border x:Name="TodayOpacityKnobBorder"
+                                  Width="13"
+                                  Height="13"
+                                  CornerRadius="6.5"
+                                  Background="{DynamicResource Main.Bg}"
+                                  BorderBrush="{DynamicResource Main.Toggle.On}"
+                                  BorderThickness="2"
+                                  BoxShadow="{DynamicResource Main.Toggle.Shadow}"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center" />
+                        </Grid>
+                      </Border>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="显示添加输入框" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding TodayShowInput, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="显示已完成分组" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding TodayShowCompleted, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="窗口位置与尺寸" VerticalAlignment="Center" />
+                      <Border Grid.Column="1" Classes="set-action-btn" PointerPressed="OnResetTodayPressed">
+                        <TextBlock Text="重置到右上角默认位置"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Text.Primary}"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+
+            <!-- 月历小组件 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="月历小组件" />
+              <Border Classes="set-card">
+                <StackPanel>
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="在桌面显示" />
+                        <TextBlock Classes="set-desc" Text="支持多行任务芯片、点击格内日程浮层与年月快速跳转" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding ShowMonthWidget, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="置于顶层" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MonthTopmost, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="锁定位置与尺寸" />
+                        <TextBlock Classes="set-desc" Text="禁止拖动和缩放月历小组件，保持桌面布局稳定" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MonthLocked, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Classes="set-title" Text="鼠标点击穿透" />
+                        <TextBlock Classes="set-desc" Text="开启后鼠标点击直接穿过月历小组件；可在此关闭或在托盘菜单一键解除" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MonthClickThrough, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                      <TextBlock Classes="set-title" Text="背景不透明度" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding MonthOpacityText}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Secondary}"
+                                 Margin="0,0,12,0"
+                                 VerticalAlignment="Center" />
+                      <Border x:Name="MonthOpacitySlider"
+                              Grid.Column="2"
+                              Classes="set-slider"
+                              PointerPressed="OnMonthOpacityPressed"
+                              PointerMoved="OnMonthOpacityMoved"
+                              PointerReleased="OnMonthOpacityReleased">
+                        <Grid>
+                          <Border Height="3" CornerRadius="1.5" Background="{DynamicResource Settings.Track}" VerticalAlignment="Center" />
+                          <Border x:Name="MonthOpacityFill" Height="3" CornerRadius="1.5" Background="{DynamicResource Main.Toggle.On}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                          <Border x:Name="MonthOpacityKnobBorder"
+                                  Width="13"
+                                  Height="13"
+                                  CornerRadius="6.5"
+                                  Background="{DynamicResource Main.Bg}"
+                                  BorderBrush="{DynamicResource Main.Toggle.On}"
+                                  BorderThickness="2"
+                                  BoxShadow="{DynamicResource Main.Toggle.Shadow}"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center" />
+                        </Grid>
+                      </Border>
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="显示农历、节气与节日" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MonthShowLunar, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="显示已完成任务" VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="1"
+                                Classes="m-toggle"
+                                IsChecked="{Binding MonthShowCompleted, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="set-row">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="set-title" Text="窗口位置与尺寸" VerticalAlignment="Center" />
+                      <Border Grid.Column="1" Classes="set-action-btn" PointerPressed="OnResetMonthPressed">
+                        <TextBlock Text="重置到默认位置"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Main.Text.Primary}"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </Panel>
+    </Grid>
+
+    <!-- ===== 窗内覆盖层：右侧滑入模型配置抽屉（无原生 Popup） ===== -->
+    <Panel x:Name="DrawerOverlay"
+           DataContext="{Binding ModelServices}"
+           x:DataType="vm:ModelServicesViewModel"
+           IsVisible="{Binding IsDrawerOpen}">
+      <!-- 半透明遮罩 -->
+      <Border x:Name="DrawerScrim"
+              Background="{DynamicResource Provider.Scrim}"
+              PointerPressed="OnDrawerScrimPressed" />
+
+      <!-- 抽屉主体（宽 440，贴右） -->
+      <Border x:Name="DrawerCard"
+              Width="440"
+              HorizontalAlignment="Right"
+              Background="{DynamicResource Main.Bg}"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="1,0,0,0"
+              BoxShadow="{DynamicResource Main.Popup.Shadow}">
+        <Grid RowDefinitions="Auto,*,Auto">
+
+          <!-- 抽屉顶栏（展示真实公司 Logo） -->
+          <Border Grid.Row="0"
+                  Padding="22,18,16,14"
+                  BorderBrush="{DynamicResource Main.Border.Subtle}"
+                  BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Panel Width="40" Height="40" VerticalAlignment="Center">
+                <Border Classes="provider-logo-tile" Width="40" Height="40" IsVisible="{Binding HasDrawerLogo}">
+                  <Image Source="{Binding DrawerLogoBitmap}"
+                         Stretch="Uniform"
+                         RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </Border>
+                <Border Width="40"
+                        Height="40"
+                        CornerRadius="10"
+                        Background="{Binding DrawerBrandBrush}"
+                        IsVisible="{Binding !HasDrawerLogo}">
+                  <TextBlock Text="{Binding DrawerMonogram}"
+                             FontSize="15"
+                             FontWeight="Bold"
+                             Foreground="{DynamicResource Text.OnAccent}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                </Border>
+              </Panel>
+
+              <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{Binding DrawerTitle}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Main.Text.Primary}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding DrawerDomain}"
+                             FontSize="12"
+                             Foreground="{DynamicResource Main.Text.Tertiary}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Text="获取 API Key ↗"
+                             FontSize="12"
+                             FontWeight="Medium"
+                             Foreground="{DynamicResource Main.Accent}"
+                             Cursor="Hand"
+                             IsVisible="{Binding HasDrawerApiKeyUrl}"
+                             PointerPressed="OnOpenApiKeyUrlPressed"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </StackPanel>
+
+              <Border Grid.Column="2"
+                      Classes="icon-btn"
+                      VerticalAlignment="Top"
+                      ToolTip.Tip="关闭 (Esc)"
+                      PointerPressed="OnCloseDrawerPressed">
+                <Path Data="M4,4 L12,12 M12,4 L4,12"
+                      Stroke="{DynamicResource Main.Text.Secondary}"
+                      StrokeThickness="1.5"
+                      StrokeLineCap="Round"
+                      Width="16"
+                      Height="16"
+                      Stretch="None"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+              </Border>
+            </Grid>
+          </Border>
+
+          <!-- 抽屉表单滚动体 -->
+          <ScrollViewer Grid.Row="1"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="22,16,22,24" Spacing="16">
+
+              <!-- 多实例切换条 -->
+              <StackPanel Spacing="6" IsVisible="{Binding HasDrawerInstances}">
+                <TextBlock Text="已保存的配置" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" />
+                <WrapPanel Orientation="Horizontal">
+                  <ItemsControl ItemsSource="{Binding DrawerInstances}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:ProfileInstanceChipViewModel">
+                        <Border Classes="drawer-chip"
+                                Classes.selected="{Binding IsSelected}"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnInstanceChipPressed">
+                          <TextBlock Text="{Binding Label}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Border Classes="drawer-chip"
+                          Margin="0,0,0,6"
+                          PointerPressed="OnAddAnotherInstancePressed">
+                    <TextBlock Text="＋ 添加另一个"
+                               FontSize="12"
+                               Foreground="{DynamicResource Main.Accent}"
+                               VerticalAlignment="Center" />
+                  </Border>
+                </WrapPanel>
+              </StackPanel>
+
+              <!-- 名称（自定义时显示） -->
+              <StackPanel Spacing="6" IsVisible="{Binding IsCustomDrawer}">
+                <TextBlock Text="服务名称" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Main.Text.Primary}" />
+                <Border Classes="drawer-field">
+                  <TextBox Classes="bare"
+                           Text="{Binding ProfileName, Mode=TwoWay}"
+                           PlaceholderText="例如：公司内部中转站 / 本地 LM Studio" />
+                </Border>
+              </StackPanel>
+
+              <!-- 版本（多版本预设厂商显示） -->
+              <StackPanel Spacing="6" IsVisible="{Binding HasMultipleVariants}">
+                <TextBlock Text="接入版本" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Main.Text.Primary}" />
+                <ComboBox ItemsSource="{Binding DrawerVariants}"
+                          SelectedItem="{Binding SelectedVariant, Mode=TwoWay}"
+                          HorizontalAlignment="Stretch"
+                          CornerRadius="8">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProviderVariant">
+                      <TextBlock Text="{Binding Name}" FontSize="13" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+
+              <!-- API Key -->
+              <StackPanel Spacing="6">
+                <TextBlock Text="API Key" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Main.Text.Primary}" />
+                <Border Classes="drawer-field">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Classes="bare"
+                             Text="{Binding ApiKeyInput, Mode=TwoWay}"
+                             PlaceholderText="{Binding ApiKeyPlaceholder}"
+                             PasswordChar="{Binding ApiKeyPasswordChar}" />
+                    <Border Grid.Column="1"
+                            Classes="icon-btn"
+                            Margin="4,0,-4,0"
+                            ToolTip.Tip="显示/隐藏 Key"
+                            PointerPressed="OnToggleApiKeyVisPressed">
+                      <TextBlock Text="{Binding IsApiKeyVisible, Converter={x:Static vm:SettingsTextConverters.EyeGlyph}}"
+                                 FontSize="11"
+                                 Foreground="{DynamicResource Main.Text.Secondary}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
+                    </Border>
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <!-- 模型名称 + 官方默认模型快选 + 新增模型 + 拉取列表 -->
+              <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Text="模型" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                  <Border Grid.Column="1"
+                          Classes="set-action-btn"
+                          Height="24"
+                          Padding="9,0"
+                          PointerPressed="OnFetchModelsPressed">
+                    <TextBlock Text="{Binding IsFetchingModels, Converter={x:Static vm:SettingsTextConverters.FetchModelsLabel}}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Main.Accent}"
+                               VerticalAlignment="Center" />
+                  </Border>
+                </Grid>
+
+                <!-- 官方预设与已新增模型快选胶囊 -->
+                <ItemsControl ItemsSource="{Binding PresetModels}" IsVisible="{Binding HasPresetModels}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PresetModelChipViewModel">
+                      <Border Classes="drawer-chip"
+                              Classes.selected="{Binding IsSelected}"
+                              Margin="0,0,6,6"
+                              ToolTip.Tip="{Binding Tooltip}"
+                              PointerPressed="OnPresetModelChipPressed">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Id}"
+                                     FontSize="11.5"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     VerticalAlignment="Center" />
+                          <Border Padding="4,1"
+                                  CornerRadius="4"
+                                  Background="{DynamicResource Main.Accent.Soft}"
+                                  IsVisible="{Binding SupportsImages}"
+                                  VerticalAlignment="Center">
+                            <TextBlock Text="图文"
+                                       FontSize="9.5"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Main.Accent}" />
+                          </Border>
+                          <TextBlock Text="×"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                                     Cursor="Hand"
+                                     IsVisible="{Binding IsCustomAdded}"
+                                     PointerPressed="OnRemoveCustomModelChipPressed"
+                                     VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Classes="drawer-field">
+                  <TextBox Classes="bare"
+                           Text="{Binding ModelName, Mode=TwoWay}"
+                           PlaceholderText="例如：deepseek-flash / gpt-5.4" />
+                </Border>
+
+                <!-- 行内新增模型 -->
+                <Grid ColumnDefinitions="*,Auto">
+                  <Border Classes="drawer-field" Height="32">
+                    <TextBox x:Name="NewModelInputBox"
+                             Classes="bare"
+                             FontSize="12"
+                             Text="{Binding NewModelInput, Mode=TwoWay}"
+                             PlaceholderText="输入新模型 ID 添加到此厂商列表"
+                             KeyDown="OnNewModelInputKeyDown" />
+                  </Border>
+                  <Border Grid.Column="1"
+                          Classes="set-action-btn"
+                          Height="32"
+                          Margin="8,0,0,0"
+                          Padding="10,0"
+                          PointerPressed="OnAddCustomModelPressed">
+                    <TextBlock Text="＋ 新增模型"
+                               FontSize="11.5"
+                               FontWeight="Medium"
+                               Foreground="{DynamicResource Main.Accent}"
+                               VerticalAlignment="Center" />
+                  </Border>
+                </Grid>
+
+                <!-- 自动识别的图片/多模态能力提示 -->
+                <TextBlock Text="{Binding VisionCapabilitySummary}"
+                           FontSize="11"
+                           Foreground="{DynamicResource Main.Text.Secondary}"
+                           VerticalAlignment="Center" />
+
+                <TextBlock Text="{Binding FetchModelsHint}"
+                           FontSize="11"
+                           Foreground="{DynamicResource Main.Text.Tertiary}"
+                           IsVisible="{Binding HasFetchModelsHint}" />
+                <ScrollViewer MaxHeight="110"
+                              IsVisible="{Binding HasFetchedModels}"
+                              VerticalScrollBarVisibility="Auto">
+                  <ItemsControl ItemsSource="{Binding FetchedModels}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:String">
+                        <Border Classes="drawer-chip"
+                                Margin="0,0,6,6"
+                                PointerPressed="OnFetchedModelChipPressed">
+                          <TextBlock Text="{Binding}" FontSize="11" Foreground="{DynamicResource Main.Text.Secondary}" VerticalAlignment="Center" />
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+              </StackPanel>
+
+              <!-- 高级设置（折叠/展开） -->
+              <StackPanel Spacing="10">
+                <Border Padding="0,4" Cursor="Hand" PointerPressed="OnToggleAdvancedPressed">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="高级设置（Base URL / 协议 / 多模态）"
+                               FontSize="12"
+                               FontWeight="Medium"
+                               Foreground="{DynamicResource Main.Text.Secondary}" />
+                    <TextBlock Text="{Binding IsAdvancedExpanded, Converter={x:Static vm:SettingsTextConverters.ChevronGlyph}}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Main.Text.Tertiary}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+
+                <StackPanel Spacing="12"
+                            IsVisible="{Binding IsAdvancedExpanded}"
+                            svc:RevealMotion.Enabled="True"
+                            svc:RevealMotion.OffsetY="4"
+                            svc:RevealMotion.DurationMs="150">
+                  <!-- Base URL -->
+                  <StackPanel Spacing="5">
+                    <TextBlock Text="Base URL" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" />
+                    <Border Classes="drawer-field">
+                      <TextBox Classes="bare"
+                               Text="{Binding BaseUrl, Mode=TwoWay}"
+                               PlaceholderText="https://api.example.com/v1" />
+                    </Border>
+                    <TextBlock Text="{Binding BaseUrlError}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Main.Danger}"
+                               IsVisible="{Binding HasBaseUrlError}" />
+                  </StackPanel>
+
+                  <!-- 协议格式 -->
+                  <StackPanel Spacing="5">
+                    <TextBlock Text="接口协议" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Border Classes="theme-option"
+                              Classes.selected="{Binding IsOpenAiProtocol}"
+                              PointerPressed="OnOpenAiProtocolPressed">
+                        <TextBlock Text="OpenAI 兼容" />
+                      </Border>
+                      <Border Classes="theme-option"
+                              Classes.selected="{Binding IsAnthropicProtocol}"
+                              PointerPressed="OnAnthropicProtocolPressed">
+                        <TextBlock Text="Anthropic 兼容" />
+                      </Border>
+                    </StackPanel>
+                  </StackPanel>
+
+                  <!-- 支持图片输入 -->
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2" VerticalAlignment="Center">
+                      <TextBlock Text="支持图片输入" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" />
+                      <TextBlock Text="开启后对话面板允许粘贴或拖入截图/图片" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="1"
+                              Classes="m-toggle"
+                              IsChecked="{Binding SupportsImages, Mode=TwoWay}" />
+                  </Grid>
+                </StackPanel>
+              </StackPanel>
+
+              <!-- 连接测试结果条 -->
+              <Border Classes="test-banner"
+                      Classes.error="{Binding TestIsError}"
+                      IsVisible="{Binding HasTestMessage}"
+                      svc:RevealMotion.Enabled="True"
+                      svc:RevealMotion.OffsetY="4"
+                      svc:RevealMotion.DurationMs="150">
+                <TextBlock Text="{Binding TestMessage}"
+                           FontSize="12"
+                           TextWrapping="Wrap" />
+              </Border>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- 抽屉底栏按钮 -->
+          <Border Grid.Row="2"
+                  Padding="18,12"
+                  BorderBrush="{DynamicResource Main.Border.Subtle}"
+                  BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Border Grid.Column="0"
+                      Classes="set-action-btn"
+                      Height="34"
+                      IsVisible="{Binding CanDeleteProfile}"
+                      PointerPressed="OnDeleteProfilePressed">
+                <TextBlock Text="删除" FontSize="12" Foreground="{DynamicResource Main.Danger}" VerticalAlignment="Center" />
+              </Border>
+
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Border Classes="set-action-btn" Height="34" PointerPressed="OnTestConnectionPressed">
+                  <TextBlock Text="{Binding TestButtonLabel}" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                </Border>
+                <Border Classes="set-action-btn" Height="34" PointerPressed="OnSaveProfilePressed">
+                  <TextBlock Text="保存" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                </Border>
+                <Border Classes="drawer-primary-btn"
+                        Classes.disabled="{Binding !CanActivate}"
+                        PointerPressed="OnActivateProfilePressed">
+                  <TextBlock Text="{Binding ActivateButtonLabel}"
+                             FontSize="12"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource Text.OnAccent}"
+                             VerticalAlignment="Center" />
+                </Border>
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Grid>
+      </Border>
+    </Panel>
+  </Panel>
+</UserControl>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- 平台无关抽象：Windows / macOS 各自提供实现，业务与界面层只依赖本工程。 -->
+
+</Project>

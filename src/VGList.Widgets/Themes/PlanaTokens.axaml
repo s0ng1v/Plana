@@ -1,0 +1,188 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Plana 淡粉主题（默认，ADR-0045）：纯净瓷白底 + 樱雾柔粉点缀，浅色主窗 + 暖玫炭深色小组件。 -->
+
+  <FontFamily x:Key="Font.Ui">Anthropic Sans, Noto Sans SC, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Display">Anthropic Serif, Noto Serif SC, Georgia, Microsoft YaHei UI, serif</FontFamily>
+  <FontFamily x:Key="Font.Mono">Anthropic Mono, Cascadia Mono, Consolas, Courier New, monospace</FontFamily>
+
+  <!-- Lana 名字与流光品牌渐变（粉紫蓝柔光） -->
+  <LinearGradientBrush x:Key="Lana.NameGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#FFFF7CB8" />
+    <GradientStop Offset="0.52" Color="#FFB57FF5" />
+    <GradientStop Offset="1" Color="#FF78C2F7" />
+  </LinearGradientBrush>
+
+  <!-- 深色（小组件）：暖玫炭底，不带冷紫或冷蓝 -->
+  <SolidColorBrush x:Key="Bg.Widget" Color="#FF231D20" />
+  <SolidColorBrush x:Key="Bg.Surface" Color="#FF2D2529" />
+  <SolidColorBrush x:Key="Bg.Window" Color="#FF282124" />
+  <SolidColorBrush x:Key="Bg.Hover" Color="#16FFFFFF" />
+  <SolidColorBrush x:Key="Bg.Selected" Color="#26FFFFFF" />
+  <SolidColorBrush x:Key="Bg.Input" Color="#1AFFFFFF" />
+  <SolidColorBrush x:Key="Stroke.Widget" Color="#1FFFFFFF" />
+
+  <SolidColorBrush x:Key="Text.Primary" Color="#F7EFF2" />
+  <SolidColorBrush x:Key="Text.Secondary" Color="#B8A8B0" />
+  <SolidColorBrush x:Key="Text.Tertiary" Color="#87767E" />
+  <SolidColorBrush x:Key="Text.OnAccent" Color="#FFFFFFFF" />
+
+  <SolidColorBrush x:Key="Divider" Color="#14FFFFFF" />
+
+  <!-- 品牌樱粉：柔和通透不刺眼 -->
+  <SolidColorBrush x:Key="Accent" Color="#F299B8" />
+  <SolidColorBrush x:Key="Accent.Muted" Color="#B3F299B8" />
+  <SolidColorBrush x:Key="Accent.Soft" Color="#2EF299B8" />
+
+  <!-- 月历：节日/节气强调色与任务芯片柔底 -->
+  <SolidColorBrush x:Key="Calendar.Festival" Color="#4FAE7A" />
+  <SolidColorBrush x:Key="Month.Chip.Default" Color="#44F299B8" />
+  <SolidColorBrush x:Key="Month.Chip.High" Color="#47E5533D" />
+  <SolidColorBrush x:Key="Month.Chip.Medium" Color="#47E8A33D" />
+  <SolidColorBrush x:Key="Month.Chip.Low" Color="#473D7BE5" />
+  <SolidColorBrush x:Key="Month.Chip.Done" Color="#18FFFFFF" />
+
+  <!-- 优先级 / 四象限 -->
+  <SolidColorBrush x:Key="Priority.High" Color="#E5533D" />
+  <SolidColorBrush x:Key="Priority.High.Muted" Color="#B3E5533D" />
+  <SolidColorBrush x:Key="Priority.High.Soft" Color="#2EE5533D" />
+  <SolidColorBrush x:Key="Priority.Medium" Color="#E8A33D" />
+  <SolidColorBrush x:Key="Priority.Medium.Muted" Color="#B3E8A33D" />
+  <SolidColorBrush x:Key="Priority.Medium.Soft" Color="#2EE8A33D" />
+  <SolidColorBrush x:Key="Priority.Low" Color="#3D7BE5" />
+  <SolidColorBrush x:Key="Priority.Low.Muted" Color="#B33D7BE5" />
+  <SolidColorBrush x:Key="Priority.Low.Soft" Color="#2E3D7BE5" />
+  <SolidColorBrush x:Key="Priority.None" Color="#8A9099" />
+  <SolidColorBrush x:Key="Priority.None.Muted" Color="#B38A9099" />
+  <SolidColorBrush x:Key="Priority.None.Soft" Color="#2E8A9099" />
+
+  <SolidColorBrush x:Key="Checkbox.Done" Color="#87767E" />
+
+  <!-- 弹层阴影与浮动滚动条 -->
+  <SolidColorBrush x:Key="Shadow.Popup" Color="#40000000" />
+  <BoxShadows x:Key="Shadow.Overlay">0 10 28 0 #55000000</BoxShadows>
+  <SolidColorBrush x:Key="Scroll.Thumb" Color="#38FFFFFF" />
+  <SolidColorBrush x:Key="Scroll.Thumb.Hover" Color="#5CFFFFFF" />
+
+  <!-- 设置窗口（浅色淡粉） -->
+  <SolidColorBrush x:Key="Settings.Surface" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Settings.Group" Color="#FFFDF5F8" />
+  <SolidColorBrush x:Key="Settings.Text" Color="#FF291F24" />
+  <SolidColorBrush x:Key="Settings.Text.Secondary" Color="#FF78666F" />
+  <SolidColorBrush x:Key="Settings.Accent" Color="#FFE46B92" />
+  <SolidColorBrush x:Key="Settings.Toggle.Off" Color="#FFEADAE0" />
+  <SolidColorBrush x:Key="Settings.Knob" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Settings.Chevron" Color="#FFA6929C" />
+  <SolidColorBrush x:Key="Settings.Hover" Color="#FFFCEFF4" />
+  <SolidColorBrush x:Key="Settings.Track" Color="#FFEADAE0" />
+
+  <!-- Fluent 系统强调色（滑块/开关） -->
+  <Color x:Key="SystemAccentColor">#FFE46B92</Color>
+  <Color x:Key="SystemAccentColorLight1">#FFEE86A7</Color>
+  <Color x:Key="SystemAccentColorLight2">#FFF5A9C1</Color>
+  <Color x:Key="SystemAccentColorLight3">#FFFBD0DF</Color>
+  <Color x:Key="SystemAccentColorDark1">#FFD45780</Color>
+
+  <!-- 主窗口（浅色淡粉：90% 瓷白呼吸感 + 极浅樱雾层级 + 柔粉强调） -->
+  <SolidColorBrush x:Key="Main.Bg" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Main.Surface.Subtle" Color="#FFFFF9FB" />
+  <SolidColorBrush x:Key="Main.Rail" Color="#FFFEF5F8" />
+  <SolidColorBrush x:Key="Main.Sidebar" Color="#FFFFFDFE" />
+  <SolidColorBrush x:Key="Main.Hover" Color="#FFFDEFF4" />
+  <SolidColorBrush x:Key="Main.Selected" Color="#FFFBE3EC" />
+  <SolidColorBrush x:Key="Main.Input" Color="#FFFCF3F6" />
+  <SolidColorBrush x:Key="Main.Divider" Color="#FFF4E4EA" />
+  <SolidColorBrush x:Key="Main.Border.Subtle" Color="#FFF8ECF0" />
+  <SolidColorBrush x:Key="Main.Text.Primary" Color="#FF291F24" />
+  <SolidColorBrush x:Key="Main.Text.Secondary" Color="#FF78666F" />
+  <SolidColorBrush x:Key="Main.Text.Tertiary" Color="#FFAB99A2" />
+  <SolidColorBrush x:Key="Main.Accent" Color="#FFE46B92" />
+  <SolidColorBrush x:Key="Main.Accent.Hover" Color="#FFD45780" />
+  <SolidColorBrush x:Key="Main.Accent.Soft" Color="#FFFDECF2" />
+  <SolidColorBrush x:Key="Main.Accent.Border" Color="#FFF6C6D6" />
+  <SolidColorBrush x:Key="Main.Toggle.On" Color="#FFEC7FA3" />
+  <SolidColorBrush x:Key="Main.Calendar.TodayTint" Color="#FFFFF4F8" />
+  <SolidColorBrush x:Key="Main.Danger" Color="#FFD64545" />
+  <SolidColorBrush x:Key="Main.Danger.Soft" Color="#FFFDECEF" />
+  <SolidColorBrush x:Key="Main.Toast.Bg" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Main.Toast.Text" Color="#FF291F24" />
+  <SolidColorBrush x:Key="Main.Eisenhower.High.Soft" Color="#FFFFF1EF" />
+  <SolidColorBrush x:Key="Main.Eisenhower.High.Border" Color="#FFFBD6D0" />
+  <SolidColorBrush x:Key="Main.Eisenhower.Medium.Soft" Color="#FFFFF7EB" />
+  <SolidColorBrush x:Key="Main.Eisenhower.Medium.Border" Color="#FFFBE1B8" />
+  <SolidColorBrush x:Key="Main.Eisenhower.Low.Soft" Color="#FFF2F7FF" />
+  <SolidColorBrush x:Key="Main.Eisenhower.Low.Border" Color="#FFD6E5FF" />
+  <SolidColorBrush x:Key="Main.Eisenhower.None.Soft" Color="#FFFDF6F8" />
+  <SolidColorBrush x:Key="Main.Eisenhower.None.Border" Color="#FFF2E4E9" />
+  <SolidColorBrush x:Key="Main.Shadow" Color="#1F3B1826" />
+  <SolidColorBrush x:Key="Main.Scroll.Thumb" Color="#2E3A242D" />
+  <SolidColorBrush x:Key="Main.Scroll.Thumb.Hover" Color="#523A242D" />
+  <BoxShadows x:Key="Main.Popup.Shadow">0 8 24 0 #1C2E141E</BoxShadows>
+  <BoxShadows x:Key="Main.Toast.Shadow">0 10 28 0 #292E141E</BoxShadows>
+  <BoxShadows x:Key="Main.Card.Shadow">0 2 8 0 #0A2E141E</BoxShadows>
+  <BoxShadows x:Key="Main.Toggle.Shadow">0 1 3 0 #26000000</BoxShadows>
+
+  <!-- 模型服务与对话页面（ADR-0043 / ADR-0044 / ADR-0045） -->
+  <SolidColorBrush x:Key="Provider.Card.Bg" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Provider.Card.Border" Color="#FFF3E4EA" />
+  <SolidColorBrush x:Key="Provider.Card.HoverBorder" Color="#FFF2B9CC" />
+  <SolidColorBrush x:Key="Provider.Badge.Bg" Color="#FFEAF8F1" />
+  <SolidColorBrush x:Key="Provider.Badge.Fg" Color="#FF1F8A5B" />
+  <SolidColorBrush x:Key="Provider.Warn.Bg" Color="#FFFFF6E8" />
+  <SolidColorBrush x:Key="Provider.Warn.Fg" Color="#FFC27613" />
+  <SolidColorBrush x:Key="Provider.Scrim" Color="#38291820" />
+
+  <SolidColorBrush x:Key="Assistant.Canvas.Bg" Color="#FFFFFDFE" />
+  <SolidColorBrush x:Key="Assistant.Sidebar.Bg" Color="#FFFEF5F8" />
+  <SolidColorBrush x:Key="Assistant.UserBubble.Bg" Color="#FFFDEEF4" />
+  <SolidColorBrush x:Key="Assistant.UserBubble.Border" Color="#FFF8D4E2" />
+  <SolidColorBrush x:Key="Assistant.AiCard.Bg" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Assistant.Composer.Bg" Color="#FFFFFFFF" />
+  <SolidColorBrush x:Key="Assistant.Composer.Border" Color="#FFF3DCE5" />
+  <SolidColorBrush x:Key="Assistant.Composer.FocusBorder" Color="#FFE46B92" />
+  <SolidColorBrush x:Key="Assistant.ToolChip.Bg" Color="#FFFEF4F8" />
+  <SolidColorBrush x:Key="Assistant.PetHalo" Color="#36F8A8C8" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Add.Bg" Color="#FFECFBF3" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Add.Fg" Color="#FF1F8A5B" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Move.Bg" Color="#FFFFF6E8" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Move.Fg" Color="#FFC27613" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Edit.Bg" Color="#FFFDEEF4" />
+  <SolidColorBrush x:Key="Assistant.Proposal.Edit.Fg" Color="#FFD45780" />
+  <SolidColorBrush x:Key="Proposal.Pill.Date.Bg" Color="#FFF3F0FF" />
+  <SolidColorBrush x:Key="Proposal.Pill.Date.Border" Color="#FFE0D6FF" />
+  <SolidColorBrush x:Key="Proposal.Pill.Date.Fg" Color="#FF6C4CE6" />
+  <SolidColorBrush x:Key="Proposal.Pill.Meta.Bg" Color="#FFF5F3F6" />
+  <SolidColorBrush x:Key="Proposal.Pill.Meta.Border" Color="#FFE8E2EA" />
+  <SolidColorBrush x:Key="Proposal.Pill.Meta.Fg" Color="#FF6D5E68" />
+  <SolidColorBrush x:Key="Markdown.Table.HeaderBg" Color="#FFFEF3F7" />
+  <SolidColorBrush x:Key="Markdown.Table.StripeBg" Color="#FFFFFAFC" />
+  <SolidColorBrush x:Key="Markdown.Table.Border" Color="#FFF0DCE4" />
+  <SolidColorBrush x:Key="Markdown.Code.Bg" Color="#FFFCF4F7" />
+  <SolidColorBrush x:Key="Markdown.Code.Border" Color="#FFF0DCE4" />
+  <SolidColorBrush x:Key="Mention.Pill.Bg" Color="#FFF4F1F4" />
+  <SolidColorBrush x:Key="Mention.Pill.Border" Color="#FFEAE1E7" />
+
+  <!-- 设置页主题选项的固定色样（不随主题变化：淡粉樱雾渐变） -->
+  <LinearGradientBrush x:Key="Theme.Swatch.Plana" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#FFFFC2D8" />
+    <GradientStop Offset="0.55" Color="#FFF48FB1" />
+    <GradientStop Offset="1" Color="#FFFFDCE8" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="Theme.Swatch.Blue" Color="#FF2F6BFF" />
+
+  <!-- Fluent 控件占位符颜色覆盖 -->
+  <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#998790" />
+  <SolidColorBrush x:Key="TextControlSelectionHighlightColor" Color="#F299B8" />
+
+  <!-- Fluent TextBox 背景/边框全部透明，由外层 Border.input 负责外观 -->
+  <SolidColorBrush x:Key="TextControlBackground" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBackgroundDisabled" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBorderBrush" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="TextControlBorderBrushDisabled" Color="#00FFFFFF" />
+
+</ResourceDictionary>

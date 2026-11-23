@@ -1,0 +1,725 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VGList.Desktop.Main.Calendar"
+             xmlns:tasks="using:VGList.Desktop.Main.Tasks"
+             xmlns:c="using:VGList.Desktop.Controls"
+             xmlns:s="using:VGList.Widgets.Support"
+             x:Class="VGList.Desktop.Main.Calendar.CalendarPageView"
+             x:DataType="vm:CalendarPageViewModel">
+
+  <UserControl.Styles>
+    <!-- 月视图日格 -->
+    <Style Selector="Border.m-cell">
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Border.Subtle}" />
+      <Setter Property="BorderThickness" Value="0,0,1,1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.m-cell.today">
+      <Setter Property="Background" Value="{DynamicResource Main.Calendar.TodayTint}" />
+    </Style>
+    <Style Selector="Border.m-cell:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Surface.Subtle}" />
+    </Style>
+    <Style Selector="Border.m-cell.drop-target">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+
+    <Style Selector="Border.cell-quick-add">
+      <Setter Property="Width" Value="20" />
+      <Setter Property="Height" Value="20" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="Opacity" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.m-cell:pointerover Border.cell-quick-add">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="Border.cell-quick-add:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+    </Style>
+
+    <!-- 周视图列 -->
+    <Style Selector="Border.w-col">
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Border.Subtle}" />
+      <Setter Property="BorderThickness" Value="0,0,1,0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.w-col.today">
+      <Setter Property="Background" Value="{DynamicResource Main.Calendar.TodayTint}" />
+    </Style>
+    <Style Selector="Border.w-col.drop-target">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+
+    <!-- 任务条芯片（支持拖拽改期与点击详情） -->
+    <Style Selector="Border.cal-chip">
+      <Setter Property="Height" Value="19" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.cal-chip.high">
+      <Setter Property="Background" Value="{DynamicResource Main.Eisenhower.High.Soft}" />
+    </Style>
+    <Style Selector="Border.cal-chip.medium">
+      <Setter Property="Background" Value="{DynamicResource Main.Eisenhower.Medium.Soft}" />
+    </Style>
+    <Style Selector="Border.cal-chip.low">
+      <Setter Property="Background" Value="{DynamicResource Main.Eisenhower.Low.Soft}" />
+    </Style>
+    <Style Selector="Border.cal-chip.done">
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="Opacity" Value="0.65" />
+    </Style>
+    <Style Selector="Border.cal-chip.selected">
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- 周视图任务卡片 -->
+    <Style Selector="Border.week-card">
+      <Setter Property="Padding" Value="10,8" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Border.Subtle}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.week-card:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Surface.Subtle}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent.Border}" />
+    </Style>
+    <Style Selector="Border.week-card.selected">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+    </Style>
+    <Style Selector="Border.week-card.done">
+      <Setter Property="Opacity" Value="0.65" />
+    </Style>
+
+    <Style Selector="Border.mini-check">
+      <Setter Property="Width" Value="13" />
+      <Setter Property="Height" Value="13" />
+      <Setter Property="CornerRadius" Value="3.5" />
+      <Setter Property="BorderThickness" Value="1.4" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Priority.None}" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Border.mini-check.high">
+      <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+    </Style>
+    <Style Selector="Border.mini-check.medium">
+      <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+    </Style>
+    <Style Selector="Border.mini-check.low">
+      <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+    </Style>
+    <Style Selector="Border.mini-check.done">
+      <Setter Property="Background" Value="{DynamicResource Checkbox.Done}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Checkbox.Done}" />
+    </Style>
+
+    <!-- 今天正圆日号徽标 -->
+    <Style Selector="Border.cal-today-badge">
+      <Setter Property="Width" Value="22" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="Background" Value="{DynamicResource Main.Accent}" />
+    </Style>
+    <Style Selector="Border.cal-today-badge.first-day">
+      <Setter Property="Width" Value="NaN" />
+      <Setter Property="MinWidth" Value="22" />
+      <Setter Property="Padding" Value="6,0" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid x:Name="CalendarRoot" ColumnDefinitions="*,Auto" Background="{DynamicResource Main.Bg}">
+    <Grid Grid.Column="0" RowDefinitions="Auto,*">
+
+      <!-- 顶部工具栏 -->
+      <Border Grid.Row="0"
+              Padding="20,10,20,10"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="0,0,0,1"
+              Background="{DynamicResource Main.Bg}">
+        <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Path Data="M3,5 H17 V17 H3 Z M3,9 H17 M6.5,3 V6.5 M13.5,3 V6.5"
+                  Stroke="{DynamicResource Main.Accent}"
+                  StrokeThickness="1.5"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="None"
+                  Width="18"
+                  Height="18"
+                  VerticalAlignment="Center" />
+            <TextBlock Text="{Binding PeriodTitle}"
+                       FontFamily="{DynamicResource Font.Display}"
+                       FontSize="20"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Main.Text.Primary}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+
+          <!-- 翻页导航组 -->
+          <Border Grid.Column="1"
+                  Margin="16,0,0,0"
+                  Height="30"
+                  CornerRadius="8"
+                  BorderBrush="{DynamicResource Main.Divider}"
+                  BorderThickness="1"
+                  Background="{DynamicResource Main.Bg}"
+                  VerticalAlignment="Center">
+            <Grid ColumnDefinitions="28,Auto,28">
+              <Border Classes="icon-btn" Width="28" Height="28" ToolTip.Tip="上一页" PointerPressed="OnPrevPressed">
+                <Path Data="M5,1 L1.5,4.5 L5,8"
+                      Stroke="{DynamicResource Main.Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="6"
+                      Height="9"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+              </Border>
+              <Border Grid.Column="1"
+                      Padding="10,0"
+                      Background="Transparent"
+                      Cursor="Hand"
+                      PointerPressed="OnTodayPressed">
+                <TextBlock Text="今天"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Main.Text.Primary}"
+                           VerticalAlignment="Center" />
+              </Border>
+              <Border Grid.Column="2" Classes="icon-btn" Width="28" Height="28" ToolTip.Tip="下一页" PointerPressed="OnNextPressed">
+                <Path Data="M1,1 L4.5,4.5 L1,8"
+                      Stroke="{DynamicResource Main.Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="6"
+                      Height="9"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+              </Border>
+            </Grid>
+          </Border>
+
+          <!-- 右侧视图切换 -->
+          <Border Grid.Column="4"
+                  Classes="segment-group"
+                  VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Border Classes="segment-item" Classes.selected="{Binding IsMonthView}" PointerPressed="OnSwitchMonthPressed">
+                <TextBlock Text="月" />
+              </Border>
+              <Border Classes="segment-item" Classes.selected="{Binding IsWeekView}" PointerPressed="OnSwitchWeekPressed">
+                <TextBlock Text="周" />
+              </Border>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- 主体视图区 -->
+      <Panel x:Name="CalendarBodyHost" Grid.Row="1">
+
+        <!-- 月视图 -->
+        <Grid RowDefinitions="28,*" IsVisible="{Binding IsMonthView}">
+          <Border Grid.Row="0"
+                  Background="{DynamicResource Main.Surface.Subtle}"
+                  BorderBrush="{DynamicResource Main.Divider}"
+                  BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+              <TextBlock Text="周日" FontSize="12" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="周一" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="2" Text="周二" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="3" Text="周三" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="4" Text="周四" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="5" Text="周五" FontSize="12" Foreground="{DynamicResource Main.Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="6" Text="周六" FontSize="12" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+
+          <ItemsControl x:Name="MonthGridControl"
+                        Grid.Row="1"
+                        Classes="grid-stretch"
+                        ItemsSource="{Binding MonthCells}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="7" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:CalendarMonthCellViewModel">
+                <Border Classes="m-cell"
+                        Classes.today="{Binding IsToday}"
+                        Classes.drop-target="{Binding IsDropTarget}"
+                        PointerPressed="OnMonthCellPressed">
+                  <Grid Margin="6,4" RowDefinitions="Auto,*,Auto" Opacity="{Binding ContentOpacity}">
+
+                    <!-- 日号 + 农历 + 悬停新建 -->
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                      <Border Classes="cal-today-badge"
+                              Classes.first-day="{Binding IsFirstDay}"
+                              IsVisible="{Binding IsToday}">
+                        <TextBlock Text="{Binding DayLabel}"
+                                   FontSize="11.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Text.OnAccent}"
+                                   TextAlignment="Center"
+                                   Margin="0,-0.5,0,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                      <TextBlock Text="{Binding DayLabel}"
+                                 FontSize="12"
+                                 FontWeight="SemiBold"
+                                 Foreground="{DynamicResource Main.Text.Primary}"
+                                 Margin="4,2,0,0"
+                                 IsVisible="{Binding !IsToday}"
+                                 VerticalAlignment="Center" />
+
+                      <TextBlock Grid.Column="2"
+                                 Classes="cal-lunar"
+                                 Classes.festival="{Binding IsFestival}"
+                                 Classes.term="{Binding IsSolarTerm}"
+                                 Text="{Binding LunarLabel}"
+                                 Margin="4,0"
+                                 VerticalAlignment="Center" />
+
+                      <Border Grid.Column="3"
+                              Classes="cell-quick-add"
+                              ToolTip.Tip="在此日新建任务"
+                              PointerPressed="OnCellQuickAddPressed">
+                        <Path Data="M5,1 V9 M1,5 H9"
+                              Stroke="{DynamicResource Main.Accent}"
+                              StrokeThickness="1.3"
+                              StrokeLineCap="Round"
+                              Stretch="None"
+                              Width="10"
+                              Height="10"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                      </Border>
+                    </Grid>
+
+                    <!-- 任务芯片列表（支持拖拽改期） -->
+                    <ItemsControl Grid.Row="1"
+                                  Classes="stretch"
+                                  Margin="0,3,0,0"
+                                  ItemsSource="{Binding VisibleTasks}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Spacing="2" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CalendarTaskItemViewModel">
+                          <Border Classes="cal-chip"
+                                  Classes.high="{Binding IsHigh}"
+                                  Classes.medium="{Binding IsMedium}"
+                                  Classes.low="{Binding IsLow}"
+                                  Classes.done="{Binding IsCompleted}"
+                                  Classes.selected="{Binding IsSelected}"
+                                  ToolTip.Tip="点击查看详情 · 拖拽到其他日期改期"
+                                  PointerPressed="OnCalendarTaskPointerPressed">
+                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="5,0">
+                              <Border Classes="mini-check"
+                                      Classes.high="{Binding IsHigh}"
+                                      Classes.medium="{Binding IsMedium}"
+                                      Classes.low="{Binding IsLow}"
+                                      Classes.done="{Binding IsCompleted}"
+                                      VerticalAlignment="Center"
+                                      PointerPressed="OnCalendarTaskCheckPressed">
+                                <Path Data="M1,4 L3.5,6.5 L8,1.5"
+                                      Stroke="{DynamicResource Text.OnAccent}"
+                                      StrokeThickness="1.3"
+                                      StrokeLineCap="Round"
+                                      Stretch="Uniform"
+                                      Width="8"
+                                      Height="7"
+                                      IsVisible="{Binding IsCompleted}" />
+                              </Border>
+
+                              <TextBlock Grid.Column="1"
+                                         Text="{Binding Title}"
+                                         FontSize="11"
+                                         Foreground="{DynamicResource Main.Text.Primary}"
+                                         Margin="5,0,0,0"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+
+                              <s:SubtaskPieControl Grid.Column="2"
+                                                   Width="11"
+                                                   Height="11"
+                                                   Margin="4,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   CompletedCount="{Binding SubtasksCompleted}"
+                                                   TotalCount="{Binding SubtasksTotal}"
+                                                   RingBrush="{DynamicResource Main.Text.Tertiary}"
+                                                   FillBrush="{DynamicResource Main.Text.Secondary}"
+                                                   IsVisible="{Binding HasSubtasks}" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- +N 溢出按钮 -->
+                    <Border Grid.Row="2"
+                            HorizontalAlignment="Left"
+                            Padding="6,1"
+                            Margin="0,2,0,0"
+                            CornerRadius="4"
+                            Background="{DynamicResource Main.Input}"
+                            IsVisible="{Binding HasOverflow}"
+                            PointerPressed="OnMonthOverflowPressed">
+                      <TextBlock Text="{Binding OverflowLabel}"
+                                 FontSize="10"
+                                 FontWeight="SemiBold"
+                                 Foreground="{DynamicResource Main.Text.Secondary}" />
+                    </Border>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Grid>
+
+        <!-- 周视图 -->
+        <ItemsControl x:Name="WeekColumnsControl"
+                      Classes="grid-stretch"
+                      ItemsSource="{Binding WeekColumns}"
+                      IsVisible="{Binding IsWeekView}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Columns="7" Rows="1" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:CalendarWeekDayViewModel">
+              <Border Classes="w-col"
+                      Classes.today="{Binding IsToday}"
+                      Classes.drop-target="{Binding IsDropTarget}">
+                <Grid RowDefinitions="Auto,*">
+                  <!-- 列头 -->
+                  <Border Grid.Row="0"
+                          Padding="10,12"
+                          BorderBrush="{DynamicResource Main.Border.Subtle}"
+                          BorderThickness="0,0,0,1"
+                          Background="{DynamicResource Main.Surface.Subtle}">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="2">
+                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding WeekdayLabel}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Secondary}"
+                                     VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding LunarLabel}"
+                                     FontSize="10"
+                                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                                     IsVisible="{Binding !IsFestival}"
+                                     VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding LunarLabel}"
+                                     FontSize="10"
+                                     Foreground="{DynamicResource Calendar.Festival}"
+                                     IsVisible="{Binding IsFestival}"
+                                     VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                          <Border Width="26"
+                                  Height="26"
+                                  CornerRadius="13"
+                                  Background="{DynamicResource Main.Accent}"
+                                  IsVisible="{Binding IsToday}">
+                            <TextBlock Text="{Binding DayNumber}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Text.OnAccent}"
+                                       TextAlignment="Center"
+                                       Margin="0,-0.5,0,0"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                          </Border>
+                          <TextBlock Text="{Binding DayNumber}"
+                                     FontSize="18"
+                                     FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     IsVisible="{Binding !IsToday}" />
+                        </StackPanel>
+                      </StackPanel>
+
+                      <Border Grid.Column="1"
+                              Classes="icon-btn"
+                              Width="24"
+                              Height="24"
+                              VerticalAlignment="Top"
+                              ToolTip.Tip="在此日新建任务"
+                              PointerPressed="OnWeekAddPressed">
+                        <Path Data="M6,1.5 V10.5 M1.5,6 H10.5"
+                              Stroke="{DynamicResource Main.Text.Secondary}"
+                              StrokeThickness="1.4"
+                              StrokeLineCap="Round"
+                              Stretch="None"
+                              Width="12"
+                              Height="12"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                      </Border>
+                    </Grid>
+                  </Border>
+
+                  <!-- 列任务卡片区 -->
+                  <ScrollViewer Grid.Row="1"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled"
+                                Padding="6,8">
+                    <StackPanel Spacing="6">
+                      <ItemsControl Classes="stretch" ItemsSource="{Binding Tasks}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Spacing="6" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:CalendarTaskItemViewModel">
+                            <Border Classes="week-card"
+                                    Classes.selected="{Binding IsSelected}"
+                                    Classes.done="{Binding IsCompleted}"
+                                    ToolTip.Tip="点击详情 · 拖拽跨天改期"
+                                    PointerPressed="OnCalendarTaskPointerPressed">
+                              <StackPanel Spacing="4">
+                                <Grid ColumnDefinitions="Auto,*">
+                                  <Border Classes="mini-check"
+                                          Classes.high="{Binding IsHigh}"
+                                          Classes.medium="{Binding IsMedium}"
+                                          Classes.low="{Binding IsLow}"
+                                          Classes.done="{Binding IsCompleted}"
+                                          Margin="0,2,7,0"
+                                          VerticalAlignment="Top"
+                                          PointerPressed="OnCalendarTaskCheckPressed">
+                                    <Path Data="M1,4 L3.5,6.5 L8,1.5"
+                                          Stroke="{DynamicResource Text.OnAccent}"
+                                          StrokeThickness="1.3"
+                                          StrokeLineCap="Round"
+                                          Stretch="Uniform"
+                                          Width="8"
+                                          Height="7"
+                                          IsVisible="{Binding IsCompleted}" />
+                                  </Border>
+                                  <TextBlock Grid.Column="1"
+                                             Text="{Binding Title}"
+                                             FontSize="12"
+                                             FontWeight="SemiBold"
+                                             Foreground="{DynamicResource Main.Text.Primary}"
+                                             TextWrapping="Wrap"
+                                             MaxLines="2" />
+                                </Grid>
+
+                                <TextBlock Text="{Binding DescriptionPreview}"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource Main.Text.Secondary}"
+                                           TextTrimming="CharacterEllipsis"
+                                           IsVisible="{Binding HasDescription}" />
+
+                                <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                  <TextBlock Text="{Binding ListName}"
+                                             FontSize="10"
+                                             Foreground="{DynamicResource Main.Text.Tertiary}"
+                                             VerticalAlignment="Center" />
+                                  <s:SubtaskPieControl Grid.Column="2"
+                                                       Width="12"
+                                                       Height="12"
+                                                       CompletedCount="{Binding SubtasksCompleted}"
+                                                       TotalCount="{Binding SubtasksTotal}"
+                                                       RingBrush="{DynamicResource Main.Text.Tertiary}"
+                                                       FillBrush="{DynamicResource Main.Text.Secondary}"
+                                                       IsVisible="{Binding HasSubtasks}"
+                                                       VerticalAlignment="Center" />
+                                </Grid>
+                              </StackPanel>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                      <TextBlock Text="无日程"
+                                 FontSize="11"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 HorizontalAlignment="Center"
+                                 Margin="0,16,0,0"
+                                 IsVisible="{Binding IsEmpty}" />
+                    </StackPanel>
+                  </ScrollViewer>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 拖拽跟随幽灵胶囊 -->
+        <Canvas IsHitTestVisible="False">
+          <Border x:Name="DragGhost"
+                  IsVisible="False"
+                  Padding="10,6"
+                  CornerRadius="8"
+                  Background="{DynamicResource Main.Toast.Bg}"
+                  BoxShadow="{DynamicResource Main.Toast.Shadow}">
+            <TextBlock x:Name="DragGhostText"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Main.Toast.Text}" />
+          </Border>
+        </Canvas>
+
+        <!-- 窗内浮层点击外侧收起 -->
+        <Border Background="Transparent"
+                IsVisible="{Binding HasAnyOverlay}"
+                PointerPressed="OnOverlayDismissPressed" />
+
+        <!-- 日历点击侧向悬浮新建/编辑 & 当日任务清单浮层（无原生 Popup 矩形边缘） -->
+        <Canvas IsVisible="{Binding HasAnyOverlay}">
+          <c:TaskQuickCreateCard x:Name="QuickAddCard"
+                                 DataContext="{Binding QuickCreate}"
+                                 IsVisible="{Binding $parent[UserControl].((vm:CalendarPageViewModel)DataContext).IsQuickAddOpen}"
+                                 Submitted="OnQuickCreateSubmitted"
+                                 Cancelled="OnQuickCreateCancelled"
+                                 DeleteRequested="OnQuickCreateDeleteRequested" />
+
+          <Border x:Name="OverflowOverlay"
+                  Width="320"
+                  Padding="14"
+                  CornerRadius="12"
+                  Background="{DynamicResource Main.Bg}"
+                  BorderBrush="{DynamicResource Main.Divider}"
+                  BorderThickness="1"
+                  BoxShadow="{DynamicResource Main.Popup.Shadow}"
+                  IsVisible="{Binding IsOverflowOpen}"
+                  PointerPressed="OnOverlayCardPressed">
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding OverflowTitle}"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Main.Text.Primary}"
+                           VerticalAlignment="Center" />
+                <Border Grid.Column="1" Classes="icon-btn" Width="24" Height="24" PointerPressed="OnCloseOverflowPressed">
+                  <Path Data="M2,2 L10,10 M10,2 L2,10"
+                        Stroke="{DynamicResource Main.Text.Secondary}"
+                        StrokeThickness="1.3"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="12"
+                        Height="12"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+              <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+                <ItemsControl Classes="stretch" ItemsSource="{Binding OverflowTasks}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Spacing="4" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CalendarTaskItemViewModel">
+                      <Border Classes="cal-chip"
+                              Classes.high="{Binding IsHigh}"
+                              Classes.medium="{Binding IsMedium}"
+                              Classes.low="{Binding IsLow}"
+                              Classes.done="{Binding IsCompleted}"
+                              Height="28"
+                              PointerPressed="OnOverflowItemPressed">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,0">
+                          <Border Classes="mini-check"
+                                  Classes.high="{Binding IsHigh}"
+                                  Classes.medium="{Binding IsMedium}"
+                                  Classes.low="{Binding IsLow}"
+                                  Classes.done="{Binding IsCompleted}"
+                                  VerticalAlignment="Center"
+                                  PointerPressed="OnCalendarTaskCheckPressed">
+                            <Path Data="M1,4 L3.5,6.5 L8,1.5"
+                                  Stroke="{DynamicResource Text.OnAccent}"
+                                  StrokeThickness="1.3"
+                                  StrokeLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="8"
+                                  Height="7"
+                                  IsVisible="{Binding IsCompleted}" />
+                          </Border>
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding Title}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Main.Text.Primary}"
+                                     Margin="8,0"
+                                     TextTrimming="CharacterEllipsis"
+                                     VerticalAlignment="Center" />
+                          <s:SubtaskPieControl Grid.Column="2"
+                                               Width="12"
+                                               Height="12"
+                                               Margin="0,0,6,0"
+                                               VerticalAlignment="Center"
+                                               CompletedCount="{Binding SubtasksCompleted}"
+                                               TotalCount="{Binding SubtasksTotal}"
+                                               RingBrush="{DynamicResource Main.Text.Tertiary}"
+                                               FillBrush="{DynamicResource Main.Text.Secondary}"
+                                               IsVisible="{Binding HasSubtasks}" />
+                          <TextBlock Grid.Column="3"
+                                     Text="{Binding ListName}"
+                                     FontSize="11"
+                                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                                     VerticalAlignment="Center" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </StackPanel>
+          </Border>
+        </Canvas>
+
+      </Panel>
+    </Grid>
+  </Grid>
+</UserControl>

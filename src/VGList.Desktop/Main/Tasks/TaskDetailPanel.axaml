@@ -1,0 +1,563 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VGList.Desktop.Main.Tasks"
+             xmlns:c="using:VGList.Desktop.Controls"
+             xmlns:s="using:VGList.Widgets.Support"
+             x:Class="VGList.Desktop.Main.Tasks.TaskDetailPanel"
+             x:DataType="vm:MainTaskDetailViewModel">
+
+  <Panel x:Name="DetailHost">
+    <Grid x:Name="PanelRoot"
+          RowDefinitions="Auto,Auto,Auto,*,Auto,Auto"
+          Margin="24,12,24,0">
+
+    <!-- 顶部栏：复选框 · 可自动换行的元信息胶囊（日期 / 提醒 / 重复 / 优先级统一 26px 高度）· 固定右侧关闭 -->
+    <Grid Grid.Row="0" MinHeight="44" ColumnDefinitions="Auto,Auto,*,Auto">
+      <Border Classes="check"
+              Classes.high="{Binding IsHigh}"
+              Classes.medium="{Binding IsMedium}"
+              Classes.low="{Binding IsLow}"
+              Classes.done="{Binding IsCompleted}"
+              VerticalAlignment="Top"
+              Margin="0,13,0,0"
+              PointerPressed="OnCheckPressed">
+        <Path Classes="checkmark"
+              Classes.shown="{Binding IsCompleted}"
+              Data="M1,5 L4.4,8.4 L11,1.6"
+              Stroke="{DynamicResource Text.OnAccent}"
+              StrokeThickness="1.6"
+              StrokeLineCap="Round"
+              Stretch="Uniform"
+              Width="11"
+              Height="9" />
+      </Border>
+
+      <Border Grid.Column="1"
+              Width="1"
+              Height="16"
+              Background="{DynamicResource Main.Divider}"
+              Margin="12,14,12,0"
+              VerticalAlignment="Top" />
+
+      <WrapPanel Grid.Column="2"
+                 Orientation="Horizontal"
+                 Margin="0,6,4,6"
+                 VerticalAlignment="Top">
+        <!-- 日期 chip -->
+        <Border x:Name="DateChip"
+                Classes="date-chip"
+                Classes.overdue="{Binding IsOverdue}"
+                Margin="0,3,6,3"
+                VerticalAlignment="Center"
+                PointerPressed="OnDatePressed">
+          <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+            <Path Data="M2,3 H14 M4,1 V4.5 M12,1 V4.5 M2,3 V13 H14 V3"
+                  Stroke="{DynamicResource Main.Accent}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="None"
+                  Width="14"
+                  Height="12"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding !IsOverdue}" />
+            <Path Data="M2,3 H14 M4,1 V4.5 M12,1 V4.5 M2,3 V13 H14 V3"
+                  Stroke="{DynamicResource Main.Danger}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="None"
+                  Width="14"
+                  Height="12"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding IsOverdue}" />
+            <TextBlock Text="{Binding DateLabel}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Accent}"
+                       IsVisible="{Binding !IsOverdue}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding DateLabel}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Danger}"
+                       IsVisible="{Binding IsOverdue}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- 提醒 chip（与日期/优先级统一 26px 高度） -->
+        <Border x:Name="ReminderChip"
+                Classes="priority-chip"
+                Margin="0,3,6,3"
+                VerticalAlignment="Center"
+                ToolTip.Tip="{Binding ReminderTooltip}"
+                PointerPressed="OnReminderPressed">
+          <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <Path Data="M6.5,1.5 C4.2,1.5 2.5,3.2 2.5,5.5 V8.5 L1.3,10 H11.7 L10.5,8.5 V5.5 C10.5,3.2 8.8,1.5 6.5,1.5 Z M5.2,10.5 C5.4,11.3 5.9,11.8 6.5,11.8 C7.1,11.8 7.6,11.3 7.8,10.5"
+                  Stroke="{DynamicResource Main.Accent}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="Uniform"
+                  Width="12"
+                  Height="12"
+                  IsVisible="{Binding HasReminder}"
+                  VerticalAlignment="Center" />
+            <Path Data="M6.5,1.5 C4.2,1.5 2.5,3.2 2.5,5.5 V8.5 L1.3,10 H11.7 L10.5,8.5 V5.5 C10.5,3.2 8.8,1.5 6.5,1.5 Z M5.2,10.5 C5.4,11.3 5.9,11.8 6.5,11.8 C7.1,11.8 7.6,11.3 7.8,10.5"
+                  Stroke="{DynamicResource Main.Text.Tertiary}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="Uniform"
+                  Width="12"
+                  Height="12"
+                  IsVisible="{Binding !HasReminder}"
+                  VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ReminderChipLabel}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Accent}"
+                       IsVisible="{Binding HasReminder}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="提醒"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       IsVisible="{Binding !HasReminder}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- 重复规则 chip（统一 26px 高度） -->
+        <Border x:Name="RecurrenceChip"
+                Classes="priority-chip"
+                Margin="0,3,6,3"
+                VerticalAlignment="Center"
+                ToolTip.Tip="设置重复周期（完成后自动生成下一期）"
+                PointerPressed="OnRecurrencePressed">
+          <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <TextBlock Text="↻"
+                       FontSize="12.5"
+                       Foreground="{DynamicResource Main.Accent}"
+                       IsVisible="{Binding HasRecurrence}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="↻"
+                       FontSize="12.5"
+                       Foreground="{DynamicResource Main.Text.Tertiary}"
+                       IsVisible="{Binding !HasRecurrence}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding RecurrenceLabel}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Accent}"
+                       IsVisible="{Binding HasRecurrence}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="重复"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       IsVisible="{Binding !HasRecurrence}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- 优先级 chip（统一 26px 高度） -->
+        <Border x:Name="PriorityChip"
+                Classes="priority-chip"
+                Margin="0,3,6,3"
+                VerticalAlignment="Center"
+                PointerPressed="OnPriorityPressed">
+          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <Ellipse Classes="priority"
+                     Classes.high="{Binding IsHigh}"
+                     Classes.medium="{Binding IsMedium}"
+                     Classes.low="{Binding IsLow}"
+                     Width="8"
+                     Height="8"
+                     VerticalAlignment="Center" />
+            <TextBlock Text="{Binding PriorityText}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center" />
+            <Path Data="M1,1.5 L4,4.5 L7,1.5"
+                  Stroke="{DynamicResource Main.Text.Tertiary}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  Stretch="None"
+                  Width="8"
+                  Height="6"
+                  VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+      </WrapPanel>
+
+      <!-- 关闭详情（始终固定在最右侧，永不被挤压） -->
+      <Border Grid.Column="3"
+              Classes="icon-btn"
+              Margin="4,8,0,0"
+              ToolTip.Tip="关闭详情 (Esc)"
+              VerticalAlignment="Top"
+              PointerPressed="OnClosePressed">
+        <Path Data="M1.5,1.5 L10.5,10.5 M10.5,1.5 L1.5,10.5"
+              Stroke="{DynamicResource Main.Text.Secondary}"
+              StrokeThickness="1.4"
+              StrokeLineCap="Round"
+              Stretch="None"
+              Width="12"
+              Height="12"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+      </Border>
+    </Grid>
+
+    <!-- 标题 + 待办事项模式切换 -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+      <TextBox x:Name="TitleBox"
+               Classes="bare detail-title"
+               Text="{Binding Title, Mode=TwoWay}"
+               PlaceholderText="任务标题" />
+      <Border Grid.Column="1"
+              Classes="icon-btn"
+              Width="28"
+              Height="28"
+              CornerRadius="7"
+              Margin="6,2,0,0"
+              VerticalAlignment="Top"
+              Background="{DynamicResource Main.Input}"
+              ToolTip.Tip="切换待办事项 / 多行描述"
+              PointerPressed="OnToggleChecklistPressed">
+        <Path Data="M3,4 H5 M8,4 H15 M3,9 H5 M8,9 H15 M3,14 H5 M8,14 H13"
+              Stroke="{DynamicResource Main.Text.Secondary}"
+              StrokeThickness="1.4"
+              StrokeLineCap="Round"
+              Stretch="None"
+              Width="17"
+              Height="17"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+      </Border>
+    </Grid>
+
+    <!-- 标签条：现有标签胶囊 + 行内快速添加 -->
+    <WrapPanel Grid.Row="2"
+               Orientation="Horizontal"
+               Margin="0,8,0,2">
+      <ItemsControl ItemsSource="{Binding Tags}" VerticalAlignment="Center">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="x:String">
+            <Border Margin="0,0,6,4"
+                    Padding="7,2"
+                    CornerRadius="6"
+                    Background="{DynamicResource Main.Accent.Soft}"
+                    BorderBrush="{DynamicResource Main.Accent.Border}"
+                    BorderThickness="1">
+              <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <TextBlock Text="{Binding StringFormat=#{0}}"
+                           FontSize="11.5"
+                           Foreground="{DynamicResource Main.Accent}"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="×"
+                           FontSize="12"
+                           Foreground="{DynamicResource Main.Text.Tertiary}"
+                           Cursor="Hand"
+                           ToolTip.Tip="移除标签"
+                           Tag="{Binding}"
+                           PointerPressed="OnRemoveTagPressed"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Border Margin="0,0,0,4"
+              Padding="7,2"
+              CornerRadius="6"
+              Background="{DynamicResource Main.Input}"
+              VerticalAlignment="Center">
+        <TextBox x:Name="TagInputBox"
+                 Classes="bare"
+                 MinWidth="72"
+                 MaxWidth="140"
+                 FontSize="11.5"
+                 Text="{Binding NewTagText, Mode=TwoWay}"
+                 PlaceholderText="+ 添加标签"
+                 VerticalContentAlignment="Center" />
+      </Border>
+    </WrapPanel>
+
+    <!-- 描述 / 待办事项编辑区 -->
+    <Panel Grid.Row="3" Margin="0,8,0,8">
+      <TextBox x:Name="ContentBox"
+               Classes="bare detail-content"
+               Text="{Binding Content, Mode=TwoWay}"
+               PlaceholderText="添加任务描述…支持多行记录"
+               ScrollViewer.VerticalScrollBarVisibility="Auto"
+               IsVisible="{Binding !IsChecklistMode}" />
+
+      <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled"
+                    IsVisible="{Binding IsChecklistMode}">
+        <ItemsControl x:Name="DetailSubtasksControl" Classes="stretch" ItemsSource="{Binding Subtasks}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="s:QuickSubtaskItem">
+              <Border BorderBrush="{DynamicResource Main.Border.Subtle}"
+                      BorderThickness="0,0,0,1"
+                      Padding="0,5">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Border Width="16"
+                          Height="16"
+                          CornerRadius="4.5"
+                          BorderThickness="1.4"
+                          BorderBrush="{DynamicResource Priority.None}"
+                          Background="Transparent"
+                          Cursor="Hand"
+                          Margin="0,0,10,0"
+                          VerticalAlignment="Center"
+                          IsVisible="{Binding !IsCompleted}"
+                          PointerPressed="OnDetailSubtaskCheckPressed" />
+                  <Border Width="16"
+                          Height="16"
+                          CornerRadius="4.5"
+                          Background="{DynamicResource Main.Accent}"
+                          Cursor="Hand"
+                          Margin="0,0,10,0"
+                          VerticalAlignment="Center"
+                          IsVisible="{Binding IsCompleted}"
+                          PointerPressed="OnDetailSubtaskCheckPressed">
+                    <Path Data="M1,4.5 L3.8,7.3 L9,1.5"
+                          Stroke="{DynamicResource Text.OnAccent}"
+                          StrokeThickness="1.5"
+                          StrokeLineCap="Round"
+                          Stretch="Uniform"
+                          Width="10"
+                          Height="8"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                  </Border>
+                  <TextBox Grid.Column="1"
+                           Classes="bare"
+                           Text="{Binding Title, Mode=TwoWay}"
+                           PlaceholderText="回车添加下一项"
+                           FontSize="14"
+                           Foreground="{DynamicResource Main.Text.Primary}"
+                           Padding="0,2" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Panel>
+
+    <!-- 辅助信息条 -->
+    <Grid Grid.Row="4" ColumnDefinitions="*,Auto,Auto" Margin="0,4,0,6">
+      <TextBlock Text="{Binding CreatedLabel}"
+                 FontSize="11"
+                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                 VerticalAlignment="Center" />
+      <s:SubtaskPieControl Grid.Column="1"
+                           Width="13"
+                           Height="13"
+                           Margin="0,0,6,0"
+                           VerticalAlignment="Center"
+                           CompletedCount="{Binding SubtasksCompleted}"
+                           TotalCount="{Binding SubtasksTotal}"
+                           RingBrush="{DynamicResource Main.Text.Tertiary}"
+                           FillBrush="{DynamicResource Main.Text.Secondary}"
+                           IsVisible="{Binding HasSubtasks}" />
+      <TextBlock Grid.Column="2"
+                 Text="{Binding ContentMetaLabel}"
+                 FontSize="11"
+                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                 IsVisible="{Binding HasContentMeta}"
+                 VerticalAlignment="Center" />
+    </Grid>
+
+    <!-- 底部条：清单切换 + 删除 -->
+    <Border Grid.Row="5"
+            BorderBrush="{DynamicResource Main.Border.Subtle}"
+            BorderThickness="0,1,0,0"
+            Padding="0,8,0,16">
+      <Grid Height="36" ColumnDefinitions="Auto,*,Auto">
+        <Border x:Name="ListChip"
+                Classes="list-chip"
+                VerticalAlignment="Center"
+                PointerPressed="OnListPressed">
+          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <Ellipse Width="8" Height="8" Fill="{DynamicResource Calendar.Festival}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ListName}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Primary}"
+                       VerticalAlignment="Center" />
+            <Path Data="M1,1.5 L4,5 L7,1.5"
+                  Stroke="{DynamicResource Main.Text.Tertiary}"
+                  StrokeThickness="1.3"
+                  StrokeLineCap="Round"
+                  Stretch="None"
+                  Width="8"
+                  Height="6"
+                  VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="2"
+                Classes="trash-btn"
+                VerticalAlignment="Center"
+                ToolTip.Tip="删除任务 (可撤销)"
+                PointerPressed="OnDeletePressed">
+          <Path Data="M3,5.5 H15 M6,5.5 V15 H12 V5.5 M8,5.5 V3.5 H10 V5.5"
+                StrokeThickness="1.4"
+                StrokeLineCap="Round"
+                StrokeJoin="Round"
+                Stretch="None"
+                Width="16"
+                Height="16"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+
+    <!-- 详情页窗内浮层层（避免原生 Popup 矩形边框阴影） -->
+    <Border Background="Transparent"
+            IsVisible="{Binding HasAnyOverlay}"
+            PointerPressed="OnOverlayDismissPressed" />
+
+    <Canvas IsVisible="{Binding HasAnyOverlay}">
+      <c:DatePickerPopover x:Name="DetailDateOverlay"
+                           DataContext="{Binding DatePicker}"
+                           IsVisible="{Binding $parent[vm:TaskDetailPanel].((vm:MainTaskDetailViewModel)DataContext).IsCalendarOpen}"
+                           PointerPressed="OnOverlayCardPressed" />
+
+      <c:ReminderEditorPopover x:Name="DetailReminderOverlay"
+                               DataContext="{Binding ReminderEditor}"
+                               IsVisible="{Binding $parent[vm:TaskDetailPanel].((vm:MainTaskDetailViewModel)DataContext).IsReminderMenuOpen}"
+                               PointerPressed="OnOverlayCardPressed" />
+
+      <Border x:Name="DetailPriorityOverlay"
+              Width="168"
+              Padding="4"
+              CornerRadius="12"
+              Background="{DynamicResource Main.Bg}"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="1"
+              BoxShadow="{DynamicResource Main.Popup.Shadow}"
+              IsVisible="{Binding IsPriorityMenuOpen}"
+              PointerPressed="OnOverlayCardPressed">
+        <StackPanel>
+          <Border Classes="menu-item" PointerPressed="OnPriorityHighPressed">
+            <Grid ColumnDefinitions="20,*,Auto">
+              <Ellipse Width="9" Height="9" Fill="{DynamicResource Priority.High}" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="高优先级" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+              <Path Grid.Column="2" Data="M1,5.5 L4,8.5 L10,1.5" Stroke="{DynamicResource Main.Accent}" StrokeThickness="1.5" StrokeLineCap="Round" Stretch="None" Width="11" Height="9" VerticalAlignment="Center" IsVisible="{Binding IsHigh}" />
+            </Grid>
+          </Border>
+          <Border Classes="menu-item" PointerPressed="OnPriorityMediumPressed">
+            <Grid ColumnDefinitions="20,*,Auto">
+              <Ellipse Width="9" Height="9" Fill="{DynamicResource Priority.Medium}" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="中优先级" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+              <Path Grid.Column="2" Data="M1,5.5 L4,8.5 L10,1.5" Stroke="{DynamicResource Main.Accent}" StrokeThickness="1.5" StrokeLineCap="Round" Stretch="None" Width="11" Height="9" VerticalAlignment="Center" IsVisible="{Binding IsMedium}" />
+            </Grid>
+          </Border>
+          <Border Classes="menu-item" PointerPressed="OnPriorityLowPressed">
+            <Grid ColumnDefinitions="20,*,Auto">
+              <Ellipse Width="9" Height="9" Fill="{DynamicResource Priority.Low}" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="低优先级" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+              <Path Grid.Column="2" Data="M1,5.5 L4,8.5 L10,1.5" Stroke="{DynamicResource Main.Accent}" StrokeThickness="1.5" StrokeLineCap="Round" Stretch="None" Width="11" Height="9" VerticalAlignment="Center" IsVisible="{Binding IsLow}" />
+            </Grid>
+          </Border>
+          <Border Classes="menu-item" PointerPressed="OnPriorityNonePressed">
+            <Grid ColumnDefinitions="20,*,Auto">
+              <Ellipse Width="9" Height="9" Fill="{DynamicResource Priority.None}" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="无优先级" FontSize="13" Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+              <Path Grid.Column="2" Data="M1,5.5 L4,8.5 L10,1.5" Stroke="{DynamicResource Main.Accent}" StrokeThickness="1.5" StrokeLineCap="Round" Stretch="None" Width="11" Height="9" VerticalAlignment="Center" IsVisible="{Binding IsNone}" />
+            </Grid>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <Border x:Name="DetailListOverlay"
+              Width="188"
+              Padding="4"
+              CornerRadius="12"
+              Background="{DynamicResource Main.Bg}"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="1"
+              BoxShadow="{DynamicResource Main.Popup.Shadow}"
+              IsVisible="{Binding IsListMenuOpen}"
+              PointerPressed="OnOverlayCardPressed">
+        <ItemsControl ItemsSource="{Binding ListOptions}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ListPickItem">
+              <Border Classes="menu-item" Margin="0,2,0,0" Tag="{Binding Id}" PointerPressed="OnPickListPressed">
+                <Grid ColumnDefinitions="20,*,Auto">
+                  <Ellipse Width="8" Height="8" Fill="{Binding DotBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13" Margin="4,0,0,0"
+                             Foreground="{DynamicResource Main.Text.Primary}" VerticalAlignment="Center" />
+                  <Path Grid.Column="2"
+                        Data="M1,5.5 L4,8.5 L10,1.5"
+                        Stroke="{DynamicResource Main.Accent}"
+                        StrokeThickness="1.5"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="11"
+                        Height="9"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsSelected}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+      <Border x:Name="DetailRecurrenceOverlay"
+              Width="168"
+              Padding="4"
+              CornerRadius="12"
+              Background="{DynamicResource Main.Bg}"
+              BorderBrush="{DynamicResource Main.Divider}"
+              BorderThickness="1"
+              BoxShadow="{DynamicResource Main.Popup.Shadow}"
+              IsVisible="{Binding IsRecurrenceMenuOpen}"
+              PointerPressed="OnOverlayCardPressed">
+        <ItemsControl ItemsSource="{Binding RecurrenceOptions}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RecurrencePickItem">
+              <Border Classes="menu-item" Margin="0,1,0,0" PointerPressed="OnPickRecurrencePressed">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Text="{Binding Label}"
+                             FontSize="13"
+                             Foreground="{DynamicResource Main.Text.Primary}"
+                             VerticalAlignment="Center" />
+                  <Path Grid.Column="1"
+                        Data="M1,5.5 L4,8.5 L10,1.5"
+                        Stroke="{DynamicResource Main.Accent}"
+                        StrokeThickness="1.5"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="11"
+                        Height="9"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsSelected}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </Canvas>
+  </Panel>
+</UserControl>

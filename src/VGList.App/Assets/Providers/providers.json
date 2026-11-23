@@ -1,0 +1,819 @@
+{
+  "schema": 2,
+  "providers": [
+    {
+      "id": "baidu-qianfan",
+      "name": "Baidu Qianfan",
+      "domain": "cloud.baidu.com",
+      "apiKeyUrl": "https://console.bce.baidu.com/iam/#/iam/apikey/list",
+      "color": "#2932E1",
+      "monogram": "度",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "v2",
+          "name": "通用 V2",
+          "protocol": "openai",
+          "baseUrl": "https://qianfan.baidubce.com/v2",
+          "defaultModel": "ernie-5.5-flash-preview",
+          "supportsImages": true,
+          "models": [
+            { "id": "ernie-5.5-flash-preview", "supportsImages": true, "note": "全模态 · 1M 上下文" },
+            { "id": "ernie-4.5-turbo-128k", "supportsImages": true, "note": "长文本主力" },
+            { "id": "ernie-x1.1", "supportsImages": false, "note": "深度推理" }
+          ],
+          "sourceUrl": "https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Fm2vrveyu",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "coding",
+          "name": "深度思考",
+          "protocol": "openai",
+          "baseUrl": "https://qianfan.baidubce.com/v2",
+          "defaultModel": "ernie-x1.1",
+          "supportsImages": false,
+          "models": [
+            { "id": "ernie-x1.1", "supportsImages": false, "note": "推理模型" },
+            { "id": "ernie-5.5-flash-preview", "supportsImages": true, "note": "全模态" }
+          ],
+          "sourceUrl": "https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Fm2vrveyu",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "bailing",
+      "name": "BaiLing",
+      "domain": "developer.ant-ling.com",
+      "apiKeyUrl": "https://developer.ant-ling.com/",
+      "color": "#1677FF",
+      "monogram": "灵",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "通用",
+          "protocol": "openai",
+          "baseUrl": "https://api.ant-ling.com/v1",
+          "defaultModel": "Ming-lite-omni",
+          "supportsImages": true,
+          "models": [
+            { "id": "Ming-lite-omni", "supportsImages": true, "note": "多模态交互" },
+            { "id": "Ling-flash-2.0", "supportsImages": false, "note": "轻量高速" },
+            { "id": "Ling-2.5-1T", "supportsImages": false, "note": "万亿旗舰" },
+            { "id": "Ring-2.5-1T", "supportsImages": false, "note": "深度推理" }
+          ],
+          "sourceUrl": "https://developer.ant-ling.com/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "byteplus",
+      "name": "BytePlus",
+      "domain": "byteplus.com",
+      "apiKeyUrl": "https://console.byteplus.com/",
+      "color": "#1664FF",
+      "monogram": "B",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "modelark",
+          "name": "ModelArk 国际",
+          "protocol": "openai",
+          "baseUrl": "https://ark.ap-southeast.bytepluses.com/api/v3",
+          "defaultModel": "skylark-pro",
+          "supportsImages": true,
+          "models": [
+            { "id": "skylark-pro", "supportsImages": true, "note": "主力多模态" },
+            { "id": "doubao-seed-2-0-lite-260428", "supportsImages": true, "note": "Seed 2.0 Lite" },
+            { "id": "doubao-seed-2-0-pro-260215", "supportsImages": true, "note": "Seed 2.0 Pro" }
+          ],
+          "sourceUrl": "https://docs.byteplus.com/en/docs/ModelArk",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "coding",
+          "name": "Coding Plan",
+          "protocol": "openai",
+          "baseUrl": "https://ark.ap-southeast.bytepluses.com/api/coding/v3",
+          "defaultModel": "doubao-seed-2-0-code-preview-260215",
+          "supportsImages": true,
+          "models": [
+            { "id": "doubao-seed-2-0-code-preview-260215", "supportsImages": true, "note": "编程专用" },
+            { "id": "skylark-pro", "supportsImages": true }
+          ],
+          "sourceUrl": "https://docs.byteplus.com/en/docs/ModelArk",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "domain": "platform.deepseek.com",
+      "apiKeyUrl": "https://platform.deepseek.com/api_keys",
+      "color": "#4D6BFE",
+      "monogram": "DS",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "openai",
+          "name": "通用 (OpenAI 兼容)",
+          "protocol": "openai",
+          "baseUrl": "https://api.deepseek.com",
+          "defaultModel": "deepseek-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "deepseek-flash", "supportsImages": true, "note": "V4.1-Flash · 原生支持图片" },
+            { "id": "deepseek-v4-pro", "supportsImages": false, "note": "V4-Pro · 深度推理（纯文本）" },
+            { "id": "deepseek-chat", "supportsImages": false, "note": "兼容别名" },
+            { "id": "deepseek-reasoner", "supportsImages": false, "note": "兼容思考" }
+          ],
+          "sourceUrl": "https://api-docs.deepseek.com/",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "anthropic",
+          "name": "Anthropic 兼容",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.deepseek.com/anthropic",
+          "defaultModel": "deepseek-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "deepseek-flash", "supportsImages": true, "note": "V4.1-Flash · 原生支持图片" },
+            { "id": "deepseek-v4-pro", "supportsImages": false, "note": "V4-Pro · 深度推理（纯文本）" }
+          ],
+          "sourceUrl": "https://api-docs.deepseek.com/guides/anthropic_api",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "volcengine",
+      "name": "火山引擎",
+      "domain": "volcengine.com",
+      "apiKeyUrl": "https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey",
+      "color": "#2684FF",
+      "monogram": "火",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "ark",
+          "name": "方舟通用",
+          "protocol": "openai",
+          "baseUrl": "https://ark.cn-beijing.volces.com/api/v3",
+          "defaultModel": "doubao-seed-2-0-lite-260428",
+          "supportsImages": true,
+          "models": [
+            { "id": "doubao-seed-2-0-lite-260428", "supportsImages": true, "note": "Seed 2.0 Lite · 多模态" },
+            { "id": "doubao-seed-2-0-pro-260215", "supportsImages": true, "note": "Seed 2.0 Pro · 旗舰多模态" },
+            { "id": "doubao-seed-1-8-251228", "supportsImages": true, "note": "Seed 1.8 · 多模态 Agent" }
+          ],
+          "sourceUrl": "https://www.volcengine.com/docs/82379",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "coding-openai",
+          "name": "Coding OpenAI",
+          "protocol": "openai",
+          "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
+          "defaultModel": "doubao-seed-2-0-code-preview-260215",
+          "supportsImages": true,
+          "models": [
+            { "id": "doubao-seed-2-0-code-preview-260215", "supportsImages": true, "note": "Seed 2.0 Code" },
+            { "id": "doubao-seed-2-0-pro-260215", "supportsImages": true }
+          ],
+          "sourceUrl": "https://www.volcengine.com/docs/82379",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "coding-anthropic",
+          "name": "Coding Anthropic",
+          "protocol": "anthropic",
+          "baseUrl": "https://ark.cn-beijing.volces.com/api/coding",
+          "defaultModel": "doubao-seed-2-0-code-preview-260215",
+          "supportsImages": true,
+          "models": [
+            { "id": "doubao-seed-2-0-code-preview-260215", "supportsImages": true, "note": "Seed 2.0 Code" },
+            { "id": "doubao-seed-2-0-pro-260215", "supportsImages": true }
+          ],
+          "sourceUrl": "https://www.volcengine.com/docs/82379",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "kimi",
+      "name": "Kimi",
+      "domain": "platform.kimi.com",
+      "apiKeyUrl": "https://platform.moonshot.cn/console/api-keys",
+      "color": "#5B64F1",
+      "monogram": "K",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "cn-openai",
+          "name": "国内站 (OpenAI)",
+          "protocol": "openai",
+          "baseUrl": "https://api.moonshot.cn/v1",
+          "defaultModel": "kimi-k3",
+          "supportsImages": true,
+          "models": [
+            { "id": "kimi-k3", "supportsImages": true, "note": "主力 · 原生多模态 1M" },
+            { "id": "kimi-k3.1-pro", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "kimi-k2-0905-preview", "supportsImages": false, "note": "K2 纯文本" }
+          ],
+          "sourceUrl": "https://platform.moonshot.cn/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl-openai",
+          "name": "国际站 (OpenAI)",
+          "protocol": "openai",
+          "baseUrl": "https://api.moonshot.ai/v1",
+          "defaultModel": "kimi-k3",
+          "supportsImages": true,
+          "models": [
+            { "id": "kimi-k3", "supportsImages": true, "note": "主力 · 原生多模态 1M" },
+            { "id": "kimi-k3.1-pro", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://platform.kimi.com/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "cn-anthropic",
+          "name": "国内站 (Anthropic)",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.moonshot.cn/anthropic",
+          "defaultModel": "kimi-k3",
+          "supportsImages": true,
+          "models": [
+            { "id": "kimi-k3", "supportsImages": true, "note": "主力 · 原生多模态 1M" },
+            { "id": "kimi-k3.1-pro", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://platform.moonshot.cn/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl-anthropic",
+          "name": "国际站 (Anthropic)",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.moonshot.ai/anthropic",
+          "defaultModel": "kimi-k3",
+          "supportsImages": true,
+          "models": [
+            { "id": "kimi-k3", "supportsImages": true, "note": "主力 · 原生多模态 1M" },
+            { "id": "kimi-k3.1-pro", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://platform.kimi.com/docs",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "longcat",
+      "name": "Longcat",
+      "domain": "longcat.chat",
+      "apiKeyUrl": "https://longcat.chat/platform",
+      "color": "#2AC769",
+      "monogram": "LC",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "通用 (OpenAI 兼容)",
+          "protocol": "openai",
+          "baseUrl": "https://api.longcat.chat/openai/v1",
+          "defaultModel": "LongCat-2.5",
+          "supportsImages": true,
+          "models": [
+            { "id": "LongCat-2.5", "supportsImages": true, "note": "旗舰原生多模态 1M" },
+            { "id": "LongCat-Flash-Omni", "supportsImages": true, "note": "轻量全模态" },
+            { "id": "LongCat-Flash-Chat", "supportsImages": false, "note": "高速对话（纯文本）" }
+          ],
+          "sourceUrl": "https://longcat.chat/platform/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "anthropic",
+          "name": "Anthropic 兼容",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.longcat.chat/anthropic",
+          "defaultModel": "LongCat-2.5",
+          "supportsImages": true,
+          "models": [
+            { "id": "LongCat-2.5", "supportsImages": true, "note": "旗舰原生多模态 1M" }
+          ],
+          "sourceUrl": "https://longcat.chat/platform/docs",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "meta",
+      "name": "Meta Model API",
+      "domain": "dev.meta.ai",
+      "apiKeyUrl": "https://dev.meta.ai/",
+      "color": "#0668E1",
+      "monogram": "M",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "通用",
+          "protocol": "openai",
+          "baseUrl": "https://api.meta.ai/v1",
+          "defaultModel": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+          "supportsImages": true,
+          "models": [
+            { "id": "Llama-4-Maverick-17B-128E-Instruct-FP8", "supportsImages": true, "note": "Llama 4 多模态" },
+            { "id": "Llama-4-Scout-17B-16E-Instruct-FP8", "supportsImages": true, "note": "轻量多模态" }
+          ],
+          "sourceUrl": "https://dev.meta.ai/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "minimax",
+      "name": "MiniMax",
+      "domain": "platform.minimax.cn",
+      "apiKeyUrl": "https://platform.minimaxi.com/user-center/basic-information/interface-key",
+      "color": "#F04365",
+      "monogram": "MM",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "cn-openai",
+          "name": "国内站 (OpenAI)",
+          "protocol": "openai",
+          "baseUrl": "https://api.minimaxi.com/v1",
+          "defaultModel": "MiniMax-M3.1-Flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "MiniMax-M3.1-Flash", "supportsImages": true, "note": "主力多模态 1M" },
+            { "id": "MiniMax-M3", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "MiniMax-M2.5", "supportsImages": false, "note": "纯文本 Agent" }
+          ],
+          "sourceUrl": "https://platform.minimaxi.com/document",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "cn-anthropic",
+          "name": "国内站 (Anthropic)",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.minimaxi.com/anthropic",
+          "defaultModel": "MiniMax-M3.1-Flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "MiniMax-M3.1-Flash", "supportsImages": true, "note": "主力多模态 1M" },
+            { "id": "MiniMax-M3", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://platform.minimaxi.com/document",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl-openai",
+          "name": "国际站 (OpenAI)",
+          "protocol": "openai",
+          "baseUrl": "https://api.minimax.io/v1",
+          "defaultModel": "MiniMax-M3.1-Flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "MiniMax-M3.1-Flash", "supportsImages": true, "note": "主力多模态 1M" },
+            { "id": "MiniMax-M3", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://www.minimax.io/platform/document",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl-anthropic",
+          "name": "国际站 (Anthropic)",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.minimax.io/anthropic",
+          "defaultModel": "MiniMax-M3.1-Flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "MiniMax-M3.1-Flash", "supportsImages": true, "note": "主力多模态 1M" },
+            { "id": "MiniMax-M3", "supportsImages": true, "note": "旗舰多模态 1M" }
+          ],
+          "sourceUrl": "https://www.minimax.io/platform/document",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "qianwenai",
+      "name": "千问AI平台",
+      "domain": "platform.qianwenai.com",
+      "apiKeyUrl": "https://platform.qianwenai.com/",
+      "color": "#2E6BE6",
+      "monogram": "千",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "maas",
+          "name": "千问 MaaS",
+          "protocol": "openai",
+          "baseUrl": "https://maas.qianwenaiapi.com/compatible-mode/v1",
+          "defaultModel": "qwen3.5-plus",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen3.5-plus", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "qwen4-max", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "qwen3.8-flash", "supportsImages": true, "note": "极速多模态" },
+            { "id": "qwen-plus", "supportsImages": true, "note": "通用别名" }
+          ],
+          "sourceUrl": "https://platform.qianwenai.com/",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "dashscope-cn",
+          "name": "百炼兼容 (国内)",
+          "protocol": "openai",
+          "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "defaultModel": "qwen3.5-plus",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen3.5-plus", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "qwen4-max", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "qwen3.8-flash", "supportsImages": true, "note": "极速多模态" },
+            { "id": "qwen-plus", "supportsImages": true }
+          ],
+          "sourceUrl": "https://help.aliyun.com/zh/model-studio/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "qwencloud",
+      "name": "QwenCloud",
+      "domain": "home.qwencloud.com",
+      "apiKeyUrl": "https://home.qwencloud.com/",
+      "color": "#7C4DFF",
+      "monogram": "Q",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "cn",
+          "name": "国内北京",
+          "protocol": "openai",
+          "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+          "defaultModel": "qwen3.5-plus",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen3.5-plus", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "qwen4-max", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "qwen3.8-flash", "supportsImages": true, "note": "极速多模态" },
+            { "id": "qwen-plus", "supportsImages": true }
+          ],
+          "sourceUrl": "https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl",
+          "name": "国际新加坡",
+          "protocol": "openai",
+          "baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+          "defaultModel": "qwen3.5-plus",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen3.5-plus", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "qwen4-max", "supportsImages": true, "note": "旗舰多模态 1M" },
+            { "id": "qwen3.8-flash", "supportsImages": true }
+          ],
+          "sourceUrl": "https://www.alibabacloud.com/help/en/model-studio/",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "maas",
+          "name": "QwenCloud MaaS",
+          "protocol": "openai",
+          "baseUrl": "https://maas.qwencloudapi.com/compatible-mode/v1",
+          "defaultModel": "qwen3.5-plus",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen3.5-plus", "supportsImages": true },
+            { "id": "qwen4-max", "supportsImages": true }
+          ],
+          "sourceUrl": "https://home.qwencloud.com/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "stepfun",
+      "name": "StepFun",
+      "domain": "platform.stepfun.com",
+      "apiKeyUrl": "https://platform.stepfun.com/interface-key",
+      "color": "#2A60FF",
+      "monogram": "阶",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "cn",
+          "name": "国内站",
+          "protocol": "openai",
+          "baseUrl": "https://api.stepfun.com/v1",
+          "defaultModel": "step-3.7-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "step-3.7-flash", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "step-5-preview", "supportsImages": true, "note": "旗舰多模态" },
+            { "id": "step-1o-turbo-vision", "supportsImages": true, "note": "视觉专用" },
+            { "id": "step-3.5-flash", "supportsImages": false, "note": "轻量纯文本" }
+          ],
+          "sourceUrl": "https://platform.stepfun.com/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl",
+          "name": "国际站",
+          "protocol": "openai",
+          "baseUrl": "https://api.stepfun.ai/v1",
+          "defaultModel": "step-3.7-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "step-3.7-flash", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "step-5-preview", "supportsImages": true, "note": "旗舰多模态" }
+          ],
+          "sourceUrl": "https://platform.stepfun.ai/docs",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "step-plan",
+          "name": "Step Plan",
+          "protocol": "openai",
+          "baseUrl": "https://api.stepfun.ai/step_plan/v1",
+          "defaultModel": "step-3.7-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "step-3.7-flash", "supportsImages": true, "note": "主力原生多模态" },
+            { "id": "step-3.5-flash", "supportsImages": false }
+          ],
+          "sourceUrl": "https://platform.stepfun.ai/docs",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "tencent",
+      "name": "腾讯云",
+      "domain": "cloud.tencent.com",
+      "apiKeyUrl": "https://console.cloud.tencent.com/hunyuan/api-key",
+      "color": "#006EFF",
+      "monogram": "腾",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "hunyuan",
+          "name": "混元 OpenAI 兼容",
+          "protocol": "openai",
+          "baseUrl": "https://api.hunyuan.cloud.tencent.com/v1",
+          "defaultModel": "hunyuan-vision-1.5-instruct",
+          "supportsImages": true,
+          "models": [
+            { "id": "hunyuan-vision-1.5-instruct", "supportsImages": true, "note": "混元图文快思考" },
+            { "id": "hunyuan-t1-vision", "supportsImages": true, "note": "视觉深度思考" },
+            { "id": "hunyuan-turbos-latest", "supportsImages": true, "note": "通用主力" }
+          ],
+          "sourceUrl": "https://cloud.tencent.com/document/product/1729/111007",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "lkeap",
+          "name": "知识引擎原子能力",
+          "protocol": "openai",
+          "baseUrl": "https://api.lkeap.cloud.tencent.com/v1",
+          "defaultModel": "deepseek-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "deepseek-flash", "supportsImages": true, "note": "多模态托管" },
+            { "id": "deepseek-v3", "supportsImages": false, "note": "纯文本" }
+          ],
+          "sourceUrl": "https://cloud.tencent.com/document/product/1772",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "xiaomi-mimo",
+      "name": "Xiaomi MiMo",
+      "domain": "platform.xiaomimimo.com",
+      "apiKeyUrl": "https://platform.xiaomimimo.com/",
+      "color": "#202226",
+      "monogram": "Mi",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "按量通用",
+          "protocol": "openai",
+          "baseUrl": "https://api.xiaomimimo.com/v1",
+          "defaultModel": "mimo-v2.6-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "mimo-v2.6-flash", "supportsImages": true, "note": "全模态主力 1M" },
+            { "id": "mimo-v2.6-pro", "supportsImages": true, "note": "全模态旗舰 1M" },
+            { "id": "mimo-v2.6-pro-ultraspeed", "supportsImages": true, "note": "极速旗舰" }
+          ],
+          "sourceUrl": "https://platform.xiaomimimo.com/",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "token-plan",
+          "name": "Token Plan (中国区)",
+          "protocol": "openai",
+          "baseUrl": "https://token-plan-cn.xiaomimimo.com/v1",
+          "defaultModel": "mimo-v2.6-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "mimo-v2.6-flash", "supportsImages": true, "note": "全模态主力 1M" },
+            { "id": "mimo-v2.6-pro", "supportsImages": true, "note": "全模态旗舰 1M" }
+          ],
+          "sourceUrl": "https://platform.xiaomimimo.com/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "zhipu-glm",
+      "name": "Zhipu GLM",
+      "domain": "open.bigmodel.cn",
+      "apiKeyUrl": "https://open.bigmodel.cn/usercenter/apikeys",
+      "color": "#3859FF",
+      "monogram": "智",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "cn",
+          "name": "国内智谱",
+          "protocol": "openai",
+          "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
+          "defaultModel": "glm-5.3-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "glm-5.3-flash", "supportsImages": true, "note": "原生多模态 · 高性价比" },
+            { "id": "glm-5v-turbo", "supportsImages": true, "note": "视觉与代码多模态" },
+            { "id": "glm-5.3", "supportsImages": false, "note": "旗舰推理（纯文本）" },
+            { "id": "glm-4.6v", "supportsImages": true, "note": "经典视觉模型" }
+          ],
+          "sourceUrl": "https://open.bigmodel.cn/dev/api",
+          "verifiedAt": "2026-11-22"
+        },
+        {
+          "id": "intl",
+          "name": "国际 Z.ai",
+          "protocol": "openai",
+          "baseUrl": "https://api.z.ai/api/paas/v4",
+          "defaultModel": "glm-5.3-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "glm-5.3-flash", "supportsImages": true, "note": "原生多模态" },
+            { "id": "glm-5v-turbo", "supportsImages": true, "note": "多模态旗舰" },
+            { "id": "glm-5.3", "supportsImages": false, "note": "旗舰推理" }
+          ],
+          "sourceUrl": "https://docs.z.ai/",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "domain": "platform.openai.com",
+      "apiKeyUrl": "https://platform.openai.com/api-keys",
+      "color": "#10A37F",
+      "monogram": "OA",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "官方 API",
+          "protocol": "openai",
+          "baseUrl": "https://api.openai.com/v1",
+          "defaultModel": "gpt-5.4",
+          "supportsImages": true,
+          "models": [
+            { "id": "gpt-5.4", "supportsImages": true, "note": "主力全能多模态" },
+            { "id": "gpt-5.4-nano", "supportsImages": true, "note": "轻量高速多模态" },
+            { "id": "gpt-6.2-sol", "supportsImages": true, "note": "GPT-6 日常多模态" },
+            { "id": "gpt-6.2-astra", "supportsImages": true, "note": "GPT-6 旗舰推理" },
+            { "id": "gpt-4o-mini", "supportsImages": true, "note": "经典轻量" }
+          ],
+          "sourceUrl": "https://platform.openai.com/docs/models",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "domain": "console.anthropic.com",
+      "apiKeyUrl": "https://console.anthropic.com/settings/keys",
+      "color": "#D97757",
+      "monogram": "C",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "Claude 官方",
+          "protocol": "anthropic",
+          "baseUrl": "https://api.anthropic.com",
+          "defaultModel": "claude-sonnet-5-5",
+          "supportsImages": true,
+          "models": [
+            { "id": "claude-sonnet-5-5", "supportsImages": true, "note": "平衡速度与智能 · 1M" },
+            { "id": "claude-opus-5-5", "supportsImages": true, "note": "日常旗舰 · 1M" },
+            { "id": "claude-haiku-5-5", "supportsImages": true, "note": "极速轻量 · 1M" },
+            { "id": "claude-fable-5-2", "supportsImages": true, "note": "超强深度推理" }
+          ],
+          "sourceUrl": "https://docs.anthropic.com/en/api/messages",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "domain": "ai.google.dev",
+      "apiKeyUrl": "https://aistudio.google.com/apikey",
+      "color": "#4285F4",
+      "monogram": "G",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "openai-compat",
+          "name": "OpenAI 兼容",
+          "protocol": "openai",
+          "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+          "defaultModel": "gemini-3-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "gemini-3-flash", "supportsImages": true, "note": "主力高速多模态" },
+            { "id": "gemini-3.5-flash-lite", "supportsImages": true, "note": "极速轻量多模态" },
+            { "id": "gemini-2.5-pro", "supportsImages": true, "note": "深度推理多模态" },
+            { "id": "gemini-2.5-flash", "supportsImages": true, "note": "经典 Flash" }
+          ],
+          "sourceUrl": "https://ai.google.dev/gemini-api/docs/openai",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "domain": "openrouter.ai",
+      "apiKeyUrl": "https://openrouter.ai/keys",
+      "color": "#6467F2",
+      "monogram": "OR",
+      "needsKey": true,
+      "variants": [
+        {
+          "id": "default",
+          "name": "聚合路由",
+          "protocol": "openai",
+          "baseUrl": "https://openrouter.ai/api/v1",
+          "defaultModel": "deepseek/deepseek-flash",
+          "supportsImages": true,
+          "models": [
+            { "id": "deepseek/deepseek-flash", "supportsImages": true, "note": "DeepSeek Flash" },
+            { "id": "anthropic/claude-sonnet-5-5", "supportsImages": true, "note": "Claude Sonnet 5.5" },
+            { "id": "google/gemini-3-flash", "supportsImages": true, "note": "Gemini 3 Flash" },
+            { "id": "openai/gpt-5.4", "supportsImages": true, "note": "GPT-5.4" }
+          ],
+          "sourceUrl": "https://openrouter.ai/docs/api-reference/overview",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama（本地）",
+      "domain": "localhost:11434",
+      "apiKeyUrl": "https://ollama.com/",
+      "color": "#374151",
+      "monogram": "OL",
+      "needsKey": false,
+      "variants": [
+        {
+          "id": "local",
+          "name": "本机离线",
+          "protocol": "openai",
+          "baseUrl": "http://localhost:11434/v1",
+          "defaultModel": "qwen2.5vl:7b",
+          "supportsImages": true,
+          "models": [
+            { "id": "qwen2.5vl:7b", "supportsImages": true, "note": "本地多模态" },
+            { "id": "gemma3:12b", "supportsImages": true, "note": "本地多模态" },
+            { "id": "llama3.2-vision", "supportsImages": true, "note": "本地视觉" },
+            { "id": "qwen2.5:7b", "supportsImages": false, "note": "纯文本轻量" }
+          ],
+          "sourceUrl": "https://ollama.com/blog/openai-compatibility",
+          "verifiedAt": "2026-11-22"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VGList.Desktop.Main.Tasks"
+             xmlns:s="using:VGList.Widgets.Support"
+             x:Class="VGList.Desktop.Controls.TaskRowControl"
+             x:DataType="vm:MainTaskRowViewModel">
+
+  <Border Classes="task-row"
+          Classes.selected="{Binding IsSelected}"
+          Classes.completing="{Binding IsCompleting}"
+          PointerPressed="OnRowPressed">
+    <Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="6,0,10,0">
+
+      <!-- 左侧选中指示条 -->
+      <Border Classes="row-accent-bar"
+              Margin="0,0,6,0"
+              VerticalAlignment="Center" />
+
+      <!-- 优先级复选框 -->
+      <Border Grid.Column="1"
+              Classes="check"
+              Classes.high="{Binding IsHigh}"
+              Classes.medium="{Binding IsMedium}"
+              Classes.low="{Binding IsLow}"
+              Classes.done="{Binding IsCompleted}"
+              Classes.completing="{Binding IsCompleting}"
+              VerticalAlignment="Center"
+              PointerPressed="OnCheckPressed">
+        <Path Classes="checkmark"
+              Classes.shown="{Binding IsCheckVisible}"
+              Data="M1,5 L4.4,8.4 L11,1.6"
+              Stroke="{DynamicResource Text.OnAccent}"
+              StrokeThickness="1.6"
+              StrokeLineCap="Round"
+              Stretch="Uniform"
+              Width="11"
+              Height="9" />
+      </Border>
+
+      <!-- 标题 + 动画删除线 + 子待办饼图 -->
+      <Grid Grid.Column="2"
+            ColumnDefinitions="*,Auto"
+            HorizontalAlignment="Left"
+            Margin="10,0,12,0"
+            VerticalAlignment="Center">
+        <Panel HorizontalAlignment="Left" VerticalAlignment="Center">
+          <TextBlock Classes="task-title"
+                     Classes.done="{Binding IsDoneVisual}"
+                     Text="{Binding Title}"
+                     VerticalAlignment="Center" />
+          <Border Classes="strike"
+                  Classes.shown="{Binding IsDoneVisual}"
+                  Height="1.2"
+                  Background="{DynamicResource Main.Text.Tertiary}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center"
+                  IsHitTestVisible="False" />
+        </Panel>
+
+        <s:SubtaskPieControl Grid.Column="1"
+                             Width="11.5"
+                             Height="11.5"
+                             Margin="6,1.5,0,0"
+                             VerticalAlignment="Center"
+                             CompletedCount="{Binding SubtasksCompleted}"
+                             TotalCount="{Binding SubtasksTotal}"
+                             RingBrush="{DynamicResource Main.Text.Tertiary}"
+                             FillBrush="{DynamicResource Main.Text.Secondary}"
+                             IsVisible="{Binding HasSubtasks}"
+                             ToolTip.Tip="{Binding SubtasksTooltip}" />
+      </Grid>
+
+      <!-- 右侧：标签 + 重复徽标 + 常规元信息 -->
+      <StackPanel Grid.Column="3"
+                  Orientation="Horizontal"
+                  Spacing="6"
+                  VerticalAlignment="Center">
+        <!-- 紧凑标签胶囊（最多展示 2 个） -->
+        <ItemsControl ItemsSource="{Binding VisibleTags}"
+                      IsVisible="{Binding HasTags}"
+                      VerticalAlignment="Center">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="4" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <Border Padding="5,1"
+                      CornerRadius="5"
+                      Background="{DynamicResource Main.Accent.Soft}"
+                      VerticalAlignment="Center">
+                <TextBlock Text="{Binding StringFormat=#{0}}"
+                           FontSize="10.5"
+                           Foreground="{DynamicResource Main.Accent}"
+                           VerticalAlignment="Center" />
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="{Binding ExtraTagCountText}"
+                   IsVisible="{Binding HasExtraTags}"
+                   FontSize="10.5"
+                   Foreground="{DynamicResource Main.Text.Tertiary}"
+                   VerticalAlignment="Center" />
+
+        <!-- 提醒微标 -->
+        <Border Padding="5,1"
+                CornerRadius="5"
+                Background="{DynamicResource Main.Accent.Soft}"
+                IsVisible="{Binding HasReminder}"
+                ToolTip.Tip="{Binding ReminderTooltip}"
+                VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+            <Path Data="M6.5,1.5 C4.2,1.5 2.5,3.2 2.5,5.5 V8.5 L1.3,10 H11.7 L10.5,8.5 V5.5 C10.5,3.2 8.8,1.5 6.5,1.5 Z M5.2,10.5 C5.4,11.3 5.9,11.8 6.5,11.8 C7.1,11.8 7.6,11.3 7.8,10.5"
+                  Stroke="{DynamicResource Main.Accent}"
+                  StrokeThickness="1.2"
+                  StrokeLineCap="Round"
+                  StrokeJoin="Round"
+                  Stretch="Uniform"
+                  Width="10"
+                  Height="10"
+                  VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ReminderBadgeText}"
+                       FontSize="10.5"
+                       Foreground="{DynamicResource Main.Accent}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- 重复规则微标 -->
+        <Border Padding="5,1"
+                CornerRadius="5"
+                Background="{DynamicResource Main.Input}"
+                IsVisible="{Binding HasRecurrence}"
+                ToolTip.Tip="{Binding RecurrenceTooltip}"
+                VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+            <TextBlock Text="↻"
+                       FontSize="10.5"
+                       Foreground="{DynamicResource Main.Accent}"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding RecurrenceBadgeText}"
+                       FontSize="10.5"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <TextBlock Classes="row-meta"
+                   Text="{Binding ListName}"
+                   IsVisible="{Binding ShowListTag}"
+                   VerticalAlignment="Center" />
+        <TextBlock Classes="row-date"
+                   Classes.overdue="{Binding IsOverdue}"
+                   Classes.today="{Binding IsDueToday}"
+                   Classes.done="{Binding IsCompleted}"
+                   Text="{Binding DateLabel}"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+
+    </Grid>
+  </Border>
+</UserControl>

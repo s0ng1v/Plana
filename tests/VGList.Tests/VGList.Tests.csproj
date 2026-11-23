@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- 需要引用 VGList.Widgets（Avalonia 目标框架为 net10.0-windows） -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VGList.Core\VGList.Core.csproj" />
+    <ProjectReference Include="..\..\src\VGList.Data\VGList.Data.csproj" />
+    <ProjectReference Include="..\..\src\VGList.App\VGList.App.csproj" />
+    <ProjectReference Include="..\..\src\VGList.Agent\VGList.Agent.csproj" />
+    <ProjectReference Include="..\..\src\VGList.Widgets\VGList.Widgets.csproj" />
+    <ProjectReference Include="..\..\src\VGList.Desktop\VGList.Desktop.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

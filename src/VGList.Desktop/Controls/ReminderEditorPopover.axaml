@@ -1,0 +1,282 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:VGList.Desktop.Controls"
+             x:Class="VGList.Desktop.Controls.ReminderEditorPopover"
+             x:DataType="c:ReminderEditorViewModel">
+
+  <UserControl.Styles>
+    <Style Selector="Border.rem-chip">
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="CornerRadius" Value="7" />
+      <Setter Property="Background" Value="{DynamicResource Main.Input}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Margin" Value="0,0,5,5" />
+    </Style>
+    <Style Selector="Border.rem-chip:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+    </Style>
+    <Style Selector="Border.rem-chip.active">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent.Border}" />
+    </Style>
+    <Style Selector="Border.rem-chip TextBlock">
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Secondary}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.rem-chip.active TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Border.rem-seg">
+      <Setter Property="Padding" Value="8,3" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Border.rem-seg:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+    <Style Selector="Border.rem-seg.active">
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Divider}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.rem-seg TextBlock">
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="Foreground" Value="{DynamicResource Main.Text.Secondary}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.rem-seg.active TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border Width="296"
+          Padding="13,12"
+          CornerRadius="12"
+          Background="{DynamicResource Main.Bg}"
+          BorderBrush="{DynamicResource Main.Divider}"
+          BorderThickness="1"
+          BoxShadow="{DynamicResource Main.Popup.Shadow}">
+    <StackPanel Spacing="10">
+
+      <!-- 日程时刻 -->
+      <StackPanel Spacing="6">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="日程时刻"
+                     FontSize="11.5"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Main.Text.Secondary}"
+                     VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1"
+                     Text="清除时刻"
+                     FontSize="11"
+                     Foreground="{DynamicResource Main.Text.Tertiary}"
+                     Cursor="Hand"
+                     IsVisible="{Binding HasDueTime}"
+                     PointerPressed="OnClearTimePressed"
+                     VerticalAlignment="Center" />
+        </Grid>
+
+        <Grid ColumnDefinitions="92,*">
+          <Border Padding="8,4"
+                  CornerRadius="8"
+                  Background="{DynamicResource Main.Input}"
+                  BorderBrush="{DynamicResource Main.Divider}"
+                  BorderThickness="1">
+            <TextBox Classes="bare"
+                     FontSize="12.5"
+                     Text="{Binding DueTimeText, Mode=TwoWay}"
+                     PlaceholderText="09:00"
+                     VerticalContentAlignment="Center" />
+          </Border>
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="4"
+                      Margin="8,0,0,0"
+                      VerticalAlignment="Center">
+            <Border Classes="rem-chip" Margin="0" Padding="7,4" Tag="09:00" PointerPressed="OnQuickTimePressed">
+              <TextBlock Text="09:00" />
+            </Border>
+            <Border Classes="rem-chip" Margin="0" Padding="7,4" Tag="14:00" PointerPressed="OnQuickTimePressed">
+              <TextBlock Text="14:00" />
+            </Border>
+            <Border Classes="rem-chip" Margin="0" Padding="7,4" Tag="20:00" PointerPressed="OnQuickTimePressed">
+              <TextBlock Text="20:00" />
+            </Border>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+
+      <Border Height="1" Background="{DynamicResource Main.Border.Subtle}" />
+
+      <!-- 提醒提前量（预设 + 任意自定义） -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="提醒时间"
+                   FontSize="11.5"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Main.Text.Secondary}" />
+
+        <WrapPanel Orientation="Horizontal">
+          <Border Classes="rem-chip" Classes.active="{Binding IsOff}" PointerPressed="OnDisablePressed">
+            <TextBlock Text="不提醒" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding IsOnTime}" Tag="0" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="准时" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding Is5Min}" Tag="5" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="提前 5 分" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding Is10Min}" Tag="10" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="提前 10 分" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding Is30Min}" Tag="30" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="提前 30 分" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding Is1Hour}" Tag="60" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="提前 1 小时" />
+          </Border>
+          <Border Classes="rem-chip" Classes.active="{Binding Is1Day}" Tag="1440" PointerPressed="OnPresetOffsetPressed">
+            <TextBlock Text="提前 1 天" />
+          </Border>
+        </WrapPanel>
+
+        <!-- 任意自定义提前量 -->
+        <Grid ColumnDefinitions="Auto,64,*" Margin="0,1,0,0">
+          <TextBlock Text="提前"
+                     FontSize="12"
+                     Foreground="{DynamicResource Main.Text.Secondary}"
+                     VerticalAlignment="Center"
+                     Margin="0,0,8,0" />
+          <Border Grid.Column="1"
+                  Padding="8,3"
+                  CornerRadius="7"
+                  Background="{DynamicResource Main.Input}"
+                  BorderBrush="{DynamicResource Main.Divider}"
+                  BorderThickness="1">
+            <TextBox Classes="bare"
+                     FontSize="12"
+                     Text="{Binding CustomAmountText, Mode=TwoWay}"
+                     PlaceholderText="10"
+                     VerticalContentAlignment="Center" />
+          </Border>
+          <Border Grid.Column="2"
+                  Margin="8,0,0,0"
+                  Padding="2"
+                  CornerRadius="8"
+                  Background="{DynamicResource Main.Input}">
+            <Grid ColumnDefinitions="*,*,*">
+              <Border Classes="rem-seg" Classes.active="{Binding IsUnitMinutes}" Tag="Minutes" PointerPressed="OnUnitPressed">
+                <TextBlock Text="分钟" />
+              </Border>
+              <Border Grid.Column="1" Classes="rem-seg" Classes.active="{Binding IsUnitHours}" Tag="Hours" PointerPressed="OnUnitPressed">
+                <TextBlock Text="小时" />
+              </Border>
+              <Border Grid.Column="2" Classes="rem-seg" Classes.active="{Binding IsUnitDays}" Tag="Days" PointerPressed="OnUnitPressed">
+                <TextBlock Text="天" />
+              </Border>
+            </Grid>
+          </Border>
+        </Grid>
+      </StackPanel>
+
+      <Border Height="1" Background="{DynamicResource Main.Border.Subtle}" />
+
+      <!-- 反复提醒 -->
+      <StackPanel Spacing="6">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="反复提醒"
+                     FontSize="11.5"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Main.Text.Secondary}"
+                     VerticalAlignment="Center" />
+          <Border Grid.Column="1"
+                  Classes="rem-chip"
+                  Classes.active="{Binding IsRepeatEnabled}"
+                  Margin="0"
+                  Padding="9,3"
+                  PointerPressed="OnToggleRepeatPressed">
+            <TextBlock Text="{Binding RepeatToggleLabel}" />
+          </Border>
+        </Grid>
+
+        <StackPanel Spacing="6" IsVisible="{Binding IsRepeatEnabled}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Text="每隔"
+                       FontSize="11.5"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+              <Border Classes="rem-chip" Classes.active="{Binding IsRep5Min}" Margin="0" Padding="7,3" Tag="5" PointerPressed="OnRepeatIntervalPressed">
+                <TextBlock Text="5分" />
+              </Border>
+              <Border Classes="rem-chip" Classes.active="{Binding IsRep10Min}" Margin="0" Padding="7,3" Tag="10" PointerPressed="OnRepeatIntervalPressed">
+                <TextBlock Text="10分" />
+              </Border>
+              <Border Classes="rem-chip" Classes.active="{Binding IsRep15Min}" Margin="0" Padding="7,3" Tag="15" PointerPressed="OnRepeatIntervalPressed">
+                <TextBlock Text="15分" />
+              </Border>
+              <Border Classes="rem-chip" Classes.active="{Binding IsRep30Min}" Margin="0" Padding="7,3" Tag="30" PointerPressed="OnRepeatIntervalPressed">
+                <TextBlock Text="30分" />
+              </Border>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+              <Border Width="42"
+                      Padding="5,2"
+                      CornerRadius="6"
+                      Background="{DynamicResource Main.Input}"
+                      BorderBrush="{DynamicResource Main.Divider}"
+                      BorderThickness="1">
+                <TextBox Classes="bare"
+                         FontSize="11.5"
+                         Text="{Binding RepeatIntervalText, Mode=TwoWay}"
+                         VerticalContentAlignment="Center" />
+              </Border>
+              <TextBlock Text="分"
+                         FontSize="11"
+                         Foreground="{DynamicResource Main.Text.Tertiary}"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </Grid>
+
+          <Grid ColumnDefinitions="Auto,*">
+            <TextBlock Text="次数"
+                       FontSize="11.5"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+              <Border Classes="rem-chip" Classes.active="{Binding IsMax3}" Margin="0" Padding="8,3" Tag="3" PointerPressed="OnRepeatMaxPressed">
+                <TextBlock Text="共 3 次" />
+              </Border>
+              <Border Classes="rem-chip" Classes.active="{Binding IsMax5}" Margin="0" Padding="8,3" Tag="5" PointerPressed="OnRepeatMaxPressed">
+                <TextBlock Text="共 5 次" />
+              </Border>
+              <Border Classes="rem-chip" Classes.active="{Binding IsMaxInfinite}" Margin="0" Padding="8,3" Tag="0" PointerPressed="OnRepeatMaxPressed">
+                <TextBlock Text="直至完成" />
+              </Border>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- 实时生效时间预览 -->
+      <Border Padding="8,6"
+              CornerRadius="8"
+              Background="{DynamicResource Main.Surface.Subtle}">
+        <TextBlock Text="{Binding TriggerPreviewText}"
+                   FontSize="11"
+                   Foreground="{DynamicResource Main.Text.Secondary}"
+                   TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+  </Border>
+</UserControl>

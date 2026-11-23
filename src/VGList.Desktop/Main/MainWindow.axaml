@@ -1,0 +1,859 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:VGList.Desktop.Main"
+        xmlns:tasks="using:VGList.Desktop.Main.Tasks"
+        xmlns:eis="using:VGList.Desktop.Main.Eisenhower"
+        xmlns:cal="using:VGList.Desktop.Main.Calendar"
+        xmlns:ast="using:VGList.Desktop.Main.Assistant"
+        xmlns:settings="using:VGList.Desktop.Main.Settings"
+        xmlns:c="using:VGList.Desktop.Controls"
+        xmlns:mcp="using:VGList.App.Mcp"
+        x:Class="VGList.Desktop.Main.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Plana"
+        Icon="avares://VGList/Assets/Plana/plana-mark.png"
+        Width="1104"
+        Height="706"
+        MinWidth="1004"
+        MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="BorderOnly"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="40"
+        Background="{DynamicResource Main.Bg}"
+        FontFamily="{DynamicResource Font.Ui}"
+        RequestedThemeVariant="Light">
+
+  <Window.Styles>
+    <StyleInclude Source="avares://VGList/Themes/MainWindow.axaml" />
+
+    <Style Selector="TextBox.list-inline-edit">
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Padding" Value="4,0" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent.Border}" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+    </Style>
+
+    <Style Selector="Border.close-check">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="16" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="{DynamicResource Main.Bg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Text.Tertiary}" />
+      <Setter Property="BorderThickness" Value="1.4" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" Easing="CubicEaseOut" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.close-check.checked">
+      <Setter Property="Background" Value="{DynamicResource Main.Accent}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Accent}" />
+    </Style>
+
+    <Style Selector="Border.close-danger-btn">
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="15,0" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Background" Value="{DynamicResource Main.Danger.Soft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Danger.Soft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" Easing="CubicEaseOut" />
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.close-danger-btn:pointerover">
+      <Setter Property="BorderBrush" Value="{DynamicResource Main.Danger}" />
+    </Style>
+
+    <Style Selector="Border.close-ghost-btn">
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="14,0" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.close-ghost-btn:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Main.Hover}" />
+    </Style>
+  </Window.Styles>
+
+  <Panel>
+  <Grid ColumnDefinitions="64,*">
+
+    <!-- ===== 左侧导航图标栏 ===== -->
+    <Border Grid.Column="0"
+            Background="{DynamicResource Main.Rail}"
+            BorderBrush="{DynamicResource Main.Divider}"
+            BorderThickness="0,0,1,0">
+      <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- 品牌区：Plana 图标 + 渐变字标 -->
+        <StackPanel Grid.Row="0"
+                    Margin="0,11,0,0"
+                    Spacing="3"
+                    HorizontalAlignment="Center">
+          <c:PlanaBrandLogo PointerPressed="OnBrandLogoPressed"
+                            ToolTip.Tip="Plana · 点击回到任务页" />
+          <Image Width="46"
+                 Stretch="Uniform"
+                 RenderOptions.BitmapInterpolationMode="HighQuality"
+                 HorizontalAlignment="Center"
+                 Source="avares://VGList/Assets/Plana/plana-wordmark.png" />
+        </StackPanel>
+
+        <!-- 主导航 -->
+        <StackPanel Grid.Row="1" Margin="0,24,0,0" Spacing="8" HorizontalAlignment="Center">
+          <!-- 任务 -->
+          <Border Classes="rail-item"
+                  Classes.selected="{Binding IsTasksPage}"
+                  Tag="Tasks"
+                  PointerPressed="OnRailItemPressed">
+            <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Canvas Width="20" Height="20">
+                <Path Data="M16.5,10.5 V14.5 A2.2,2.2 0 0 1 14.3,16.7 H5.7 A2.2,2.2 0 0 1 3.5,14.5 V5.9 A2.2,2.2 0 0 1 5.7,3.7 H11.5 M7.3,9.6 L10.1,12.4 L17.2,4.4"
+                      StrokeThickness="1.6"
+                      StrokeLineCap="Round"
+                      StrokeJoin="Round" />
+              </Canvas>
+            </Viewbox>
+            <ToolTip.Tip>任务 (Ctrl+1)</ToolTip.Tip>
+          </Border>
+
+          <!-- 四象限 -->
+          <Border Classes="rail-item"
+                  Classes.selected="{Binding IsEisenhowerPage}"
+                  Tag="Eisenhower"
+                  PointerPressed="OnRailItemPressed">
+            <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Canvas Width="20" Height="20">
+                <Path Data="M4.6,3.2 H7.2 A1.4,1.4 0 0 1 8.6,4.6 V7.2 A1.4,1.4 0 0 1 7.2,8.6 H4.6 A1.4,1.4 0 0 1 3.2,7.2 V4.6 A1.4,1.4 0 0 1 4.6,3.2 Z M12.8,3.2 H15.4 A1.4,1.4 0 0 1 16.8,4.6 V7.2 A1.4,1.4 0 0 1 15.4,8.6 H12.8 A1.4,1.4 0 0 1 11.4,7.2 V4.6 A1.4,1.4 0 0 1 12.8,3.2 Z M4.6,11.4 H7.2 A1.4,1.4 0 0 1 8.6,12.8 V15.4 A1.4,1.4 0 0 1 7.2,16.8 H4.6 A1.4,1.4 0 0 1 3.2,15.4 V12.8 A1.4,1.4 0 0 1 4.6,11.4 Z M12.8,11.4 H15.4 A1.4,1.4 0 0 1 16.8,12.8 V15.4 A1.4,1.4 0 0 1 15.4,16.8 H12.8 A1.4,1.4 0 0 1 11.4,15.4 V12.8 A1.4,1.4 0 0 1 12.8,11.4 Z"
+                      StrokeThickness="1.5"
+                      StrokeJoin="Round" />
+              </Canvas>
+            </Viewbox>
+            <ToolTip.Tip>四象限 (Ctrl+2)</ToolTip.Tip>
+          </Border>
+
+          <!-- 日历 -->
+          <Border Classes="rail-item"
+                  Classes.selected="{Binding IsCalendarPage}"
+                  Tag="Calendar"
+                  PointerPressed="OnRailItemPressed">
+            <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Canvas Width="20" Height="20">
+                <Path Data="M4.5,4.8 H15.5 A1.8,1.8 0 0 1 17.3,6.6 V15.2 A1.8,1.8 0 0 1 15.5,17 H4.5 A1.8,1.8 0 0 1 2.7,15.2 V6.6 A1.8,1.8 0 0 1 4.5,4.8 Z M2.7,8.7 H17.3 M6.8,2.8 V5.3 M13.2,2.8 V5.3 M6.6,12.4 H9.6"
+                      StrokeThickness="1.6"
+                      StrokeLineCap="Round"
+                      StrokeJoin="Round" />
+              </Canvas>
+            </Viewbox>
+            <ToolTip.Tip>日历 (Ctrl+3)</ToolTip.Tip>
+          </Border>
+
+          <!-- 分隔线 + 宠物 IP 助理入口 -->
+          <Border Height="1"
+                  Width="22"
+                  Margin="0,4"
+                  Background="{DynamicResource Main.Divider}"
+                  HorizontalAlignment="Center" />
+
+          <Border Classes="rail-pet-item"
+                  Classes.selected="{Binding IsAssistantPage}"
+                  Tag="Assistant"
+                  PointerPressed="OnRailItemPressed">
+            <c:LanaAvatarControl x:Name="LanaNavAvatar"
+                                 Width="42"
+                                 Height="42"
+                                 RenderMode="Interactive"
+                                 State="{Binding LanaNavState}"
+                                 TrackWindowPointer="False"
+                                 EnableHoverFeedback="True"
+                                 AutoReturnFromHappy="True"
+                                 HappyCompleted="OnLanaHappyCompleted"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
+            <ToolTip.Tip>Lana</ToolTip.Tip>
+          </Border>
+        </StackPanel>
+
+        <!-- 底部设置：滑块圆环图标 -->
+        <Border Grid.Row="2"
+                Classes="rail-item"
+                Classes.selected="{Binding IsSettingsPage}"
+                Tag="Settings"
+                Margin="0,0,0,16"
+                HorizontalAlignment="Center"
+                PointerPressed="OnRailItemPressed">
+          <Viewbox Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Canvas Width="20" Height="20">
+              <Path Data="M3,6.5 H6.3 M11.3,6.5 H17 M8.8,4.2 A2.3,2.3 0 1 0 8.8,8.8 A2.3,2.3 0 1 0 8.8,4.2 M3,13.5 H10.5 M15.5,13.5 H17 M13,11.2 A2.3,2.3 0 1 0 13,15.8 A2.3,2.3 0 1 0 13,11.2"
+                    StrokeThickness="1.6"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round" />
+            </Canvas>
+          </Viewbox>
+          <ToolTip.Tip>设置 (Ctrl+,)</ToolTip.Tip>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- ===== 右侧主体工作区 ===== -->
+    <Grid Grid.Column="1" RowDefinitions="40,*">
+
+      <!-- 统一 40px 顶部工具栏：左侧摘要 + 中部拖动区 + 右上角紧贴边缘三键 -->
+      <Border Grid.Row="0"
+              Background="{DynamicResource Main.Bg}"
+              BorderBrush="{DynamicResource Main.Border.Subtle}"
+              BorderThickness="0,0,0,1">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0"
+                      Orientation="Horizontal"
+                      Spacing="10"
+                      Margin="14,0,0,0"
+                      VerticalAlignment="Center">
+            <Border Classes="icon-btn"
+                    Tag="Interactive"
+                    IsVisible="{Binding IsTasksPage}"
+                    ToolTip.Tip="折叠/展开清单栏 (Ctrl+B)"
+                    VerticalAlignment="Center"
+                    PointerPressed="OnToggleSidebarPressed">
+              <Path Data="M2.5,3.5 H13.5 V12.5 H2.5 Z M6.5,3.5 V12.5"
+                    Stroke="{DynamicResource Main.Text.Secondary}"
+                    StrokeThickness="1.3"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Stretch="None"
+                    Width="16"
+                    Height="16"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+            </Border>
+
+            <TextBlock Text="{Binding TodayDateSummary}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center" />
+
+            <!-- A7：外部 AI 待确认请求徽标（仅存在待确认删除/批量改期时显现） -->
+            <Border Tag="Interactive"
+                    IsVisible="{Binding HasPendingMcpRequests}"
+                    Height="24"
+                    Padding="10,0"
+                    CornerRadius="12"
+                    Background="{DynamicResource Provider.Warn.Bg}"
+                    BorderBrush="{DynamicResource Provider.Warn.Fg}"
+                    BorderThickness="1"
+                    Cursor="Hand"
+                    VerticalAlignment="Center"
+                    PointerPressed="OnMcpBadgePressed"
+                    ToolTip.Tip="有外部 AI 的敏感日程改动等待确认，点击查看">
+              <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Ellipse Width="6" Height="6" Fill="{DynamicResource Provider.Warn.Fg}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding PendingMcpBadgeText}"
+                           FontSize="11.5"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Provider.Warn.Fg}"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <!-- 紧贴右上角的 Win11 窗口控制按钮（46×40） -->
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="0"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top">
+            <Border Classes="caption-btn"
+                    Tag="Interactive"
+                    ToolTip.Tip="最小化"
+                    PointerPressed="OnMinimizePressed">
+              <Path Data="M0,0 H10"
+                    StrokeThickness="1.1"
+                    Stretch="None"
+                    Width="10"
+                    Height="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+            </Border>
+
+            <Border Classes="caption-btn"
+                    Tag="Interactive"
+                    ToolTip.Tip="最大化 / 还原"
+                    PointerPressed="OnMaximizeRestorePressed">
+              <Panel Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Path x:Name="MaximizeGlyph"
+                      Data="M0.5,0.5 H9.5 V9.5 H0.5 Z"
+                      StrokeThickness="1.1"
+                      Stretch="None"
+                      Width="10"
+                      Height="10" />
+                <Path x:Name="RestoreGlyph"
+                      Data="M2.5,2.5 V0.5 H9.5 V7.5 H7.5 M0.5,2.5 H7.5 V9.5 H0.5 Z"
+                      StrokeThickness="1.1"
+                      Stretch="None"
+                      Width="10"
+                      Height="10"
+                      IsVisible="False" />
+              </Panel>
+            </Border>
+
+            <Border Classes="caption-btn close"
+                    Tag="Interactive"
+                    ToolTip.Tip="关闭"
+                    PointerPressed="OnClosePressed">
+              <Path Data="M0.5,0.5 L9.5,9.5 M9.5,0.5 L0.5,9.5"
+                    StrokeThickness="1.15"
+                    StrokeLineCap="Round"
+                    Stretch="None"
+                    Width="10"
+                    Height="10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+            </Border>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- 主内容区 + 可折叠清单栏 + 浮动撤销条 -->
+      <Panel Grid.Row="1">
+        <Grid ColumnDefinitions="Auto,*">
+
+          <!-- 可平滑折叠的清单栏（248 ↔ 0） -->
+          <Border x:Name="SidebarHost"
+                  Grid.Column="0"
+                  Width="248"
+                  ClipToBounds="True"
+                  Background="{DynamicResource Main.Sidebar}">
+            <Border.Transitions>
+              <Transitions>
+                <DoubleTransition Property="Width" Duration="0:0:0.18" Easing="CubicEaseOut" />
+                <DoubleTransition Property="Opacity" Duration="0:0:0.16" Easing="CubicEaseOut" />
+              </Transitions>
+            </Border.Transitions>
+            <Grid Width="248" ColumnDefinitions="*,1">
+              <Grid Grid.Column="0" RowDefinitions="*,Auto" Margin="0,12,0,0">
+                <StackPanel Grid.Row="0" Spacing="2">
+                  <Border Classes="side-item"
+                          Classes.selected="{Binding TasksPage.IsTodaySelected}"
+                          Tag="Today"
+                          PointerPressed="OnSideItemPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                      <Viewbox Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M10,2.5 A7.5,7.5 0 1 0 10,17.5 A7.5,7.5 0 1 0 10,2.5 M6.8,10 L9.1,12.3 L13.4,7.8"
+                                StrokeThickness="1.55"
+                                StrokeLineCap="Round"
+                                StrokeJoin="Round" />
+                        </Canvas>
+                      </Viewbox>
+                      <TextBlock Grid.Column="1" Classes="side-title" Text="今天" FontSize="14" Margin="10,-1,0,0" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding TasksPage.TodayCount}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="side-item"
+                          Classes.selected="{Binding TasksPage.IsNext7DaysSelected}"
+                          Tag="Next7Days"
+                          PointerPressed="OnSideItemPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                      <Viewbox Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M3,5.5 H17 V17 H3 Z M3,9.5 H17 M6.5,3.5 V6.8 M13.5,3.5 V6.8 M7,13.5 H13"
+                                StrokeThickness="1.55"
+                                StrokeLineCap="Round"
+                                StrokeJoin="Round" />
+                        </Canvas>
+                      </Viewbox>
+                      <TextBlock Grid.Column="1" Classes="side-title" Text="最近7天" FontSize="14" Margin="10,-1,0,0" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding TasksPage.Next7DaysCount}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="side-item"
+                          Classes.selected="{Binding TasksPage.IsInboxSelected}"
+                          Tag="Inbox"
+                          PointerPressed="OnSideItemPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                      <Viewbox Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M3,11 L5.8,4 H14.2 L17,11 V16 H3 Z M3,11 H7.2 L8.5,13.2 H11.5 L12.8,11 H17"
+                                StrokeThickness="1.55"
+                                StrokeLineCap="Round"
+                                StrokeJoin="Round" />
+                        </Canvas>
+                      </Viewbox>
+                      <TextBlock Grid.Column="1" Classes="side-title" Text="收集箱" FontSize="14" Margin="10,-1,0,0" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding TasksPage.InboxCount}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+
+                  <TextBlock Text="清单"
+                             FontSize="12"
+                             Foreground="{DynamicResource Main.Text.Secondary}"
+                             Margin="18,22,0,6" />
+
+                  <ItemsControl ItemsSource="{Binding Lists}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Spacing="2" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:ListSidebarItem">
+                        <Border Classes="side-item"
+                                Classes.selected="{Binding IsSelected}"
+                                Tag="{Binding Id}"
+                                PointerPressed="OnListSideItemPressed">
+                          <Border.ContextMenu>
+                            <ContextMenu Classes="plana-menu">
+                              <MenuItem Header="重命名" Tag="{Binding Id}" Click="OnRenameListMenuClick">
+                                <MenuItem.Icon>
+                                  <Path Data="M9.8,2.2 L12.3,4.7 L5.2,11.8 L2.2,12.3 L2.7,9.3 Z"
+                                        Stroke="{DynamicResource Main.Text.Secondary}"
+                                        StrokeThickness="1.35"
+                                        StrokeJoin="Round"
+                                        Width="14"
+                                        Height="14"
+                                        Stretch="Uniform" />
+                                </MenuItem.Icon>
+                              </MenuItem>
+                              <MenuItem Classes="danger" Header="删除清单" Tag="{Binding Id}" Click="OnDeleteListMenuClick">
+                                <MenuItem.Icon>
+                                  <Path Data="M2.8,4 H11.2 M5.2,4 V2.6 H8.8 V4 M4,4 L4.6,11.8 H9.4 L10,4"
+                                        Stroke="{DynamicResource Main.Danger}"
+                                        StrokeThickness="1.35"
+                                        StrokeLineCap="Round"
+                                        StrokeJoin="Round"
+                                        Width="14"
+                                        Height="14"
+                                        Stretch="Uniform" />
+                                </MenuItem.Icon>
+                              </MenuItem>
+                            </ContextMenu>
+                          </Border.ContextMenu>
+                          <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                            <Grid Width="17" Height="17" VerticalAlignment="Center">
+                              <Ellipse Width="8"
+                                       Height="8"
+                                       Fill="{Binding DotBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Grid.Column="1"
+                                       Classes="side-title"
+                                       Text="{Binding Name}"
+                                       FontSize="14"
+                                       Margin="10,-1,0,0"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsEditing}" />
+                            <TextBox Grid.Column="1"
+                                     Classes="list-inline-edit"
+                                     Text="{Binding EditName, Mode=TwoWay}"
+                                     IsVisible="{Binding IsEditing}"
+                                     Margin="6,3,4,3"
+                                     KeyDown="OnListNameKeyDown"
+                                     LostFocus="OnListNameLostFocus" />
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Count}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource Main.Text.Tertiary}"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding !IsEditing}" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <Border Classes="side-item"
+                          Tag="AddList"
+                          Margin="0,2,0,0"
+                          PointerPressed="OnAddListPressed">
+                    <Grid ColumnDefinitions="Auto,*" Margin="12,0">
+                      <Grid Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M10,4 V16 M4,10 H16" StrokeThickness="1.6" StrokeLineCap="Round" />
+                        </Canvas>
+                      </Grid>
+                      <TextBlock Grid.Column="1"
+                                 Text="新建清单"
+                                 FontSize="13"
+                                 Foreground="{DynamicResource Main.Text.Secondary}"
+                                 Margin="10,-1,0,0"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Margin="0,0,0,12" Spacing="2">
+                  <Border Height="1" Background="{DynamicResource Main.Divider}" Margin="16,0,16,6" />
+                  <Border Classes="side-item"
+                          Classes.selected="{Binding TasksPage.IsCompletedSelected}"
+                          Tag="Completed"
+                          PointerPressed="OnSideItemPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                      <Viewbox Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M4.5,10.5 L8.2,14.2 L15.8,6.2"
+                                StrokeThickness="1.7"
+                                StrokeLineCap="Round"
+                                StrokeJoin="Round" />
+                        </Canvas>
+                      </Viewbox>
+                      <TextBlock Grid.Column="1" Classes="side-title" Text="已完成" FontSize="14" Margin="10,-1,0,0" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding TasksPage.TotalCompletedCount}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="side-item"
+                          Classes.selected="{Binding TasksPage.IsTrashSelected}"
+                          Tag="Trash"
+                          PointerPressed="OnSideItemPressed">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                      <Viewbox Width="17" Height="17" VerticalAlignment="Center">
+                        <Canvas Width="20" Height="20">
+                          <Path Data="M3.8,6 H16.2 M7.2,6 V4.2 A1,1 0 0 1 8.2,3.2 H11.8 A1,1 0 0 1 12.8,4.2 V6 M5.5,6 L6.3,15.8 A1.4,1.4 0 0 0 7.7,17 H12.3 A1.4,1.4 0 0 0 13.7,15.8 L14.5,6"
+                                StrokeThickness="1.5"
+                                StrokeLineCap="Round"
+                                StrokeJoin="Round" />
+                        </Canvas>
+                      </Viewbox>
+                      <TextBlock Grid.Column="1" Classes="side-title" Text="回收站" FontSize="14" Margin="10,-1,0,0" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding TasksPage.TrashCount}"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource Main.Text.Tertiary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Grid>
+
+              <Border Grid.Column="1" Background="{DynamicResource Main.Divider}" />
+            </Grid>
+          </Border>
+
+          <!-- 页面内容宿主 -->
+          <Panel x:Name="PageHost" Grid.Column="1">
+            <Border x:Name="TasksPageContainer" IsVisible="{Binding IsTasksPage}">
+              <tasks:TasksPageView x:Name="TasksPageView" DataContext="{Binding TasksPage}" />
+            </Border>
+            <Border x:Name="EisenhowerPageContainer" IsVisible="{Binding IsEisenhowerPage}">
+              <eis:EisenhowerView DataContext="{Binding EisenhowerPage}" />
+            </Border>
+            <Border x:Name="CalendarPageContainer" IsVisible="{Binding IsCalendarPage}">
+              <cal:CalendarPageView DataContext="{Binding CalendarPage}" />
+            </Border>
+            <Border x:Name="AssistantPageContainer" IsVisible="{Binding IsAssistantPage}">
+              <ast:AssistantPageView x:Name="AssistantPageView" DataContext="{Binding AssistantPage}" />
+            </Border>
+            <Border x:Name="SettingsPageContainer" IsVisible="{Binding IsSettingsPage}">
+              <settings:SettingsPageView DataContext="{Binding SettingsPage}" />
+            </Border>
+          </Panel>
+        </Grid>
+
+        <!-- 顶部居中浅色提示条（不遮挡底部输入框） -->
+        <c:ToastBanner DataContext="{Binding Toast}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Top" />
+      </Panel>
+    </Grid>
+  </Grid>
+
+  <!-- 关闭主窗口确认卡（ADR-0049 / ADR-0050：窗口内居中模态层，遵守 ADR-0032 无原生弹窗） -->
+  <Grid IsVisible="{Binding IsClosePromptOpen}">
+    <Border x:Name="ClosePromptScrim"
+            Background="{DynamicResource Provider.Scrim}"
+            PointerPressed="OnClosePromptScrimPressed" />
+
+    <Border x:Name="ClosePromptCard"
+            Width="356"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            CornerRadius="16"
+            Padding="22,20"
+            Background="{DynamicResource Main.Bg}"
+            BorderBrush="{DynamicResource Main.Divider}"
+            BorderThickness="1"
+            BoxShadow="{DynamicResource Main.Popup.Shadow}">
+      <StackPanel Spacing="16">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <Image Width="30"
+                 Height="30"
+                 Stretch="Uniform"
+                 RenderOptions.BitmapInterpolationMode="HighQuality"
+                 VerticalAlignment="Center"
+                 Source="avares://VGList/Assets/Plana/plana-pet.png" />
+
+          <TextBlock Grid.Column="1"
+                     Margin="10,0,8,0"
+                     Text="关闭 Plana"
+                     FontSize="15.5"
+                     FontWeight="SemiBold"
+                     Foreground="{DynamicResource Main.Text.Primary}"
+                     VerticalAlignment="Center" />
+
+          <Border Grid.Column="2"
+                  Classes="icon-btn"
+                  VerticalAlignment="Center"
+                  PointerPressed="OnCancelClosePromptPressed"
+                  ToolTip.Tip="取消 (Esc)">
+            <Path Data="M3,3 L11,11 M11,3 L3,11"
+                  Stroke="{DynamicResource Main.Text.Secondary}"
+                  StrokeThickness="1.5"
+                  StrokeLineCap="Round"
+                  Width="14"
+                  Height="14"
+                  Stretch="None"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
+          </Border>
+        </Grid>
+
+        <Border Background="Transparent"
+                Padding="0,2"
+                Cursor="Hand"
+                HorizontalAlignment="Left"
+                PointerPressed="OnToggleRememberCloseChoicePressed">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Border Classes="close-check" Classes.checked="{Binding RememberCloseChoice}">
+              <Path Data="M3,7.5 L6.2,10.6 L12.4,4.2"
+                    Stroke="{DynamicResource Text.OnAccent}"
+                    StrokeThickness="1.8"
+                    StrokeLineCap="Round"
+                    StrokeJoin="Round"
+                    Width="14"
+                    Height="14"
+                    Stretch="None"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="{Binding RememberCloseChoice}" />
+            </Border>
+            <TextBlock Text="记住我的选择（可在设置中更改）"
+                       FontSize="12.5"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2,0,0">
+          <Border Grid.Column="0"
+                  Classes="close-ghost-btn"
+                  PointerPressed="OnCancelClosePromptPressed">
+            <TextBlock Text="取消"
+                       FontSize="13"
+                       Foreground="{DynamicResource Main.Text.Secondary}"
+                       VerticalAlignment="Center" />
+          </Border>
+
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+            <Border Classes="close-danger-btn"
+                    PointerPressed="OnConfirmExitFromPromptPressed">
+              <TextBlock Text="退出 Plana"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Main.Danger}"
+                         VerticalAlignment="Center" />
+            </Border>
+
+            <Border Classes="primary-btn"
+                    Height="34"
+                    Padding="15,0"
+                    CornerRadius="9"
+                    PointerPressed="OnConfirmMinimizeFromPromptPressed">
+              <TextBlock Text="最小化到托盘"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Text.OnAccent}"
+                         VerticalAlignment="Center" />
+            </Border>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Border>
+  </Grid>
+
+  <!-- A7：外部 AI 待确认队列窗内浮层（ADR-0052，遵守 ADR-0032 无原生弹窗） -->
+  <Grid IsVisible="{Binding IsMcpConfirmOverlayOpen}">
+    <Border x:Name="McpConfirmScrim"
+            Background="{DynamicResource Provider.Scrim}"
+            PointerPressed="OnMcpConfirmScrimPressed" />
+
+    <Border x:Name="McpConfirmCard"
+            Width="460"
+            MaxHeight="540"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            CornerRadius="16"
+            Padding="22,20"
+            Background="{DynamicResource Main.Bg}"
+            BorderBrush="{DynamicResource Main.Divider}"
+            BorderThickness="1"
+            BoxShadow="{DynamicResource Main.Popup.Shadow}">
+      <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+          <StackPanel Spacing="2">
+            <TextBlock Text="外部 AI 操作确认"
+                       FontSize="15.5"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Main.Text.Primary}" />
+            <TextBlock Text="删除或超过 5 项的批量改期须经你确认，90 秒未确认将自动拒绝"
+                       FontSize="12"
+                       Foreground="{DynamicResource Main.Text.Tertiary}" />
+          </StackPanel>
+          <Border Grid.Column="1"
+                  Classes="icon-btn"
+                  VerticalAlignment="Top"
+                  PointerPressed="OnCloseMcpConfirmPressed"
+                  ToolTip.Tip="收起 (Esc)">
+            <Path Data="M3,3 L11,11 M11,3 L3,11"
+                  Stroke="{DynamicResource Main.Text.Secondary}"
+                  StrokeThickness="1.5"
+                  StrokeLineCap="Round"
+                  Width="14"
+                  Height="14"
+                  Stretch="None"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
+          </Border>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding PendingMcpRequests}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="mcp:McpPendingConfirmation">
+                <Border Margin="0,0,0,12"
+                        Padding="14,12"
+                        CornerRadius="12"
+                        Background="{DynamicResource Main.Surface.Subtle}"
+                        BorderBrush="{DynamicResource Main.Divider}"
+                        BorderThickness="1">
+                  <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <Border Padding="7,2"
+                              CornerRadius="6"
+                              Background="{DynamicResource Provider.Warn.Bg}"
+                              VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ClientName}"
+                                   FontSize="11.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Provider.Warn.Fg}" />
+                      </Border>
+                      <TextBlock Grid.Column="1"
+                                 Margin="8,0,0,0"
+                                 Text="{Binding Summary}"
+                                 FontSize="13.5"
+                                 FontWeight="SemiBold"
+                                 Foreground="{DynamicResource Main.Text.Primary}"
+                                 VerticalAlignment="Center" />
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Items}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="mcp:McpPendingRequestItem">
+                          <Border Margin="0,2,0,0"
+                                  Padding="8,6"
+                                  CornerRadius="7"
+                                  Background="{DynamicResource Main.Bg}"
+                                  BorderBrush="{DynamicResource Main.Border.Subtle}"
+                                  BorderThickness="1">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                              <Border Padding="6,1"
+                                      CornerRadius="5"
+                                      Background="{DynamicResource Main.Danger.Soft}"
+                                      VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ActionTag}"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Main.Danger}" />
+                              </Border>
+                              <TextBlock Grid.Column="1"
+                                         Margin="8,0,8,0"
+                                         Text="{Binding Title}"
+                                         FontSize="12.5"
+                                         Foreground="{DynamicResource Main.Text.Primary}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                              <TextBlock Grid.Column="2"
+                                         Text="{Binding Detail}"
+                                         FontSize="11.5"
+                                         Foreground="{DynamicResource Main.Text.Tertiary}"
+                                         VerticalAlignment="Center" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                      <Border Classes="close-danger-btn"
+                              Height="30"
+                              Padding="12,0"
+                              Tag="{Binding Id}"
+                              PointerPressed="OnDenyMcpRequestPressed">
+                        <TextBlock Text="拒绝"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Main.Danger}"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                      <Border Classes="primary-btn"
+                              Height="30"
+                              Padding="14,0"
+                              Tag="{Binding Id}"
+                              PointerPressed="OnApproveMcpRequestPressed">
+                        <TextBlock Text="允许执行"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Text.OnAccent}"
+                                   VerticalAlignment="Center" />
+                      </Border>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+  </Grid>
+  </Panel>
+</Window>

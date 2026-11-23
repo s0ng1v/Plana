@@ -1,0 +1,692 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:VGList.Widgets.Today"
+        xmlns:s="using:VGList.Widgets.Support"
+        x:Class="VGList.Widgets.Today.TodayWidgetWindow"
+        x:DataType="vm:TodayWidgetViewModel"
+        Title="今天"
+        Width="331"
+        Height="454"
+        MinWidth="300"
+        MinHeight="320"
+        MaxWidth="662"
+        MaxHeight="908"
+        WindowDecorations="None"
+        CanResize="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        FontFamily="{DynamicResource Font.Ui}"
+        RequestedThemeVariant="Dark">
+
+  <Window.Resources>
+    <ResourceDictionary>
+      <!-- 任务行：进行中与已完成共用一套模板；标题与日期同一行内垂直居中 -->
+      <DataTemplate x:Key="TaskRowTemplate" x:DataType="vm:TaskRowViewModel">
+        <Border Classes="taskrow"
+                Classes.completing="{Binding IsCompleting}"
+                PointerPressed="OnTaskRowPressed">
+          <Grid ColumnDefinitions="Auto,*,Auto" Margin="6,0,6,0">
+            <Border Classes="check"
+                    Classes.high="{Binding IsHigh}"
+                    Classes.medium="{Binding IsMedium}"
+                    Classes.low="{Binding IsLow}"
+                    Classes.done="{Binding IsCompleted}"
+                    Classes.completing="{Binding IsCompleting}"
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"
+                    PointerPressed="OnCheckPressed">
+              <Path Classes="checkmark"
+                    Classes.shown="{Binding IsCheckVisible}"
+                    Data="M1,5 L4.4,8.4 L11,1.6"
+                    Stroke="White"
+                    StrokeThickness="1.6"
+                    StrokeLineCap="Round"
+                    Stretch="Uniform"
+                    Width="11"
+                    Height="9"
+                    RenderTransformOrigin="50%,50%" />
+            </Border>
+            <Panel Grid.Column="1"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Margin="0,0,12,0">
+              <TextBlock Classes="task-title"
+                         Classes.done="{Binding IsDoneVisual}"
+                         Text="{Binding Title}" />
+              <!-- 删除线从左向右生长 -->
+              <Border Classes="strike"
+                      Classes.shown="{Binding IsDoneVisual}"
+                      Height="1.2"
+                      Background="{DynamicResource Text.Secondary}"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Center"
+                      IsHitTestVisible="False" />
+            </Panel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+              <s:SubtaskPieControl Width="12"
+                                   Height="12"
+                                   Margin="0,1,0,0"
+                                   VerticalAlignment="Center"
+                                   CompletedCount="{Binding SubtasksCompleted}"
+                                   TotalCount="{Binding SubtasksTotal}"
+                                   RingBrush="{DynamicResource Text.Secondary}"
+                                   FillBrush="{DynamicResource Text.Primary}"
+                                   IsVisible="{Binding HasSubtasks}" />
+              <TextBlock Classes="task-date"
+                         Classes.done="{Binding IsCompleted}"
+                         Classes.overdue="{Binding IsOverdue}"
+                         Text="{Binding DateLabel}"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </DataTemplate>
+    </ResourceDictionary>
+  </Window.Resources>
+
+  <Window.Styles>
+    <StyleInclude Source="avares://VGList.Widgets/Themes/TodayWidget.axaml" />
+  </Window.Styles>
+
+  <Border x:Name="RootCard"
+          CornerRadius="10"
+          BorderBrush="{DynamicResource Stroke.Widget}"
+          BorderThickness="1"
+          Background="Transparent"
+          ClipToBounds="True"
+          Focusable="True"
+          IsTabStop="False"
+          PointerPressed="OnRootPressed">
+
+      <Grid>
+        <!-- 只有这一层参与不透明度调节，文字/边框/弹层始终保持不透明 -->
+        <Border x:Name="Backdrop"
+                CornerRadius="9"
+                Background="{DynamicResource Bg.Widget}" />
+
+        <Grid Margin="20,12,20,12" RowDefinitions="40,Auto,*">
+
+        <!-- 标题行 -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+
+          <Panel VerticalAlignment="Center">
+            <Border x:Name="ViewButton"
+                    Classes="title-btn"
+                    Margin="-6,0,0,0"
+                    PointerPressed="OnViewButtonPressed">
+              <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                <TextBlock Text="{Binding TitleLabel}"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Text.Primary}" />
+                <Path Data="M1,1.5 L5,5 L9,1.5"
+                      Stroke="{DynamicResource Text.Secondary}"
+                      StrokeThickness="1.5"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="10"
+                      Height="6"
+                      VerticalAlignment="Center"
+                      Margin="0,2,0,0" />
+              </StackPanel>
+            </Border>
+
+            <Popup x:Name="ViewMenuPopup"
+                   PlacementTarget="{Binding #ViewButton}"
+                   Placement="BottomEdgeAlignedLeft"
+                   HorizontalOffset="-6"
+                   VerticalOffset="6"
+                   IsLightDismissEnabled="True">
+              <Border Width="192"
+                      Padding="4"
+                      CornerRadius="12"
+                      Background="{DynamicResource Bg.Surface}"
+                      BorderBrush="{DynamicResource Stroke.Widget}"
+                      BorderThickness="1"
+                      BoxShadow="0 8 24 0 #40000000">
+                <StackPanel>
+
+                  <Border Classes="menu-item" Tag="All" PointerPressed="OnViewMenuSelected">
+                    <Grid ColumnDefinitions="26,*,Auto">
+                      <Path Data="M2,3 H14 V13 H2 Z M2,9 H5 L6,11 H10 L11,9 H14"
+                            Stroke="{DynamicResource Text.Secondary}"
+                            StrokeThickness="1.3"
+                            StrokeJoin="Round"
+                            Stretch="None"
+                            Width="14"
+                            Height="13"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="所有" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                                 VerticalAlignment="Center" />
+                      <Path Grid.Column="2"
+                            Data="M1,5.5 L4,8.5 L10,1.5"
+                            Stroke="{DynamicResource Accent}"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="11"
+                            Height="9"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding IsAllView}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="menu-item" Tag="Today" PointerPressed="OnViewMenuSelected">
+                    <Grid ColumnDefinitions="26,*,Auto">
+                      <Path Data="M2,3 H14 M4,1 V4 M12,1 V4 M2,3 V14 H14 V3"
+                            Stroke="{DynamicResource Text.Secondary}"
+                            StrokeThickness="1.3"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="13"
+                            Height="14"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="今天" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                                 VerticalAlignment="Center" />
+                      <Path Grid.Column="2"
+                            Data="M1,5.5 L4,8.5 L10,1.5"
+                            Stroke="{DynamicResource Accent}"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="11"
+                            Height="9"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding IsTodayView}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="menu-item" Tag="Tomorrow" PointerPressed="OnViewMenuSelected">
+                    <Grid ColumnDefinitions="26,*,Auto">
+                      <Path Data="M2,12 H14 M4.5,9 A3.5,3.5 0 0 1 11.5,9 M8,2 V4.5 M3.2,4.2 L4.6,5.6 M12.8,4.2 L11.4,5.6"
+                            Stroke="{DynamicResource Text.Secondary}"
+                            StrokeThickness="1.3"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="14"
+                            Height="13"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="明天" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                                 VerticalAlignment="Center" />
+                      <Path Grid.Column="2"
+                            Data="M1,5.5 L4,8.5 L10,1.5"
+                            Stroke="{DynamicResource Accent}"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="11"
+                            Height="9"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding IsTomorrowView}" />
+                    </Grid>
+                  </Border>
+
+                  <Border Classes="menu-item" Tag="Next7Days" PointerPressed="OnViewMenuSelected">
+                    <Grid ColumnDefinitions="26,*,Auto">
+                      <Path Data="M8,2 A6,6 0 1 0 8,14 A6,6 0 1 0 8,2 M8,5 V8 L10.5,10"
+                            Stroke="{DynamicResource Text.Secondary}"
+                            StrokeThickness="1.3"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="14"
+                            Height="14"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="最近7天" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                                 VerticalAlignment="Center" />
+                      <Path Grid.Column="2"
+                            Data="M1,5.5 L4,8.5 L10,1.5"
+                            Stroke="{DynamicResource Accent}"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Round"
+                            Stretch="None"
+                            Width="11"
+                            Height="9"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding IsNext7DaysView}" />
+                    </Grid>
+                  </Border>
+
+                </StackPanel>
+              </Border>
+            </Popup>
+          </Panel>
+
+          <Border Grid.Column="1" Background="Transparent" PointerPressed="OnDragAreaPressed" />
+
+          <Panel Grid.Column="2" VerticalAlignment="Center">
+            <Border x:Name="MoreButton"
+                    Classes="more-btn"
+                    PointerPressed="OnMoreButtonPressed">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="2.5"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+              </StackPanel>
+            </Border>
+
+            <Popup x:Name="MoreMenuPopup"
+                   PlacementTarget="{Binding #MoreButton}"
+                   Placement="BottomEdgeAlignedRight"
+                   VerticalOffset="6"
+                   IsLightDismissEnabled="True">
+              <Border Width="164"
+                      Padding="4"
+                      CornerRadius="12"
+                      Background="{DynamicResource Bg.Surface}"
+                      BorderBrush="{DynamicResource Stroke.Widget}"
+                      BorderThickness="1"
+                      BoxShadow="0 8 24 0 #40000000">
+                <Border Classes="menu-item" PointerPressed="OnOpenSettingsPressed">
+                  <Grid ColumnDefinitions="26,*">
+                    <Path Data="M12.85,6.79 L15.16,7.25 A7.2,7.2 0 0 1 15.16,8.75 L12.85,9.21 A5,5 0 0 1 12.29,10.58 L13.6,12.53 A7.2,7.2 0 0 1 12.53,13.6 L10.58,12.29 A5,5 0 0 1 9.21,12.85 L8.75,15.16 A7.2,7.2 0 0 1 7.25,15.16 L6.79,12.85 A5,5 0 0 1 5.42,12.29 L3.47,13.6 A7.2,7.2 0 0 1 2.4,12.53 L3.71,10.58 A5,5 0 0 1 3.15,9.21 L0.84,8.75 A7.2,7.2 0 0 1 0.84,7.25 L3.15,6.79 A5,5 0 0 1 3.71,5.42 L2.4,3.47 A7.2,7.2 0 0 1 3.47,2.4 L5.42,3.71 A5,5 0 0 1 6.79,3.15 L7.25,0.84 A7.2,7.2 0 0 1 8.75,0.84 L9.21,3.15 A5,5 0 0 1 10.58,3.71 L12.53,2.4 A7.2,7.2 0 0 1 13.6,3.47 L12.29,5.42 A5,5 0 0 1 12.85,6.79 Z M5.5,8 A2.5,2.5 0 1 0 10.5,8 A2.5,2.5 0 1 0 5.5,8 Z"
+                          Stroke="{DynamicResource Text.Secondary}"
+                          StrokeThickness="1.2"
+                          StrokeLineCap="Round"
+                          Stretch="None"
+                          Width="16"
+                          Height="16"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="设置" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                               VerticalAlignment="Center" />
+                  </Grid>
+                </Border>
+              </Border>
+            </Popup>
+
+          </Panel>
+        </Grid>
+
+        <!-- 输入区：边框颜色即当前优先级（ADR-0059 移除顶部早安横幅，逾期任务改为直接列在下方并带顺延按钮） -->
+        <Panel x:Name="InputPanel" Grid.Row="1" Margin="0,10,0,0">
+
+          <Border x:Name="InputBorder"
+                  Classes="input"
+                  Classes.focused="{Binding IsEditing}"
+                  Classes.high="{Binding IsHigh}"
+                  Classes.medium="{Binding IsMedium}"
+                  Classes.low="{Binding IsLow}"
+                  Classes.none="{Binding IsNone}"
+                  MinHeight="38">
+            <Grid x:Name="InputLayout"
+                  ColumnDefinitions="*,Auto"
+                  RowDefinitions="Auto,Auto"
+                  Margin="11,0,9,0">
+
+              <TextBox x:Name="InputBox"
+                       Grid.Row="0"
+                       Grid.Column="0"
+                       Classes.high="{Binding IsHigh}"
+                       Classes.medium="{Binding IsMedium}"
+                       Classes.low="{Binding IsLow}"
+                       Classes.none="{Binding IsNone}"
+                       Classes.hint="{Binding IsPriorityHint}"
+                       Text="{Binding DraftText, Mode=TwoWay}"
+                       PlaceholderText="{Binding PlaceholderText}"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       TextChanged="OnInputTextChanged" />
+
+              <!-- 日期 chip：仅编辑态渐入显示；默认在第一行右侧，首行文字顶到它时换到下一行 -->
+              <Border x:Name="DateChip"
+                      Grid.Row="0"
+                      Grid.Column="1"
+                      Classes="date-chip"
+                      Classes.shown="{Binding IsEditing}"
+                      VerticalAlignment="Top"
+                      Margin="6,7,0,0"
+                      PointerPressed="OnDateChipPressed">
+                <Panel>
+                  <StackPanel Orientation="Horizontal"
+                              Spacing="4"
+                              VerticalAlignment="Center">
+                    <Path Data="M2,3 H12 M4,1 V4 M10,1 V4 M2,3 V12 H12 V3"
+                          Stroke="{DynamicResource Accent}"
+                          StrokeThickness="1.3"
+                          StrokeLineCap="Round"
+                          Stretch="None"
+                          Width="13"
+                          Height="12"
+                          VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding DateLabel}"
+                               FontSize="13"
+                               Foreground="{DynamicResource Accent}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+
+                  <Popup x:Name="CalendarPopup"
+                         IsOpen="{Binding IsCalendarOpen, Mode=TwoWay}"
+                         PlacementTarget="{Binding #DateChip}"
+                         Placement="BottomEdgeAlignedLeft"
+                         VerticalOffset="6"
+                         IsLightDismissEnabled="True">
+                    <Border Width="272"
+                            Padding="12"
+                            CornerRadius="12"
+                            Background="{DynamicResource Bg.Surface}"
+                            BorderBrush="{DynamicResource Stroke.Widget}"
+                            BorderThickness="1"
+                            BoxShadow="0 8 24 0 #40000000">
+                      <StackPanel Spacing="8">
+
+                        <!-- 快捷行 -->
+                        <Grid ColumnDefinitions="*,*,*,Auto">
+                          <Border Classes="quick-btn" PointerPressed="OnQuickToday">
+                            <TextBlock Text="今天" FontSize="13" Foreground="{DynamicResource Text.Primary}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <Border Grid.Column="1" Classes="quick-btn" Margin="4,0,0,0" PointerPressed="OnQuickTomorrow">
+                            <TextBlock Text="明天" FontSize="13" Foreground="{DynamicResource Text.Primary}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <Border Grid.Column="2" Classes="quick-btn" Margin="4,0,0,0" PointerPressed="OnQuickDayAfter">
+                            <TextBlock Text="后天" FontSize="13" Foreground="{DynamicResource Text.Primary}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                          <Border Grid.Column="3" Classes="quick-btn" Margin="8,0,0,0" Background="Transparent"
+                                  PointerPressed="OnClearDate">
+                            <TextBlock Text="清除" FontSize="13" Foreground="{DynamicResource Text.Secondary}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+
+                        <Border Height="1" Background="{DynamicResource Divider}" />
+
+                        <!-- 月份导航 -->
+                        <Grid ColumnDefinitions="*,Auto" Height="30">
+                          <TextBlock Text="{Binding MonthTitle}"
+                                     FontSize="14"
+                                     FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Text.Primary}"
+                                     Margin="4,0,0,0"
+                                     VerticalAlignment="Center" />
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <Border Classes="icon-btn" Width="24" Height="24" PointerPressed="OnPreviousMonth">
+                              <Path Data="M5,1 L1.5,4.5 L5,8"
+                                    Stroke="{DynamicResource Text.Secondary}"
+                                    StrokeThickness="1.4"
+                                    StrokeLineCap="Round"
+                                    Stretch="None"
+                                    Width="6"
+                                    Height="9"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <Border Classes="icon-btn" Width="24" Height="24" PointerPressed="OnTodayMonth">
+                              <Ellipse Width="7"
+                                       Height="7"
+                                       Stroke="{DynamicResource Text.Secondary}"
+                                       StrokeThickness="1.2"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            </Border>
+                            <Border Classes="icon-btn" Width="24" Height="24" PointerPressed="OnNextMonth">
+                              <Path Data="M1,1 L4.5,4.5 L1,8"
+                                    Stroke="{DynamicResource Text.Secondary}"
+                                    StrokeThickness="1.4"
+                                    StrokeLineCap="Round"
+                                    Stretch="None"
+                                    Width="6"
+                                    Height="9"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                          </StackPanel>
+                        </Grid>
+
+                        <!-- 星期：周日起始 -->
+                        <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+                          <TextBlock Text="日" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="1" Text="一" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="2" Text="二" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="3" Text="三" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="4" Text="四" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="5" Text="五" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                          <TextBlock Grid.Column="6" Text="六" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Days}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <UniformGrid Columns="7" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DayCellViewModel">
+                              <Border Classes="day-cell"
+                                      Classes.outside="{Binding IsOutside}"
+                                      Classes.today="{Binding IsToday}"
+                                      Classes.selected="{Binding IsSelected}"
+                                      HorizontalAlignment="Center"
+                                      PointerPressed="OnDayPressed">
+                                <TextBlock Text="{Binding DayText}"
+                                           FontSize="13"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Height="1" Background="{DynamicResource Divider}" />
+
+                        <Grid ColumnDefinitions="*,*">
+                          <Border Classes="dialog-btn primary" PointerPressed="OnConfirmDate">
+                            <TextBlock Text="确定"
+                                       FontSize="14"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                          </Border>
+                          <Border Grid.Column="1" Classes="dialog-btn" Margin="8,0,0,0" PointerPressed="OnClearDate">
+                            <TextBlock Text="清除"
+                                       FontSize="14"
+                                       Foreground="{DynamicResource Text.Primary}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+
+                      </StackPanel>
+                    </Border>
+                  </Popup>
+                </Panel>
+              </Border>
+            </Grid>
+          </Border>
+
+        </Panel>
+
+        <!-- 任务列表：滚动条为覆盖层，不占布局宽度，展开时内容不会被挤压 -->
+        <ScrollViewer x:Name="TaskScroll"
+                      Grid.Row="2"
+                      Margin="0,12,0,0"
+                      VerticalScrollBarVisibility="Hidden"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Groups}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:TaskGroupViewModel">
+                  <StackPanel>
+                    <Border Classes="date-header" IsVisible="{Binding IsHeaderVisible}">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                          <Path Data="M1,1.5 L4.5,5 L8,1.5"
+                                Stroke="{DynamicResource Text.Secondary}"
+                                StrokeThickness="1.4"
+                                StrokeLineCap="Round"
+                                Stretch="None"
+                                Width="9"
+                                Height="6"
+                                Margin="2,0,0,0"
+                                VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding Header}"
+                                     FontSize="13.5"
+                                     FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Text.Secondary}"
+                                     VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding CountLabel}"
+                                     FontSize="12"
+                                     Foreground="{DynamicResource Text.Tertiary}"
+                                     IsVisible="{Binding IsOverdueGroup}"
+                                     VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Classes="postpone-btn"
+                                IsVisible="{Binding IsOverdueGroup}"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="将全部逾期任务一键顺延至今天"
+                                PointerPressed="OnPostponeOverduePressed">
+                          <TextBlock Text="顺延到今天"
+                                     FontSize="11.5"
+                                     FontWeight="SemiBold"
+                                     Foreground="{DynamicResource Accent}"
+                                     VerticalAlignment="Center" />
+                        </Border>
+                      </Grid>
+                    </Border>
+                    <ItemsControl ItemsSource="{Binding Tasks}" ItemTemplate="{StaticResource TaskRowTemplate}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="当前没有待办，点击上方输入框快速添加"
+                       FontSize="13"
+                       Foreground="{DynamicResource Text.Tertiary}"
+                       Margin="6,10,6,14"
+                       IsVisible="{Binding !HasPendingTasks}" />
+
+            <Border Classes="group-header"
+                    IsVisible="{Binding ShowCompletedSection}"
+                    PointerPressed="OnCompletedHeaderPressed">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <Path Classes="completed-chevron"
+                      Classes.expanded="{Binding CompletedExpanded}"
+                      Data="M3,1.5 L6.5,5 L3,8.5"
+                      Stroke="{DynamicResource Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      StrokeJoin="Round"
+                      Stretch="None"
+                      Width="10"
+                      Height="10"
+                      Margin="1,0,0,0"
+                      VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="已完成"
+                           FontSize="14"
+                           Foreground="{DynamicResource Text.Secondary}"
+                           Margin="6,0,0,0"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding CompletedCount}"
+                           FontSize="12"
+                           Foreground="{DynamicResource Text.Tertiary}"
+                           VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding CompletedTasks}"
+                          IsVisible="{Binding IsCompletedListVisible}"
+                          ItemTemplate="{StaticResource TaskRowTemplate}" />
+
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- 覆盖式滚动条：悬浮在列表右缘，出现/消失都不会改变内容宽度 -->
+        <Border x:Name="ScrollTrack"
+                Grid.Row="2"
+                Width="14"
+                Margin="0,12,-16,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Background="Transparent"
+                ClipToBounds="True"
+                PointerPressed="OnScrollTrackPressed"
+                PointerWheelChanged="OnScrollTrackWheel">
+          <Border x:Name="ScrollThumb"
+                  Classes="scroll-thumb"
+                  Height="40"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Top"
+                  PointerPressed="OnScrollThumbPressed"
+                  PointerMoved="OnScrollThumbMoved"
+                  PointerReleased="OnScrollThumbReleased"
+                  PointerCaptureLost="OnScrollThumbCaptureLost" />
+        </Border>
+
+      </Grid>
+
+      <!-- 八向缩放热区：四边与四角都可调整窗口大小，界面不随缩放缩小字体 -->
+      <Border Width="6"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Stretch"
+              Margin="0,14,0,14"
+              Background="Transparent"
+              Cursor="SizeWestEast"
+              PointerPressed="OnResizeWestPressed" />
+      <Border Width="6"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Stretch"
+              Margin="0,14,0,14"
+              Background="Transparent"
+              Cursor="SizeWestEast"
+              PointerPressed="OnResizeEastPressed" />
+      <Border Height="6"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Top"
+              Margin="14,0,14,0"
+              Background="Transparent"
+              Cursor="SizeNorthSouth"
+              PointerPressed="OnResizeNorthPressed" />
+      <Border Height="6"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Bottom"
+              Margin="14,0,14,0"
+              Background="Transparent"
+              Cursor="SizeNorthSouth"
+              PointerPressed="OnResizeSouthPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              Background="Transparent"
+              Cursor="TopLeftCorner"
+              PointerPressed="OnResizeNorthWestPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Top"
+              Background="Transparent"
+              Cursor="TopRightCorner"
+              PointerPressed="OnResizeNorthEastPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Bottom"
+              Background="Transparent"
+              Cursor="BottomLeftCorner"
+              PointerPressed="OnResizeSouthWestPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Background="Transparent"
+              Cursor="BottomRightCorner"
+              PointerPressed="OnResizeSouthEastPressed" />
+
+    </Grid>
+  </Border>
+</Window>

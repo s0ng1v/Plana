@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:VGList.Desktop.Controls"
+             x:Class="VGList.Desktop.Controls.DatePickerPopover"
+             x:DataType="c:DatePickerViewModel">
+
+  <Border Width="284"
+          Padding="12"
+          CornerRadius="12"
+          Background="{DynamicResource Main.Bg}"
+          BorderBrush="{DynamicResource Main.Divider}"
+          BorderThickness="1"
+          BoxShadow="{DynamicResource Main.Popup.Shadow}">
+    <StackPanel Spacing="8">
+      <!-- 快捷日期行 -->
+      <Grid ColumnDefinitions="*,*,*,*">
+        <Border Classes="quick-btn" PointerPressed="OnTodayPressed">
+          <TextBlock Text="今天" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <Border Grid.Column="1" Classes="quick-btn" Margin="4,0,0,0" PointerPressed="OnTomorrowPressed">
+          <TextBlock Text="明天" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <Border Grid.Column="2" Classes="quick-btn" Margin="4,0,0,0" PointerPressed="OnDayAfterPressed">
+          <TextBlock Text="后天" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <Border Grid.Column="3" Classes="quick-btn" Margin="4,0,0,0" PointerPressed="OnNextWeekPressed">
+          <TextBlock Text="下周" FontSize="12" Foreground="{DynamicResource Main.Text.Primary}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+      </Grid>
+
+      <Border Height="1" Background="{DynamicResource Main.Border.Subtle}" />
+
+      <!-- 月份导航 -->
+      <Grid ColumnDefinitions="*,Auto" Height="30">
+        <TextBlock Text="{Binding MonthLabel}"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Main.Text.Primary}"
+                   Margin="4,0,0,0"
+                   VerticalAlignment="Center" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+          <Border Classes="icon-btn" Width="26" Height="26" PointerPressed="OnPrevMonthPressed">
+            <Path Data="M5,1 L1.5,4.5 L5,8"
+                  Stroke="{DynamicResource Main.Text.Secondary}"
+                  StrokeThickness="1.4"
+                  StrokeLineCap="Round"
+                  Stretch="None"
+                  Width="6"
+                  Height="9"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
+          </Border>
+          <Border Classes="icon-btn" Width="26" Height="26" PointerPressed="OnNextMonthPressed">
+            <Path Data="M1,1 L4.5,4.5 L1,8"
+                  Stroke="{DynamicResource Main.Text.Secondary}"
+                  StrokeThickness="1.4"
+                  StrokeLineCap="Round"
+                  Stretch="None"
+                  Width="6"
+                  Height="9"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center" />
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <!-- 星期头 -->
+      <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+        <TextBlock Text="日" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="一" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="二" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="3" Text="三" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="4" Text="四" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="5" Text="五" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="6" Text="六" FontSize="11" Foreground="{DynamicResource Main.Text.Tertiary}" HorizontalAlignment="Center" />
+      </Grid>
+
+      <!-- 6 × 7 日期格（补位非本月日期正确淡化） -->
+      <ItemsControl ItemsSource="{Binding Days}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="7" Rows="6" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="c:DatePickerDayViewModel">
+            <Border Classes="cal-day"
+                    Classes.outside="{Binding IsOutside}"
+                    Classes.selected="{Binding IsSelected}"
+                    PointerPressed="OnDayPressed">
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="1">
+                <Border Classes="cal-num" Classes.today="{Binding IsToday}">
+                  <TextBlock Text="{Binding DayLabel}"
+                             FontSize="12"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Classes="cal-lunar"
+                           Classes.festival="{Binding IsFestival}"
+                           Classes.term="{Binding IsSolarTerm}"
+                           Text="{Binding LunarLabel}"
+                           HorizontalAlignment="Center" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </Border>
+</UserControl>

@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="VGList.Desktop.Controls.PlanaBrandLogo"
+             Width="36"
+             Height="36"
+             Background="Transparent">
+
+  <!-- Plana 品牌标记：直接使用设计稿导出的官方图形 -->
+  <Image Width="36"
+         Height="36"
+         Stretch="Uniform"
+         RenderOptions.BitmapInterpolationMode="HighQuality"
+         Source="avares://VGList/Assets/Plana/plana-mark.png" />
+</UserControl>

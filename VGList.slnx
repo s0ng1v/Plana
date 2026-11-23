@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VGList.Agent/VGList.Agent.csproj" />
+    <Project Path="src/VGList.App/VGList.App.csproj" />
+    <Project Path="src/VGList.Core/VGList.Core.csproj" />
+    <Project Path="src/VGList.Data/VGList.Data.csproj" />
+    <Project Path="src/VGList.Desktop/VGList.Desktop.csproj" />
+    <Project Path="src/VGList.Mcp/VGList.Mcp.csproj" />
+    <Project Path="src/VGList.Platform/VGList.Platform.csproj" />
+    <Project Path="src/VGList.Platform.Mac/VGList.Platform.Mac.csproj" />
+    <Project Path="src/VGList.Platform.Win/VGList.Platform.Win.csproj" />
+    <Project Path="src/VGList.Widgets/VGList.Widgets.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VGList.Tests/VGList.Tests.csproj" />
+  </Folder>
+</Solution>

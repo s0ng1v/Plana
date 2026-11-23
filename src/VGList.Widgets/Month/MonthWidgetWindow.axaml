@@ -1,0 +1,802 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:VGList.Widgets.Month"
+        xmlns:s="using:VGList.Widgets.Support"
+        x:Class="VGList.Widgets.Month.MonthWidgetWindow"
+        x:DataType="vm:MonthWidgetViewModel"
+        Title="月历"
+        Width="662"
+        Height="544"
+        MinWidth="530"
+        MinHeight="436"
+        MaxWidth="1324"
+        MaxHeight="1088"
+        WindowDecorations="None"
+        CanResize="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        FontFamily="{DynamicResource Font.Ui}"
+        RequestedThemeVariant="Dark">
+
+  <Window.Resources>
+    <ResourceDictionary>
+      <DataTemplate x:Key="TaskChipTemplate" x:DataType="vm:MonthTaskChipViewModel">
+        <Border Classes="task-chip"
+                Classes.high="{Binding IsHigh}"
+                Classes.medium="{Binding IsMedium}"
+                Classes.low="{Binding IsLow}"
+                Classes.done="{Binding IsCompleted}"
+                ToolTip.Tip="{Binding TooltipText}"
+                PointerPressed="OnTaskChipPressed">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="chip-title"
+                       Classes.done="{Binding IsCompleted}"
+                       Text="{Binding Title}" />
+            <s:SubtaskPieControl Grid.Column="1"
+                                 Width="10"
+                                 Height="10"
+                                 Margin="3,0,0,0"
+                                 VerticalAlignment="Center"
+                                 CompletedCount="{Binding SubtasksCompleted}"
+                                 TotalCount="{Binding SubtasksTotal}"
+                                 RingBrush="{DynamicResource Text.Secondary}"
+                                 FillBrush="{DynamicResource Text.Primary}"
+                                 IsVisible="{Binding HasSubtasks}" />
+          </Grid>
+        </Border>
+      </DataTemplate>
+    </ResourceDictionary>
+  </Window.Resources>
+
+  <Window.Styles>
+    <StyleInclude Source="avares://VGList.Widgets/Themes/MonthWidget.axaml" />
+  </Window.Styles>
+
+  <Border x:Name="RootCard"
+          CornerRadius="16"
+          BorderBrush="{DynamicResource Stroke.Widget}"
+          BorderThickness="1"
+          Background="Transparent"
+          ClipToBounds="True"
+          Focusable="True"
+          IsTabStop="False"
+          PointerPressed="OnRootPressed">
+
+    <Grid>
+      <!-- 只有这一层参与背景与不透明度，文字与格线始终不透明 -->
+      <Border x:Name="Backdrop"
+              CornerRadius="15"
+              Background="{DynamicResource Bg.Widget}" />
+
+      <Grid Margin="16,12,16,12" RowDefinitions="44,28,*">
+
+        <!-- 标题行 -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+
+          <!-- 年月标题（点击打开年月选择器） -->
+          <Border x:Name="MonthTitleButton"
+                  Classes="title-picker-btn"
+                  Margin="-6,0,0,0"
+                  VerticalAlignment="Center"
+                  PointerPressed="OnMonthTitlePressed">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Path Data="M2.5,4.5 H15.5 M5,2 V6 M13,2 V6 M2.5,4.5 V16 H15.5 V4.5 M2.5,8.5 H15.5"
+                    Stroke="{DynamicResource Text.Secondary}"
+                    StrokeThickness="1.3"
+                    StrokeLineCap="Round"
+                    Stretch="Uniform"
+                    Width="17"
+                    Height="17"
+                    VerticalAlignment="Center" />
+              <TextBlock Text="{Binding MonthTitle}"
+                         FontSize="17"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Text.Primary}"
+                         VerticalAlignment="Center" />
+              <Path Data="M1,1.5 L4.5,5 L8,1.5"
+                    Stroke="{DynamicResource Text.Secondary}"
+                    StrokeThickness="1.4"
+                    StrokeLineCap="Round"
+                    Stretch="None"
+                    Width="9"
+                    Height="6"
+                    VerticalAlignment="Center"
+                    Margin="-2,2,0,0" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="1" Background="Transparent" PointerPressed="OnDragAreaPressed" />
+
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+
+            <!-- 视图菜单：P0 为月视图 -->
+            <Border x:Name="ViewButton"
+                    Classes="header-btn"
+                    Width="62"
+                    PointerPressed="OnViewButtonPressed">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="4"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <TextBlock Text="月" FontSize="13" Foreground="{DynamicResource Text.Primary}" />
+                <Path Data="M1,1.5 L4.5,5 L8,1.5"
+                      Stroke="{DynamicResource Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="8"
+                      Height="5"
+                      VerticalAlignment="Center"
+                      Margin="0,1,0,0" />
+              </StackPanel>
+            </Border>
+
+            <!-- 翻页 / 今天 -->
+            <Border Height="32"
+                    Width="112"
+                    CornerRadius="8"
+                    BorderBrush="{DynamicResource Stroke.Widget}"
+                    BorderThickness="1"
+                    ClipToBounds="True">
+              <Grid ColumnDefinitions="28,*,28">
+                <Border Classes="nav-zone" ToolTip.Tip="上一月" PointerPressed="OnPreviousMonthPressed">
+                  <Path Data="M5,1 L1.5,4.5 L5,8"
+                        Stroke="{DynamicResource Text.Secondary}"
+                        StrokeThickness="1.4"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="6"
+                        Height="9"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Column="1" Classes="nav-zone" ToolTip.Tip="回到今天" PointerPressed="OnTodayPressed">
+                  <TextBlock Text="今天"
+                             FontSize="13"
+                             Foreground="{DynamicResource Text.Primary}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Column="2" Classes="nav-zone" ToolTip.Tip="下一月" PointerPressed="OnNextMonthPressed">
+                  <Path Data="M1,1 L4.5,4.5 L1,8"
+                        Stroke="{DynamicResource Text.Secondary}"
+                        StrokeThickness="1.4"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="6"
+                        Height="9"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+            </Border>
+
+            <!-- 更多 / 设置 -->
+            <Border x:Name="MoreButton"
+                    Classes="header-btn"
+                    Width="32"
+                    ToolTip.Tip="小组件设置"
+                    PointerPressed="OnMoreButtonPressed">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="2.5"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+                <Ellipse Width="3" Height="3" Fill="{DynamicResource Text.Secondary}" />
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+        </Grid>
+
+        <!-- 星期行：周日起始 -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*,*,*">
+          <TextBlock Text="周日" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="周一" FontSize="12" Foreground="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="2" Text="周二" FontSize="12" Foreground="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="3" Text="周三" FontSize="12" Foreground="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="4" Text="周四" FontSize="12" Foreground="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="5" Text="周五" FontSize="12" Foreground="{DynamicResource Text.Secondary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="6" Text="周六" FontSize="12" Foreground="{DynamicResource Text.Tertiary}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+
+        <!-- 动态周行数（4 / 5 / 6）× 7 网格 -->
+        <Border Grid.Row="2"
+                BorderBrush="{DynamicResource Divider}"
+                BorderThickness="1,1,0,0"
+                ClipToBounds="True">
+          <Grid x:Name="MonthGrid"
+                ClipToBounds="True"
+                Background="Transparent"
+                PointerWheelChanged="OnGridWheelChanged">
+            <ItemsControl Classes="month-grid" ItemsSource="{Binding Days}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="7" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:MonthDayViewModel">
+                  <Border Classes="month-cell"
+                          Classes.outside="{Binding IsOutside}"
+                          Classes.today="{Binding IsToday}"
+                          Classes.selected="{Binding IsSelected}"
+                          PointerPressed="OnDayCellPressed">
+                    <Grid Margin="6,4" RowDefinitions="Auto,*" Opacity="{Binding ContentOpacity}" ClipToBounds="True">
+
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Classes="day-badge"
+                                Classes.today="{Binding IsToday}"
+                                Classes.first-day="{Binding IsFirstDay}">
+                          <TextBlock Classes="day-text" Text="{Binding DayLabel}" />
+                        </Border>
+                        <TextBlock Grid.Column="2"
+                                   Classes="lunar"
+                                   Classes.festival="{Binding IsFestival}"
+                                   Classes.solar="{Binding IsSolarTerm}"
+                                   Text="{Binding LunarLabel}"
+                                   MaxWidth="48" />
+                      </Grid>
+
+                      <StackPanel Grid.Row="1"
+                                  Margin="0,2,0,0"
+                                  Spacing="2"
+                                  IsVisible="{Binding HasTasks}">
+                        <ItemsControl Classes="chip-list"
+                                      ItemsSource="{Binding FullWidthChips}"
+                                      ItemTemplate="{StaticResource TaskChipTemplate}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <StackPanel Spacing="2" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasBottomChip}">
+                          <ContentControl Content="{Binding BottomChip}"
+                                          ContentTemplate="{StaticResource TaskChipTemplate}" />
+                          <Border Grid.Column="1"
+                                  Classes="overflow-chip"
+                                  Margin="3,0,0,0"
+                                  IsVisible="{Binding HasOverflow}"
+                                  ToolTip.Tip="点击查看当天全部任务"
+                                  PointerPressed="OnOverflowPressed">
+                            <TextBlock Text="{Binding OverflowLabel}" />
+                          </Border>
+                        </Grid>
+                      </StackPanel>
+
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+        </Border>
+
+      </Grid>
+
+      <!-- 窗内浮层点击外部收起层 -->
+      <Border x:Name="OverlayDismissLayer"
+              Background="Transparent"
+              IsVisible="{Binding HasAnyOverlay}"
+              PointerPressed="OnOverlayDismissPressed" />
+
+      <!-- 窗内浮层容器：替代原生 Popup，无黑角且带进入动画 -->
+      <Canvas x:Name="OverlayCanvas"
+              IsVisible="{Binding HasAnyOverlay}">
+
+        <!-- 年月选择器浮层 -->
+        <Border x:Name="MonthPickerOverlay"
+                Classes="overlay-card"
+                Width="228"
+                Padding="12"
+                IsVisible="{Binding IsMonthPickerOpen}"
+                PointerPressed="OnOverlayCardPressed">
+          <StackPanel Spacing="10">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Border Classes="icon-btn" PointerPressed="OnPickerPrevYearPressed">
+                <Path Data="M5,1 L1.5,4.5 L5,8"
+                      Stroke="{DynamicResource Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="6"
+                      Height="9"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+              </Border>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding PickerYear, StringFormat={}{0}年}"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource Text.Primary}"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" />
+              <Border Grid.Column="2" Classes="icon-btn" PointerPressed="OnPickerNextYearPressed">
+                <Path Data="M1,1 L4.5,4.5 L1,8"
+                      Stroke="{DynamicResource Text.Secondary}"
+                      StrokeThickness="1.4"
+                      StrokeLineCap="Round"
+                      Stretch="None"
+                      Width="6"
+                      Height="9"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
+              </Border>
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding PickerMonths}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="3" Rows="4" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:MonthPickerItemViewModel">
+                  <Border Classes="picker-month"
+                          Classes.selected="{Binding IsSelectedMonth}"
+                          Classes.current="{Binding IsCurrentMonth}"
+                          PointerPressed="OnPickerMonthPressed">
+                    <TextBlock Text="{Binding Label}" />
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <!-- 视图菜单浮层 -->
+        <Border x:Name="ViewOverlay"
+                Classes="overlay-card"
+                Width="148"
+                Padding="4"
+                IsVisible="{Binding IsViewMenuOpen}"
+                PointerPressed="OnOverlayCardPressed">
+          <Border Classes="menu-item" PointerPressed="OnViewMenuSelected">
+            <Grid ColumnDefinitions="26,*,Auto">
+              <Path Data="M2,3 H14 V15 H2 Z M2,7 H14 M5,1 V4 M11,1 V4"
+                    Stroke="{DynamicResource Text.Secondary}"
+                    StrokeThickness="1.3"
+                    StrokeLineCap="Round"
+                    Stretch="None"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1"
+                         Text="月"
+                         FontSize="14"
+                         Foreground="{DynamicResource Text.Primary}"
+                         VerticalAlignment="Center" />
+              <Path Grid.Column="2"
+                    Data="M1,5.5 L4,8.5 L10,1.5"
+                    Stroke="{DynamicResource Accent}"
+                    StrokeThickness="1.5"
+                    StrokeLineCap="Round"
+                    Stretch="None"
+                    Width="11"
+                    Height="9"
+                    VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+        </Border>
+
+        <!-- 更多 / 设置浮层 -->
+        <Border x:Name="MoreOverlay"
+                Classes="overlay-card"
+                Width="164"
+                Padding="4"
+                IsVisible="{Binding IsMoreMenuOpen}"
+                PointerPressed="OnOverlayCardPressed">
+          <Border Classes="menu-item" PointerPressed="OnOpenSettingsPressed">
+            <Grid ColumnDefinitions="26,*">
+              <Path Data="M12.85,6.79 L15.16,7.25 A7.2,7.2 0 0 1 15.16,8.75 L12.85,9.21 A5,5 0 0 1 12.29,10.58 L13.6,12.53 A7.2,7.2 0 0 1 12.53,13.6 L10.58,12.29 A5,5 0 0 1 9.21,12.85 L8.75,15.16 A7.2,7.2 0 0 1 7.25,15.16 L6.79,12.85 A5,5 0 0 1 5.42,12.29 L3.47,13.6 A7.2,7.2 0 0 1 2.4,12.53 L3.71,10.58 A5,5 0 0 1 3.15,9.21 L0.84,8.75 A7.2,7.2 0 0 1 0.84,7.25 L3.15,6.79 A5,5 0 0 1 3.71,5.42 L2.4,3.47 A7.2,7.2 0 0 1 3.47,2.4 L5.42,3.71 A5,5 0 0 1 6.79,3.15 L7.25,0.84 A7.2,7.2 0 0 1 8.75,0.84 L9.21,3.15 A5,5 0 0 1 10.58,3.71 L12.53,2.4 A7.2,7.2 0 0 1 13.6,3.47 L12.29,5.42 A5,5 0 0 1 12.85,6.79 Z M5.5,8 A2.5,2.5 0 1 0 10.5,8 A2.5,2.5 0 1 0 5.5,8 Z"
+                    Stroke="{DynamicResource Text.Secondary}"
+                    StrokeThickness="1.2"
+                    StrokeLineCap="Round"
+                    Stretch="None"
+                    Width="16"
+                    Height="16"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="设置" FontSize="14" Foreground="{DynamicResource Text.Primary}"
+                         VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+        </Border>
+
+        <!-- 当日浮层卡片（参考图 6：日期+优先级旗帜头、待办事项互转新建与当日任务列表） -->
+        <Border x:Name="DayAgendaOverlay"
+                Classes="overlay-card"
+                Width="312"
+                Padding="0"
+                ClipToBounds="True"
+                IsVisible="{Binding IsAgendaOpen}"
+                PointerPressed="OnOverlayCardPressed">
+          <StackPanel>
+
+            <!-- 顶部日期 + 农历 + 右侧优先级旗帜 + 关闭 -->
+            <Border Padding="14,10"
+                    BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="0,0,0,1">
+              <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <Path Data="M2.5,4 H13.5 M4.5,2 V5 M11.5,2 V5 M2.5,4 V13 H13.5 V4"
+                        Stroke="{DynamicResource Accent}"
+                        StrokeThickness="1.3"
+                        StrokeLineCap="Round"
+                        StrokeJoin="Round"
+                        Stretch="None"
+                        Width="15"
+                        Height="14"
+                        VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding QuickCreate.DateDisplayLabel}"
+                             FontSize="13"
+                             Foreground="{DynamicResource Accent}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding AgendaLunar}"
+                             FontSize="11"
+                             Foreground="{DynamicResource Text.Tertiary}"
+                             IsVisible="{Binding !IsAgendaFestival}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding AgendaLunar}"
+                             FontSize="11"
+                             Foreground="{DynamicResource Calendar.Festival}"
+                             IsVisible="{Binding IsAgendaFestival}"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Classes="dark-mode-btn"
+                        Width="NaN"
+                        MinWidth="26"
+                        Padding="6,0"
+                        Margin="0,0,4,0"
+                        ToolTip.Tip="点击或按 Tab 切换优先级"
+                        PointerPressed="OnQuickCreatePriorityPressed">
+                  <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse Width="10"
+                             Height="10"
+                             Fill="{DynamicResource Priority.None}"
+                             IsVisible="{Binding QuickCreate.IsNone}"
+                             VerticalAlignment="Center" />
+                    <Ellipse Width="10"
+                             Height="10"
+                             Fill="{DynamicResource Priority.High}"
+                             IsVisible="{Binding QuickCreate.IsHigh}"
+                             VerticalAlignment="Center" />
+                    <Ellipse Width="10"
+                             Height="10"
+                             Fill="{DynamicResource Priority.Medium}"
+                             IsVisible="{Binding QuickCreate.IsMedium}"
+                             VerticalAlignment="Center" />
+                    <Ellipse Width="10"
+                             Height="10"
+                             Fill="{DynamicResource Priority.Low}"
+                             IsVisible="{Binding QuickCreate.IsLow}"
+                             VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding QuickCreate.PriorityLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Priority.High}"
+                               IsVisible="{Binding QuickCreate.IsHigh}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding QuickCreate.PriorityLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Priority.Medium}"
+                               IsVisible="{Binding QuickCreate.IsMedium}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding QuickCreate.PriorityLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Priority.Low}"
+                               IsVisible="{Binding QuickCreate.IsLow}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Classes="icon-btn"
+                        PointerPressed="OnCloseAgendaPressed">
+                  <Path Data="M2,2 L10,10 M10,2 L2,10"
+                        Stroke="{DynamicResource Text.Secondary}"
+                        StrokeThickness="1.3"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="12"
+                        Height="12"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+            </Border>
+
+            <!-- 新建主体：标题 + 待办事项开关 + 描述/清单 + 清单与添加 -->
+            <StackPanel Margin="14,10,14,10" Spacing="6">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="AgendaTitleBox"
+                         Classes="popup-box"
+                         Text="{Binding QuickCreate.Title, Mode=TwoWay}"
+                         PlaceholderText="准备做什么？"
+                         FontSize="15"
+                         FontWeight="SemiBold"
+                         Padding="0,3" />
+                <Border Grid.Column="1"
+                        Classes="dark-mode-btn"
+                        Classes.active="{Binding QuickCreate.IsChecklistMode}"
+                        ToolTip.Tip="切换待办事项 / 多行描述"
+                        VerticalAlignment="Center"
+                        PointerPressed="OnToggleChecklistPressed">
+                  <Path Data="M3,4 H5 M8,4 H15 M3,9 H5 M8,9 H15 M3,14 H5 M8,14 H13"
+                        Stroke="{DynamicResource Text.Secondary}"
+                        StrokeThickness="1.4"
+                        StrokeLineCap="Round"
+                        Stretch="None"
+                        Width="17"
+                        Height="17"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+
+              <TextBox x:Name="AgendaDescBox"
+                       Classes="popup-box"
+                       Text="{Binding QuickCreate.Description, Mode=TwoWay}"
+                       PlaceholderText="描述"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="50"
+                       MaxHeight="104"
+                       FontSize="13"
+                       Foreground="{DynamicResource Text.Secondary}"
+                       Padding="0,2"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       IsVisible="{Binding !QuickCreate.IsChecklistMode}" />
+
+              <ScrollViewer Classes="agenda-scroll"
+                            MaxHeight="110"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled"
+                            IsVisible="{Binding QuickCreate.IsChecklistMode}">
+                <ItemsControl x:Name="AgendaSubtasksControl" ItemsSource="{Binding QuickCreate.Subtasks}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="s:QuickSubtaskItem">
+                      <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,2">
+                        <Grid ColumnDefinitions="Auto,*">
+                          <Border Classes="agenda-check"
+                                  Classes.done="{Binding IsCompleted}"
+                                  Margin="0,0,8,0"
+                                  VerticalAlignment="Center"
+                                  PointerPressed="OnSubtaskCheckPressed">
+                            <Path Data="M1,4.5 L4,7.5 L9.5,1.5"
+                                  Stroke="{DynamicResource Text.OnAccent}"
+                                  StrokeThickness="1.5"
+                                  StrokeLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="10"
+                                  Height="8"
+                                  IsVisible="{Binding IsCompleted}" />
+                          </Border>
+                          <TextBox Grid.Column="1"
+                                   Classes="popup-box"
+                                   Text="{Binding Title, Mode=TwoWay}"
+                                   PlaceholderText="回车添加下一项"
+                                   FontSize="13"
+                                   MinHeight="26"
+                                   Padding="0,2" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+
+              <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4,0,0">
+                <Border Classes="popup-pill"
+                        Background="Transparent"
+                        ToolTip.Tip="点击切换目标清单"
+                        PointerPressed="OnQuickCreateListPressed">
+                  <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Path Data="M2.5,9.5 L4.5,3.5 H11.5 L13.5,9.5 V13.5 H2.5 Z M2.5,9.5 H5.5 L6.5,11.5 H9.5 L10.5,9.5 H13.5"
+                          Stroke="{DynamicResource Text.Secondary}"
+                          StrokeThickness="1.25"
+                          StrokeLineCap="Round"
+                          StrokeJoin="Round"
+                          Stretch="None"
+                          Width="15"
+                          Height="15"
+                          VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding QuickCreate.ListName}"
+                               FontSize="12"
+                               Foreground="{DynamicResource Text.Primary}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            Spacing="4"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding QuickCreate.HasSubtasksProgress}">
+                  <s:SubtaskPieControl Width="12"
+                                       Height="12"
+                                       CompletedCount="{Binding QuickCreate.SubtasksCompleted}"
+                                       TotalCount="{Binding QuickCreate.SubtasksTotal}"
+                                       RingBrush="{DynamicResource Text.Secondary}"
+                                       FillBrush="{DynamicResource Text.Primary}" />
+                  <TextBlock FontSize="11"
+                             Foreground="{DynamicResource Text.Tertiary}"
+                             VerticalAlignment="Center">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0}/{1}">
+                        <Binding Path="QuickCreate.SubtasksCompleted" />
+                        <Binding Path="QuickCreate.SubtasksTotal" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </StackPanel>
+
+                <Border Grid.Column="3"
+                        Classes="popup-pill"
+                        Background="{DynamicResource Accent}"
+                        Padding="12,0"
+                        Height="26"
+                        PointerPressed="OnQuickCreateSubmitPressed">
+                  <TextBlock Text="添加"
+                             FontSize="12"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource Text.OnAccent}"
+                             VerticalAlignment="Center" />
+                </Border>
+              </Grid>
+            </StackPanel>
+
+            <!-- 当日已有任务列表 -->
+            <Border BorderBrush="{DynamicResource Divider}"
+                    BorderThickness="0,1,0,0"
+                    Padding="10,8,10,10"
+                    IsVisible="{Binding HasAgendaTasks}">
+              <ScrollViewer Classes="agenda-scroll"
+                            MaxHeight="132"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding AgendaTasks}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MonthAgendaTaskViewModel">
+                      <Border Classes="agenda-row" MinHeight="32" Padding="6,4" PointerPressed="OnAgendaTaskPressed">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                          <Border Classes="agenda-check"
+                                  Classes.high="{Binding IsHigh}"
+                                  Classes.medium="{Binding IsMedium}"
+                                  Classes.low="{Binding IsLow}"
+                                  Classes.done="{Binding IsCompleted}"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,8,0"
+                                  PointerPressed="OnAgendaCheckPressed">
+                            <Path Data="M1,4.5 L4,7.5 L9.5,1.5"
+                                  Stroke="{DynamicResource Text.OnAccent}"
+                                  StrokeThickness="1.5"
+                                  StrokeLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="10"
+                                  Height="8"
+                                  IsVisible="{Binding IsCompleted}" />
+                          </Border>
+
+                          <TextBlock Grid.Column="1"
+                                     Classes="agenda-title"
+                                     Classes.done="{Binding IsCompleted}"
+                                     FontSize="12.5"
+                                     Text="{Binding Title}"
+                                     VerticalAlignment="Center" />
+
+                          <s:SubtaskPieControl Grid.Column="2"
+                                               Width="11"
+                                               Height="11"
+                                               Margin="6,0,0,0"
+                                               VerticalAlignment="Center"
+                                               CompletedCount="{Binding SubtasksCompleted}"
+                                               TotalCount="{Binding SubtasksTotal}"
+                                               RingBrush="{DynamicResource Text.Secondary}"
+                                               FillBrush="{DynamicResource Text.Primary}"
+                                               IsVisible="{Binding HasSubtasks}" />
+
+                          <TextBlock Grid.Column="3"
+                                     Text="{Binding ListName}"
+                                     FontSize="11"
+                                     Foreground="{DynamicResource Text.Tertiary}"
+                                     Margin="6,0,2,0"
+                                     VerticalAlignment="Center" />
+
+                          <Border Grid.Column="4"
+                                  Classes="agenda-delete"
+                                  ToolTip.Tip="删除任务"
+                                  PointerPressed="OnAgendaDeletePressed">
+                            <Path Data="M1.5,2.5 H8.5 M3,2.5 L3.5,1 H6.5 L7,2.5 M2.5,2.5 L3,12.5 H7 L7.5,2.5 M4.2,5 V10.5 M5.8,5 V10.5"
+                                  Stroke="{DynamicResource Text.Secondary}"
+                                  StrokeThickness="1.2"
+                                  StrokeLineCap="Round"
+                                  StrokeJoin="Round"
+                                  Stretch="None"
+                                  Width="10"
+                                  Height="13"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+                          </Border>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </Border>
+
+          </StackPanel>
+        </Border>
+
+      </Canvas>
+
+      <!-- 八向缩放热区 -->
+      <Border Width="6"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Stretch"
+              Margin="0,14,0,14"
+              Background="Transparent"
+              Cursor="SizeWestEast"
+              PointerPressed="OnResizeWestPressed" />
+      <Border Width="6"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Stretch"
+              Margin="0,14,0,14"
+              Background="Transparent"
+              Cursor="SizeWestEast"
+              PointerPressed="OnResizeEastPressed" />
+      <Border Height="6"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Top"
+              Margin="14,0,14,0"
+              Background="Transparent"
+              Cursor="SizeNorthSouth"
+              PointerPressed="OnResizeNorthPressed" />
+      <Border Height="6"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Bottom"
+              Margin="14,0,14,0"
+              Background="Transparent"
+              Cursor="SizeNorthSouth"
+              PointerPressed="OnResizeSouthPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"
+              Background="Transparent"
+              Cursor="TopLeftCorner"
+              PointerPressed="OnResizeNorthWestPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Top"
+              Background="Transparent"
+              Cursor="TopRightCorner"
+              PointerPressed="OnResizeNorthEastPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Bottom"
+              Background="Transparent"
+              Cursor="BottomLeftCorner"
+              PointerPressed="OnResizeSouthWestPressed" />
+      <Border Width="14"
+              Height="14"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Background="Transparent"
+              Cursor="BottomRightCorner"
+              PointerPressed="OnResizeSouthEastPressed" />
+
+    </Grid>
+  </Border>
+</Window>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VGList.Core\VGList.Core.csproj" />
+    <ProjectReference Include="..\VGList.Data\VGList.Data.csproj" />
+    <ProjectReference Include="..\VGList.Platform\VGList.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Providers\providers.json" />
+  </ItemGroup>
+
+</Project>

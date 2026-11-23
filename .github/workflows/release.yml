@@ -1,0 +1,184 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without leading v (e.g. 0.1.9)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer & Portable
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve release version
+        shell: pwsh
+        run: |
+          $raw = "${{ inputs.version }}"
+          if ([string]::IsNullOrWhiteSpace($raw)) {
+            $raw = "${{ github.ref_name }}"
+          }
+          $ver = $raw.Trim().TrimStart('v', 'V')
+          "APP_VERSION=$ver" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Ensure Inno Setup 6
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
+            "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+            "C:\Program Files\Inno Setup 6\ISCC.exe"
+          )
+          $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $found) {
+            choco install innosetup -y
+          }
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version "$env:APP_VERSION"
+
+      - name: Package Windows portable archive
+        shell: pwsh
+        run: |
+          $zipPath = "dist\Plana-win-x64-portable-$($env:APP_VERSION).zip"
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path "dist\stage\*" -DestinationPath $zipPath -CompressionLevel Optimal
+
+      - name: Upload Windows release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-assets
+          path: |
+            dist/Plana-Setup-*.exe
+            dist/Plana-win-x64-portable-*.zip
+          if-no-files-found: error
+
+  build-macos:
+    name: Build macOS Preview Archives
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve release version
+        shell: bash
+        run: |
+          RAW="${{ inputs.version }}"
+          if [ -z "$RAW" ]; then
+            RAW="${GITHUB_REF_NAME}"
+          fi
+          VER="${RAW#v}"
+          VER="${VER#V}"
+          echo "APP_VERSION=$VER" >> "$GITHUB_ENV"
+
+      - name: Build macOS arm64 & x64 zips
+        shell: bash
+        run: |
+          chmod +x scripts/build-macos.sh
+          bash scripts/build-macos.sh "$APP_VERSION"
+
+      - name: Upload macOS release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-assets
+          path: |
+            dist/Plana-mac-arm64-*.zip
+            dist/Plana-mac-x64-*.zip
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [ build-windows, build-macos ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        shell: bash
+        run: |
+          RAW="${{ inputs.version }}"
+          if [ -z "$RAW" ]; then
+            RAW="${GITHUB_REF_NAME}"
+          fi
+          VER="${RAW#v}"
+          VER="${VER#V}"
+          echo "APP_VERSION=$VER" >> "$GITHUB_ENV"
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Generate SHA256 checksums
+        shell: bash
+        run: |
+          cd release-assets
+          sha256sum Plana-* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re
+          ver = os.environ["APP_VERSION"]
+          notes = ""
+          if os.path.exists("CHANGELOG.md"):
+              text = open("CHANGELOG.md", encoding="utf-8").read()
+              pattern = rf"(?ms)^## \[v?{re.escape(ver)}\][^\n]*\n(.*?)(?=^## \[|\Z)"
+              m = re.search(pattern, text)
+              if m:
+                  notes = m.group(1).strip()
+          if not notes:
+              notes = f"Plana v{ver} release."
+          footer = f"""
+
+          ---
+
+          ### 安装包说明 / Downloads
+
+          | 平台 | 文件 | 说明 |
+          |---|---|---|
+          | **Windows 10/11 (x64)** | `Plana-Setup-{ver}.exe` | 推荐安装版（免管理员权限，自动保留本地数据升级） |
+          | **Windows 10/11 (x64)** | `Plana-win-x64-portable-{ver}.zip` | 免安装绿色便携压缩包 |
+          | **macOS Apple Silicon** | `Plana-mac-arm64-{ver}.zip` | 预览体验版（解压后双击 `首次运行.command`） |
+          | **macOS Intel** | `Plana-mac-x64-{ver}.zip` | 预览体验版（解压后双击 `首次运行.command`） |
+          | **校验文件** | `SHA256SUMS.txt` | 所有构建产物的 SHA-256 校验值 |
+          """
+          with open("release-notes.md", "w", encoding="utf-8") as f:
+              f.write(notes + "\n" + "\n".join(line[10:] if line.startswith("          ") else line for line in footer.splitlines()) + "\n")
+          PY
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          name: Plana v${{ env.APP_VERSION }}
+          body_path: release-notes.md
+          files: release-assets/*
+          draft: false
+          prerelease: false

@@ -1,0 +1,447 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- 6×7 网格单元格需双向铺满 -->
+  <Style Selector="ItemsControl.month-grid ContentPresenter">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+  </Style>
+
+  <!-- 单元格内芯片列表只横向铺满 -->
+  <Style Selector="ItemsControl.chip-list ContentPresenter">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Top" />
+  </Style>
+
+  <!-- 标题年月按钮 -->
+  <Style Selector="Border.title-picker-btn">
+    <Setter Property="Height" Value="32" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.title-picker-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <!-- 标题行按钮：＋ / 月⌄ / ‹ 今天 › / ⋯ 共用 -->
+  <Style Selector="Border.header-btn">
+    <Setter Property="Height" Value="32" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Stroke.Widget}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.header-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <!-- 翻页 / 今天：同一描边容器内的三段 -->
+  <Style Selector="Border.nav-zone">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.nav-zone:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <!-- 日格：1px 格线画在右侧与底部；今天淡蓝底，选中态细蓝框 -->
+  <Style Selector="Border.month-cell">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Divider}" />
+    <Setter Property="BorderThickness" Value="0,0,1,1" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.month-cell.today">
+    <Setter Property="Background" Value="{DynamicResource Accent.Soft}" />
+  </Style>
+  <Style Selector="Border.month-cell:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.month-cell.selected">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <!-- 日号：非今天左对齐保证纵向齐整；今天用 24 高蓝底圆/胶囊居中反白 -->
+  <Style Selector="Border.day-badge">
+    <Setter Property="Height" Value="24" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.day-badge.today">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="Border.day-badge.today.first-day">
+    <Setter Property="Width" Value="NaN" />
+    <Setter Property="MinWidth" Value="24" />
+    <Setter Property="Padding" Value="6,0" />
+  </Style>
+  <Style Selector="TextBlock.day-text">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.day-badge.today TextBlock.day-text">
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.OnAccent}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="Margin" Value="0,-0.5,0,0" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.month-cell.outside TextBlock.day-text">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Tertiary}" />
+  </Style>
+
+  <!-- 农历 / 节气 / 节日 -->
+  <Style Selector="TextBlock.lunar">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+  </Style>
+  <Style Selector="TextBlock.lunar.solar">
+    <Setter Property="Foreground" Value="{DynamicResource Calendar.Festival}" />
+  </Style>
+  <Style Selector="TextBlock.lunar.festival">
+    <Setter Property="Foreground" Value="{DynamicResource Calendar.Festival}" />
+  </Style>
+  <Style Selector="Border.month-cell.outside TextBlock.lunar">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Tertiary}" />
+  </Style>
+  <Style Selector="Border.month-cell.outside TextBlock.lunar.solar">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Tertiary}" />
+  </Style>
+  <Style Selector="Border.month-cell.outside TextBlock.lunar.festival">
+    <Setter Property="Foreground" Value="{DynamicResource Calendar.Festival}" />
+  </Style>
+
+  <!-- 任务芯片：纯色圆角条，无左侧加深竖线 -->
+  <Style Selector="Border.task-chip">
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Padding" Value="5,0" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{DynamicResource Month.Chip.Default}" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.task-chip.high">
+    <Setter Property="Background" Value="{DynamicResource Month.Chip.High}" />
+  </Style>
+  <Style Selector="Border.task-chip.medium">
+    <Setter Property="Background" Value="{DynamicResource Month.Chip.Medium}" />
+  </Style>
+  <Style Selector="Border.task-chip.low">
+    <Setter Property="Background" Value="{DynamicResource Month.Chip.Low}" />
+  </Style>
+  <Style Selector="Border.task-chip.done">
+    <Setter Property="Background" Value="{DynamicResource Month.Chip.Done}" />
+    <Setter Property="Opacity" Value="0.65" />
+  </Style>
+  <Style Selector="Border.task-chip:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <Style Selector="TextBlock.chip-title">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.chip-title.done">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="TextDecorations" Value="Strikethrough" />
+  </Style>
+
+  <Style Selector="Border.overflow-chip">
+    <Setter Property="Height" Value="16" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+    <Setter Property="Padding" Value="5,0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.overflow-chip:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Accent.Soft}" />
+  </Style>
+  <Style Selector="Border.overflow-chip TextBlock">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- 窗内浮层卡（替代原生 Popup，无黑角且支持动画） -->
+  <Style Selector="Border.overlay-card">
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Stroke.Widget}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Overlay}" />
+  </Style>
+
+  <Style Selector="Border.dark-mode-btn">
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.dark-mode-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.dark-mode-btn.active">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+  <!-- 弹层内通用按钮与菜单项 -->
+  <Style Selector="Border.menu-item">
+    <Setter Property="Height" Value="36" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.menu-item:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <Style Selector="Border.icon-btn">
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.icon-btn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+
+  <!-- 年月选择器月份格 -->
+  <Style Selector="Border.picker-month">
+    <Setter Property="Height" Value="34" />
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.picker-month:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.picker-month.selected">
+    <Setter Property="Background" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="Border.picker-month TextBlock">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.picker-month.current TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Border.picker-month.selected TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource Text.OnAccent}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <!-- 当日浮层行与复选框 -->
+  <Style Selector="Border.agenda-row">
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.agenda-row:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="Border.agenda-delete">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.agenda-row:pointerover Border.agenda-delete">
+    <Setter Property="Opacity" Value="0.65" />
+  </Style>
+  <Style Selector="Border.agenda-delete:pointerover">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+  </Style>
+  <Style Selector="ScrollViewer.agenda-scroll ScrollBar:vertical">
+    <Setter Property="Width" Value="4" />
+    <Setter Property="MinWidth" Value="4" />
+  </Style>
+  <Style Selector="ScrollViewer.agenda-scroll ScrollBar:vertical /template/ Thumb">
+    <Setter Property="Background" Value="{DynamicResource Scroll.Thumb}" />
+    <Setter Property="CornerRadius" Value="2" />
+  </Style>
+
+  <Style Selector="Border.agenda-check">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="CornerRadius" Value="4.5" />
+    <Setter Property="BorderThickness" Value="1.5" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.None}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.agenda-check.high">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.agenda-check.medium">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.agenda-check.low">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+  </Style>
+  <Style Selector="Border.agenda-check.done">
+    <Setter Property="Background" Value="{DynamicResource Checkbox.Done}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Checkbox.Done}" />
+  </Style>
+
+  <Style Selector="TextBlock.agenda-title">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBlock.agenda-title.done">
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="TextDecorations" Value="Strikethrough" />
+  </Style>
+
+  <!-- 弹层输入框（快速新建 & 当日浮层新建） -->
+  <Style Selector="Border.popup-input">
+    <Setter Property="Background" Value="{DynamicResource Bg.Input}" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.14" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.popup-input.high">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.High}" />
+  </Style>
+  <Style Selector="Border.popup-input.medium">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Medium}" />
+  </Style>
+  <Style Selector="Border.popup-input.low">
+    <Setter Property="BorderBrush" Value="{DynamicResource Priority.Low}" />
+  </Style>
+
+  <Style Selector="TextBox.popup-box">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource Text.Secondary}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0,6,0,6" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="CaretBrush" Value="{DynamicResource Text.Primary}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+  </Style>
+  <Style Selector="TextBox.popup-box /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <Style Selector="Border.popup-pill">
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="{DynamicResource Bg.Hover}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Border.popup-pill:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Bg.Selected}" />
+  </Style>
+
+</Styles>

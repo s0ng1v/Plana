@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-windows;net10.0</TargetFrameworks>
+    <OutputType Condition="'$(TargetFramework)' == 'net10.0-windows'">WinExe</OutputType>
+    <OutputType Condition="'$(TargetFramework)' != 'net10.0-windows'">Exe</OutputType>
+    <ApplicationManifest Condition="'$(TargetFramework)' == 'net10.0-windows'">app.manifest</ApplicationManifest>
+    <ApplicationIcon Condition="'$(TargetFramework)' == 'net10.0-windows'">Assets\Plana\plana.ico</ApplicationIcon>
+    <AssemblyName>VGList</AssemblyName>
+    <RootNamespace>VGList.Desktop</RootNamespace>
+    <AssemblyTitle>Plana</AssemblyTitle>
+    <Product>Plana</Product>
+    <Company>Plana</Company>
+    <Version>0.1.9</Version>
+    <Description>Plana · 桌面任务与日程</Description>
+    <NoWarn>$(NoWarn);AVLN3001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VGList.App\VGList.App.csproj" />
+    <ProjectReference Include="..\VGList.Agent\VGList.Agent.csproj" />
+    <ProjectReference Include="..\VGList.Widgets\VGList.Widgets.csproj" />
+    <ProjectReference Include="..\VGList.Platform\VGList.Platform.csproj" />
+    <!-- 仅随同构建并复制独立可执行文件到输出目录，绝不作为托管程序集引入主进程加载路径 -->
+    <ProjectReference Include="..\VGList.Mcp\VGList.Mcp.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <ProjectReference Include="..\VGList.Platform.Win\VGList.Platform.Win.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0-windows'">
+    <ProjectReference Include="..\VGList.Platform.Mac\VGList.Platform.Mac.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <Target Name="CopyMcpServerToOutput" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <ItemGroup>
+      <_McpFiles Include="..\VGList.Mcp\bin\$(Configuration)\net10.0\VGList.Mcp.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_McpFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" Condition="'@(_McpFiles)' != ''" />
+  </Target>
+
+</Project>

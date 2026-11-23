@@ -1,0 +1,30 @@
+# Build & publish outputs
+bin/
+obj/
+artifacts/
+dist/
+TestResults/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# Logs & local runtime databases
+*.log
+*.db
+*.db-wal
+*.db-shm
+
+# Local workflow, media & scratch directories
+.trellis/
+.trae/
+.screenshots/
+.uploads/
+video/
+harness/assets/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
