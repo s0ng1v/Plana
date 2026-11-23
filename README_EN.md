@@ -48,15 +48,7 @@ Lana lives inside Plana — lazy-loaded so the app stays featherweight until you
 
 ## 🖼️ Screenshots (v0.1.10)
 
-### Plana Cherry-Pink Theme · Personalized Welcome Stage
-
-Switch live between **Classic Blue** and **Plana Cherry Pink** with time-aware greetings, lunar date summary, and an expressive companion stage.
-
-<img src="docs/screenshots/06-plana-theme-welcome.png" alt="Plana Cherry-Pink Theme & Lana Welcome Stage" width="100%" />
-
----
-
-### Tasks Workspace & Detail Panel
+### 1. Tasks Workspace & Detail Panel
 
 Smart views (**Today**, **Next 7 Days**, **Inbox**, **Completed**, **30-day Trash**), custom lists, inline natural-language Chinese date parsing, `#tag` & recurrence filters, subtask tracking, and exact-time reminders.
 
@@ -64,7 +56,15 @@ Smart views (**Today**, **Next 7 Days**, **Inbox**, **Completed**, **30-day Tras
 
 ---
 
-### Desktop Today & Month Widgets
+### 2. Lana Assistant Welcome Stage
+
+Opens in the default Classic Blue theme with time-aware greetings, lunar date summary, and pending task count — ready for natural-language planning or file attachments.
+
+<img src="docs/screenshots/08-lana-welcome.png" alt="Lana Assistant Welcome Stage (Classic Blue)" width="100%" />
+
+---
+
+### 3. Desktop Today & Month Widgets
 
 Borderless transparent tool windows (hidden from taskbar and `Alt+Tab`) synced instantaneously with the main window — featuring 40%–100% opacity, free scaling, lock & click-through modes, and one-click overdue postponement.
 
@@ -72,7 +72,7 @@ Borderless transparent tool windows (hidden from taskbar and `Alt+Tab`) synced i
 
 ---
 
-### Eisenhower Matrix
+### 4. Eisenhower Matrix
 
 Maps task priorities automatically into four quadrants with drag-and-drop reprioritization and floating edit cards.
 
@@ -80,7 +80,7 @@ Maps task priorities automatically into four quadrants with drag-and-drop reprio
 
 ---
 
-### Month / Week Calendar
+### 5. Month / Week Calendar
 
 Built-in offline 1901–2100 Chinese lunar dates, 24 solar terms, and holidays alongside drag-to-reschedule task chips and quick-create popovers.
 
@@ -88,11 +88,19 @@ Built-in offline 1901–2100 Chinese lunar dates, 24 solar terms, and holidays a
 
 ---
 
-### Model Services (20 Official Presets + Custom Endpoints)
+### 6. Model Services (20 Official Presets + Custom Endpoints)
 
 Paste an API key and test connectivity in seconds, with automatic vision/multimodal detection and multi-variant endpoint switching.
 
 <img src="docs/screenshots/05-model-settings.png" alt="Plana Model Services Settings" width="100%" />
+
+---
+
+### 7. Live Themes & Typography Switching (Classic Blue / Plana Cherry Pink)
+
+Switch live between **Classic Blue** (default) and **Plana Cherry Pink** themes along with 4 bundled font presets in Settings, updating the main window and desktop widgets instantaneously.
+
+<img src="docs/screenshots/09-plana-theme-settings.png" alt="Plana Themes and Typography Settings (Plana Cherry Pink)" width="100%" />
 
 ---
 
