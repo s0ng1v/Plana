@@ -101,7 +101,7 @@ internal static class Program
             .UsePlatformDetect()
             .ConfigureFonts(fontManager =>
             {
-                fontManager.AddFontCollection(new AnthropicFontCollection());
+                AnthropicFontCollection.RegisterAll(fontManager);
             })
             .With(new FontManagerOptions
             {

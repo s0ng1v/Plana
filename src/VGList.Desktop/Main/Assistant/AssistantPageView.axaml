@@ -545,13 +545,20 @@
                   <Border Classes="chat-session-item"
                           Classes.selected="{Binding IsSelected}"
                           PointerPressed="OnSessionItemPressed">
-                    <Grid ColumnDefinitions="*,Auto">
-                      <TextBlock Text="{Binding Title}"
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <vm:ToolSpinnerRing Grid.Column="0"
+                                          Width="11"
+                                          Height="11"
+                                          Margin="0,0,6,0"
+                                          IsVisible="{Binding IsGenerating}"
+                                          VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Title}"
                                  FontSize="13"
                                  Foreground="{DynamicResource Main.Text.Primary}"
                                  TextTrimming="CharacterEllipsis"
                                  VerticalAlignment="Center" />
-                      <Border Grid.Column="1"
+                      <Border Grid.Column="2"
                               Classes="session-del-btn"
                               ToolTip.Tip="删除对话"
                               PointerPressed="OnDeleteSessionPressed">
@@ -1089,9 +1096,10 @@
                             </ItemsControl.DataTemplates>
                           </ItemsControl>
 
-                          <!-- 纯粉紫渐变流光思考文字（无左侧圆球，多组文案轮换） -->
-                          <vm:LanaThinkingOrb IsVisible="{Binding IsThinking}"
+                          <!-- 纯粉紫渐变流光思考文字（无左侧圆球，多组文案轮换；就位后自左向右显现） -->
+                          <vm:LanaThinkingOrb IsVisible="{Binding ShowThinkingOrb}"
                                               StatusText="{Binding ThinkingLabel}"
+                                              RevealOnShow="True"
                                               Margin="2,1.5,0,2" />
 
                           <!-- 错误提示条 -->

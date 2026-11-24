@@ -10,6 +10,7 @@ using VGList.App.Models;
 using VGList.Core.Abstractions;
 using VGList.Core.Dates;
 using VGList.Core.Models;
+using VGList.Data;
 using VGList.Desktop.Controls;
 using VGList.Desktop.Main.Settings;
 using VGList.Desktop.Services;
@@ -672,12 +673,19 @@ public sealed partial class ChatMessageViewModel : ObservableObject
 {
     private ChatTextBlockViewModel? _activeTextBlock;
 
-    public ChatMessageViewModel(bool isUser, string text, IEnumerable<ChatAttachmentItem>? attachments = null, string? modelTag = null)
+    public ChatMessageViewModel(
+        bool isUser,
+        string text,
+        IEnumerable<ChatAttachmentItem>? attachments = null,
+        string? modelTag = null,
+        string? id = null,
+        string? timestamp = null)
     {
+        Id = string.IsNullOrWhiteSpace(id) ? Guid.NewGuid().ToString("N") : id;
         IsUser = isUser;
         _text = text;
         ModelTag = modelTag ?? string.Empty;
-        Timestamp = DateTime.Now.ToString("HH:mm");
+        Timestamp = string.IsNullOrWhiteSpace(timestamp) ? DateTime.Now.ToString("HH:mm") : timestamp;
         if (!isUser && !string.IsNullOrEmpty(text))
         {
             Blocks.Add(new ChatTextBlockViewModel(text, isStreaming: false));
@@ -692,7 +700,7 @@ public sealed partial class ChatMessageViewModel : ObservableObject
         }
     }
 
-    public string Id { get; } = Guid.NewGuid().ToString("N");
+    public string Id { get; }
     public bool IsUser { get; }
     public bool IsAssistant => !IsUser;
     public string Timestamp { get; }
@@ -721,6 +729,10 @@ public sealed partial class ChatMessageViewModel : ObservableObject
     [ObservableProperty]
     private bool _isThinking;
 
+    /// <summary>控制「正在思考」文字是否到达显现时机（活体 Lana 飞向左侧基本就位后放行，ADR-0072）。</summary>
+    [ObservableProperty]
+    private bool _isThinkingRevealed = true;
+
     [ObservableProperty]
     private string _thinkingLabel = "Lana 正在思考…";
 
@@ -743,6 +755,7 @@ public sealed partial class ChatMessageViewModel : ObservableObject
     public bool HasText => !string.IsNullOrEmpty(Text);
     public bool HasError => !string.IsNullOrEmpty(ErrorText);
     public bool HasProposal => Proposal is not null;
+    public bool ShowThinkingOrb => IsThinking && IsThinkingRevealed;
     public bool ShowPastStaticAvatar => IsAssistant && !IsLatestAssistantMessage;
     public bool ShowUserDisplayBubble => IsUser && !IsEditing;
     public bool CanSaveEdit => !string.IsNullOrWhiteSpace(EditText) || EditAttachments.Count > 0;
@@ -928,7 +941,13 @@ public sealed partial class ChatMessageViewModel : ObservableObject
 
     partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(ShowUserDisplayBubble));
     partial void OnEditTextChanged(string value) => OnPropertyChanged(nameof(CanSaveEdit));
-    partial void OnIsThinkingChanged(bool value) => OnPropertyChanged(nameof(ShowActionRow));
+    partial void OnIsThinkingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowThinkingOrb));
+        OnPropertyChanged(nameof(ShowActionRow));
+    }
+
+    partial void OnIsThinkingRevealedChanged(bool value) => OnPropertyChanged(nameof(ShowThinkingOrb));
     partial void OnIsStreamingChanged(bool value) => OnPropertyChanged(nameof(ShowActionRow));
     partial void OnIsCopiedChanged(bool value) => OnPropertyChanged(nameof(CopyButtonLabel));
 
@@ -950,16 +969,25 @@ public sealed partial class ChatMessageViewModel : ObservableObject
 /// <summary>会话侧边栏条目。</summary>
 public sealed partial class ChatSessionItemViewModel : ObservableObject
 {
-    public ChatSessionItemViewModel(string title, bool isSelected = false)
+    public ChatSessionItemViewModel(
+        string title,
+        bool isSelected = false,
+        string? id = null,
+        DateTimeOffset? updatedAt = null,
+        bool isPersistedHistory = false)
     {
-        Id = Guid.NewGuid().ToString("N");
+        Id = string.IsNullOrWhiteSpace(id) ? Guid.NewGuid().ToString("N") : id;
         _title = title;
         _isSelected = isSelected;
-        UpdatedLabel = DateTime.Now.ToString("M/d HH:mm");
+        _updatedLabel = (updatedAt ?? DateTimeOffset.Now).LocalDateTime.ToString("M/d HH:mm");
+        HasLoadedStoredMessages = !isPersistedHistory;
     }
 
     public string Id { get; }
+    public bool HasLoadedStoredMessages { get; set; }
     public List<ChatMessageViewModel> StoredMessages { get; } = [];
+    internal CancellationTokenSource? ActiveRunCts { get; set; }
+    internal bool LastGenerationSucceeded { get; set; } = true;
 
     [ObservableProperty]
     private string _title;
@@ -969,6 +997,28 @@ public sealed partial class ChatSessionItemViewModel : ObservableObject
 
     [ObservableProperty]
     private string _updatedLabel;
+
+    /// <summary>该会话是否正在后台或前台运行 Lana 回复（支持多会话并发运行，ADR-0072）。</summary>
+    [ObservableProperty]
+    private bool _isGenerating;
+
+    internal void CancelActiveRun()
+    {
+        LastGenerationSucceeded = false;
+        var cts = ActiveRunCts;
+        ActiveRunCts = null;
+        IsGenerating = false;
+        if (cts is not null)
+        {
+            try
+            {
+                cts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -1005,21 +1055,22 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
     private readonly UserProfileStore _profileStore;
     private readonly LiveChatPreviewClient _liveClient;
     private readonly Func<IAssistantHost>? _hostFactory;
+    private readonly IConversationStore? _conversationStore;
     private readonly ToastService _toast;
     private readonly Action _openModelSettings;
     private readonly DateOnly _fallbackToday;
     private IAssistantHost? _host;
-    private CancellationTokenSource? _runCts;
     private ChatSessionItemViewModel _currentSession;
     private ChatProposalCardViewModel? _activeOverlayCard;
     private ChatProposalItemViewModel? _activeOverlayItem;
-    private IReadOnlyList<ChatAttachmentItem> _lastSentAttachments = [];
     private int _mentionAtIndex = -1;
     private int _mentionTokenLength;
     private int _selectedMentionIndex;
     private int _greetingVariantIndex;
+    private bool _persistedSessionsLoaded;
     private bool _wasGenerating;
     private bool _lastGenerationSucceeded = true;
+    private bool _suppressHappyOnGeneratingChange;
     private bool _disposed;
 
     public AssistantPageViewModel(
@@ -1030,7 +1081,8 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         DateOnly today,
         LiveChatPreviewClient? liveClient = null,
         Func<IAssistantHost>? hostFactory = null,
-        UserProfileStore? profileStore = null)
+        UserProfileStore? profileStore = null,
+        IConversationStore? conversationStore = null)
     {
         _repository = repository;
         _schedule = repository as IScheduleService;
@@ -1041,6 +1093,9 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         _fallbackToday = today;
         _liveClient = liveClient ?? new LiveChatPreviewClient();
         _hostFactory = hostFactory;
+        _conversationStore = conversationStore ?? (repository is SqliteTaskRepository sqliteRepo
+            ? new SqliteConversationStore(sqliteRepo.Database)
+            : null);
         _greetingVariantIndex = Random.Shared.Next(0, 16);
         ProposalReminderEditor = new ReminderEditorViewModel(OnProposalReminderEdited);
 
@@ -1441,13 +1496,33 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
     [RelayCommand]
     public void StartNewSession()
     {
-        StopGeneration();
         ClosePopups();
         SaveCurrentSessionMessages();
         RefreshGreeting(pickNewVariant: true);
 
-        if (Messages.Count == 0)
+        if (Messages.Count == 0 && !_currentSession.IsGenerating)
         {
+            SessionSwitched?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        var existingBlank = Sessions.FirstOrDefault(s =>
+            s.HasLoadedStoredMessages &&
+            s.StoredMessages.Count == 0 &&
+            !s.IsGenerating &&
+            string.Equals(s.Title, "新对话", StringComparison.Ordinal) &&
+            !ReferenceEquals(s, _currentSession));
+        if (existingBlank is not null)
+        {
+            foreach (var s in Sessions) s.IsSelected = ReferenceEquals(s, existingBlank);
+            _currentSession = existingBlank;
+            Messages.Clear();
+            RefreshLatestAssistantMarker();
+            DraftAttachments.Clear();
+            AttachmentNotice = null;
+            NotifyEmptyAndAttachments();
+            SyncCurrentSessionGeneratingState(triggerHappy: false);
+            StageTransitionRequested?.Invoke(this, new LanaStageTransitionEventArgs(LanaFlightKind.ReturnHome, null));
             SessionSwitched?.Invoke(this, EventArgs.Empty);
             return;
         }
@@ -1460,6 +1535,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         DraftAttachments.Clear();
         AttachmentNotice = null;
         NotifyEmptyAndAttachments();
+        SyncCurrentSessionGeneratingState(triggerHappy: false);
         StageTransitionRequested?.Invoke(this, new LanaStageTransitionEventArgs(LanaFlightKind.ReturnHome, null));
         SessionSwitched?.Invoke(this, EventArgs.Empty);
     }
@@ -1471,9 +1547,9 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             return;
         }
 
-        StopGeneration();
         ClosePopups();
         SaveCurrentSessionMessages();
+        HydrateSessionMessagesIfNeeded(session);
 
         foreach (var s in Sessions) s.IsSelected = ReferenceEquals(s, session);
         _currentSession = session;
@@ -1490,6 +1566,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         }
 
         NotifyEmptyAndAttachments();
+        SyncCurrentSessionGeneratingState(triggerHappy: false);
         StageTransitionRequested?.Invoke(this, new LanaStageTransitionEventArgs(LanaFlightKind.None, LatestAssistantMessage));
         SessionSwitched?.Invoke(this, EventArgs.Empty);
     }
@@ -1499,13 +1576,15 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         if (Sessions.Count <= 1)
         {
             var hadMessages = Messages.Count > 0;
+            _currentSession.CancelActiveRun();
             StartNewSession();
             Messages.Clear();
             RefreshLatestAssistantMarker();
             _currentSession.StoredMessages.Clear();
             _currentSession.Title = "新对话";
-            _host?.DeleteSession(_currentSession.Id);
+            DeletePersistedSession(_currentSession.Id);
             NotifyEmptyAndAttachments();
+            SyncCurrentSessionGeneratingState(triggerHappy: false);
             if (!hadMessages)
             {
                 StageTransitionRequested?.Invoke(this, new LanaStageTransitionEventArgs(LanaFlightKind.None, null));
@@ -1516,11 +1595,95 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         }
 
         var wasCurrent = ReferenceEquals(session, _currentSession);
-        _host?.DeleteSession(session.Id);
+        session.CancelActiveRun();
+        DeletePersistedSession(session.Id);
         Sessions.Remove(session);
         if (wasCurrent)
         {
             SelectSession(Sessions[0]);
+        }
+    }
+
+    /// <summary>首次进入助理页时按需拉取最近 30 条持久化会话（仅读常驻 SqliteConversationStore，不触发 VGList.Agent 加载）。</summary>
+    public void EnsurePersistedSessionsLoaded()
+    {
+        if (_persistedSessionsLoaded || _conversationStore is null)
+        {
+            return;
+        }
+
+        _persistedSessionsLoaded = true;
+        var persisted = _conversationStore.ListSessions(SqliteConversationStore.MaxRetainedSessions);
+        foreach (var summary in persisted)
+        {
+            if (Sessions.Any(existing => string.Equals(existing.Id, summary.Id, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            Sessions.Add(new ChatSessionItemViewModel(
+                summary.Title,
+                isSelected: false,
+                id: summary.Id,
+                updatedAt: summary.UpdatedAt,
+                isPersistedHistory: true));
+        }
+    }
+
+    private void HydrateSessionMessagesIfNeeded(ChatSessionItemViewModel session)
+    {
+        if (session.HasLoadedStoredMessages || _conversationStore is null)
+        {
+            return;
+        }
+
+        var records = _conversationStore.LoadMessages(session.Id);
+        session.StoredMessages.Clear();
+        foreach (var rec in records)
+        {
+            var isUser = string.Equals(rec.Role, "user", StringComparison.OrdinalIgnoreCase);
+            var attachments = rec.Attachments is { Count: > 0 }
+                ? rec.Attachments.Select(a => new ChatAttachmentItem(
+                    a.Name,
+                    a.FullPath,
+                    FormatSize(a.SizeBytes),
+                    a.KindTag,
+                    thumbnail: null)).ToList()
+                : null;
+
+            session.StoredMessages.Add(new ChatMessageViewModel(
+                isUser: isUser,
+                text: rec.Text,
+                attachments: attachments,
+                modelTag: rec.ModelTag,
+                id: rec.Id,
+                timestamp: rec.CreatedAt.LocalDateTime.ToString("HH:mm")));
+        }
+
+        session.HasLoadedStoredMessages = true;
+    }
+
+    private void DeletePersistedSession(string sessionId)
+    {
+        if (_host is not null)
+        {
+            _host.DeleteSession(sessionId);
+        }
+        else
+        {
+            _conversationStore?.DeleteSession(sessionId);
+        }
+    }
+
+    private void TruncatePersistedMessages(string sessionId, int keepCount)
+    {
+        if (_host is not null)
+        {
+            _host.TruncateSessionMessages(sessionId, keepCount);
+        }
+        else
+        {
+            _conversationStore?.TruncateMessages(sessionId, keepCount);
         }
     }
 
@@ -1728,21 +1891,22 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             Messages.RemoveAt(Messages.Count - 1);
         }
 
-        _host?.TruncateSessionMessages(_currentSession.Id, keepCount: userIdx);
+        var targetSession = _currentSession;
+        TruncatePersistedMessages(targetSession.Id, keepCount: userIdx);
 
         if (userIdx == 0)
         {
             var fallbackTitle = displayText.Length > 16 ? displayText[..16] + "…" : displayText;
-            _currentSession.Title = fallbackTitle;
-            StartParallelTitleGeneration(_currentSession, fallbackTitle, displayText);
+            targetSession.Title = fallbackTitle;
+            StartParallelTitleGeneration(targetSession, fallbackTitle, displayText);
         }
 
-        _currentSession.UpdatedLabel = DateTime.Now.ToString("HH:mm");
-        _lastSentAttachments = userMsg.Attachments.ToList();
+        targetSession.UpdatedLabel = DateTime.Now.ToString("HH:mm");
+        var attachments = userMsg.Attachments.ToList();
         SaveCurrentSessionMessages();
         MessagesUpdated?.Invoke(this, EventArgs.Empty);
 
-        await StreamReplyForUserPromptAsync(displayText);
+        await StreamReplyForUserPromptAsync(targetSession, displayText, attachments);
     }
 
     // ===== @ 引用当前输入框内已添加的图片/文件（ADR-0056，不再扫描电脑目录） =====
@@ -1885,11 +2049,8 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
     [RelayCommand]
     public void StopGeneration()
     {
-        _lastGenerationSucceeded = false;
-        _runCts?.Cancel();
-        _runCts?.Dispose();
-        _runCts = null;
-        IsGenerating = false;
+        _currentSession.CancelActiveRun();
+        SyncCurrentSessionGeneratingState(triggerHappy: false);
     }
 
     [RelayCommand]
@@ -1921,6 +2082,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
 
         var userIdx = idx - 1;
         var userMsg = Messages[userIdx];
+        var targetSession = _currentSession;
 
         // 移除当前助理回复及之后可能存在的任何记录
         while (Messages.Count > idx)
@@ -1929,11 +2091,11 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         }
 
         // 同步截断 SQLite 持久化历史（保留 userMsg 之前的全部消息，即将重新写入本轮 userMsg + 新回复）
-        _host?.TruncateSessionMessages(_currentSession.Id, keepCount: userIdx);
-        _lastSentAttachments = userMsg.Attachments.ToList();
+        TruncatePersistedMessages(targetSession.Id, keepCount: userIdx);
+        var attachments = userMsg.Attachments.ToList();
         SaveCurrentSessionMessages();
 
-        await StreamReplyForUserPromptAsync(userMsg.Text);
+        await StreamReplyForUserPromptAsync(targetSession, userMsg.Text, attachments);
     }
 
     public async Task MarkCopiedAsync(ChatMessageViewModel message)
@@ -1958,9 +2120,8 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         var isFirstTurn = wasEmpty && _currentSession.Title == "新对话";
         var targetSession = _currentSession;
 
-        _lastSentAttachments = attachments;
         var userMsg = new ChatMessageViewModel(isUser: true, displayText, attachments);
-        Messages.Add(userMsg);
+        AppendMessageToSession(targetSession, userMsg);
 
         string? fallbackTitle = null;
         if (isFirstTurn)
@@ -1974,7 +2135,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         DraftAttachments.Clear();
         AttachmentNotice = null;
         NotifyEmptyAndAttachments();
-        MessagesUpdated?.Invoke(this, EventArgs.Empty);
+        NotifyMessagesUpdatedIfCurrent(targetSession);
 
         // 首条会话标题生成与主对话回复并行执行，互不阻塞等待
         if (isFirstTurn && fallbackTitle is not null)
@@ -1982,7 +2143,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             StartParallelTitleGeneration(targetSession, fallbackTitle, displayText);
         }
 
-        await StreamReplyForUserPromptAsync(displayText, isFirstTurnTransition: wasEmpty);
+        await StreamReplyForUserPromptAsync(targetSession, displayText, attachments, isFirstTurnTransition: wasEmpty);
     }
 
     private void StartParallelTitleGeneration(
@@ -2056,14 +2217,24 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         }
     }
 
-    private async Task StreamReplyForUserPromptAsync(string userPrompt, bool isFirstTurnTransition = false)
+    private async Task StreamReplyForUserPromptAsync(
+        ChatSessionItemViewModel targetSession,
+        string userPrompt,
+        IReadOnlyList<ChatAttachmentItem> sentAttachments,
+        bool isFirstTurnTransition = false)
     {
-        _runCts?.Cancel();
-        _runCts = new CancellationTokenSource();
-        var ct = _runCts.Token;
+        targetSession.CancelActiveRun();
+        var runCts = new CancellationTokenSource();
+        var ct = runCts.Token;
+        targetSession.ActiveRunCts = runCts;
+        targetSession.LastGenerationSucceeded = true;
+        targetSession.IsGenerating = true;
 
-        _lastGenerationSucceeded = true;
-        IsGenerating = true;
+        if (ReferenceEquals(targetSession, _currentSession))
+        {
+            SyncCurrentSessionGeneratingState(triggerHappy: false);
+        }
+
         var modelLabel = HasActiveModel
             ? $"{_modelStore.ActiveProfile?.Name} · {_modelStore.ActiveProfile?.Model}"
             : string.Empty;
@@ -2073,65 +2244,93 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             ThinkingLabel = LanaThinkingOrb.PickThinkingPhrase(),
             IsStreaming = true,
         };
-        Messages.Add(aiMsg);
-        RefreshLatestAssistantMarker();
-        StageTransitionRequested?.Invoke(
-            this,
-            new LanaStageTransitionEventArgs(
-                isFirstTurnTransition ? LanaFlightKind.FirstTurn : LanaFlightKind.NextTurn,
-                aiMsg));
-        MessagesUpdated?.Invoke(this, EventArgs.Empty);
+        AppendMessageToSession(targetSession, aiMsg);
+        if (ReferenceEquals(targetSession, _currentSession))
+        {
+            StageTransitionRequested?.Invoke(
+                this,
+                new LanaStageTransitionEventArgs(
+                    isFirstTurnTransition ? LanaFlightKind.FirstTurn : LanaFlightKind.NextTurn,
+                    aiMsg));
+            MessagesUpdated?.Invoke(this, EventArgs.Empty);
+        }
 
         try
         {
             if (!HasActiveModel)
             {
-                _lastGenerationSucceeded = false;
+                targetSession.LastGenerationSucceeded = false;
                 aiMsg.ErrorText = "还没有配置模型 API 哦，请点击左上角模型按钮前往「模型服务」填入 API Key ✨";
                 return;
             }
 
-            await RunLiveModelAsync(aiMsg, userPrompt, ct);
+            await RunLiveModelAsync(targetSession, aiMsg, userPrompt, sentAttachments, ct);
+            if (ct.IsCancellationRequested)
+            {
+                targetSession.LastGenerationSucceeded = false;
+                aiMsg.FlushStreamText();
+                if (!aiMsg.HasText && !aiMsg.HasError && !aiMsg.HasProposal)
+                {
+                    aiMsg.SetFallbackText("（已经停下来啦，随时可以继续告诉我哦 🌷）");
+                }
+            }
         }
         catch (OperationCanceledException)
         {
-            _lastGenerationSucceeded = false;
+            targetSession.LastGenerationSucceeded = false;
             aiMsg.FlushStreamText();
-            if (!aiMsg.HasText)
+            if (!aiMsg.HasText && !aiMsg.HasError && !aiMsg.HasProposal)
             {
                 aiMsg.SetFallbackText("（已经停下来啦，随时可以继续告诉我哦 🌷）");
             }
         }
         catch (Exception ex)
         {
-            _lastGenerationSucceeded = false;
+            targetSession.LastGenerationSucceeded = false;
             aiMsg.ErrorText = ex.Message;
         }
         finally
         {
             if (aiMsg.HasError)
             {
-                _lastGenerationSucceeded = false;
+                targetSession.LastGenerationSucceeded = false;
             }
 
             aiMsg.FinishStreaming();
-            IsGenerating = false;
-            SaveCurrentSessionMessages();
-            MessagesUpdated?.Invoke(this, EventArgs.Empty);
+            targetSession.UpdatedLabel = DateTime.Now.ToString("HH:mm");
+            var isStillActiveRun = ReferenceEquals(targetSession.ActiveRunCts, runCts);
+            if (isStillActiveRun)
+            {
+                targetSession.ActiveRunCts = null;
+                targetSession.IsGenerating = false;
+            }
+
+            runCts.Dispose();
+            if (ReferenceEquals(targetSession, _currentSession))
+            {
+                SyncCurrentSessionGeneratingState(triggerHappy: isStillActiveRun && targetSession.LastGenerationSucceeded);
+                SaveCurrentSessionMessages();
+                MessagesUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 
     /// <summary>懒加载 VGList.Agent 内核并消费实时工具调用、流式 SSE、自动执行与细粒度撤销事件流。</summary>
-    private async Task RunLiveModelAsync(ChatMessageViewModel aiMsg, string userPrompt, CancellationToken ct)
+    private async Task RunLiveModelAsync(
+        ChatSessionItemViewModel targetSession,
+        ChatMessageViewModel aiMsg,
+        string userPrompt,
+        IReadOnlyList<ChatAttachmentItem> sentAttachments,
+        CancellationToken ct)
     {
         if (_hostFactory is not null)
         {
             _host ??= _hostFactory();
-            var attachments = _lastSentAttachments
+            var attachments = sentAttachments
                 .Select(a => new AttachmentRef(a.Name, a.FullPath, File.Exists(a.FullPath) ? new FileInfo(a.FullPath).Length : 0, a.KindTag))
                 .ToList();
 
-            var req = new AssistantRequest(_currentSession.Id, userPrompt, attachments);
+            var req = new AssistantRequest(targetSession.Id, userPrompt, attachments);
             var activeStepQueues = new Dictionary<string, Queue<ChatToolStepViewModel>>(StringComparer.Ordinal);
             var lastFlush = Environment.TickCount64;
             const long minToolSpinMs = 300;
@@ -2160,7 +2359,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
                             aiMsg.AddToolStep(stepVm);
                         }
 
-                        MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                        NotifyMessagesUpdatedIfCurrent(targetSession);
                         break;
 
                     case ToolFinishedEvent tf:
@@ -2179,11 +2378,11 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
                             if (remaining <= 16)
                             {
                                 aiMsg.CompleteToolStep(doneStep, finalLabel, tf.Succeeded);
-                                MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                                NotifyMessagesUpdatedIfCurrent(targetSession);
                             }
                             else
                             {
-                                _ = CompleteToolStepAfterDelayAsync(aiMsg, doneStep, finalLabel, tf.Succeeded, (int)remaining, ct);
+                                _ = CompleteToolStepAfterDelayAsync(targetSession, aiMsg, doneStep, finalLabel, tf.Succeeded, (int)remaining, ct);
                             }
                         }
 
@@ -2196,7 +2395,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
                         if (shouldFlush)
                         {
                             lastFlush = now;
-                            MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                            NotifyMessagesUpdatedIfCurrent(targetSession);
                         }
 
                         break;
@@ -2204,7 +2403,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
                     case ProposalReadyEvent pr:
                         aiMsg.FlushStreamText();
                         aiMsg.Proposal = BuildProposalCardFromAgent(pr.Proposal, isAutoApplied: false);
-                        MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                        NotifyMessagesUpdatedIfCurrent(targetSession);
                         break;
 
                     case AutoAppliedEvent aa:
@@ -2227,7 +2426,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
                                 _ = UndoAgentChangeSetAsync(aa.ChangeSetId);
                             }
                         });
-                        MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                        NotifyMessagesUpdatedIfCurrent(targetSession);
                         break;
 
                     case MemoryChangedEvent mem when mem.Action == "added":
@@ -2274,7 +2473,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         await Task.Delay(180, ct);
         aiMsg.CompleteToolStep(fallbackStep, "已查看当前日程", succeeded: true);
 
-        var history = Messages
+        var history = targetSession.StoredMessages
             .Where(m => !ReferenceEquals(m, aiMsg) && m.HasText)
             .TakeLast(12)
             .Select(m => (m.IsUser ? "user" : "assistant", m.Text))
@@ -2289,7 +2488,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             if (flush)
             {
                 last = now;
-                MessagesUpdated?.Invoke(this, EventArgs.Empty);
+                NotifyMessagesUpdatedIfCurrent(targetSession);
             }
         }
 
@@ -2297,6 +2496,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
     }
 
     private async Task CompleteToolStepAfterDelayAsync(
+        ChatSessionItemViewModel targetSession,
         ChatMessageViewModel aiMsg,
         ChatToolStepViewModel step,
         string finalLabel,
@@ -2313,7 +2513,7 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
             }
 
             aiMsg.CompleteToolStep(step, finalLabel, succeeded);
-            MessagesUpdated?.Invoke(this, EventArgs.Empty);
+            NotifyMessagesUpdatedIfCurrent(targetSession);
         }
         catch (OperationCanceledException)
         {
@@ -2709,8 +2909,64 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
 
     private void SaveCurrentSessionMessages()
     {
+        _currentSession.HasLoadedStoredMessages = true;
         _currentSession.StoredMessages.Clear();
         _currentSession.StoredMessages.AddRange(Messages);
+    }
+
+    private void AppendMessageToSession(ChatSessionItemViewModel session, ChatMessageViewModel message)
+    {
+        session.HasLoadedStoredMessages = true;
+        session.StoredMessages.Add(message);
+        if (ReferenceEquals(session, _currentSession))
+        {
+            Messages.Add(message);
+            if (message.IsAssistant)
+            {
+                RefreshLatestAssistantMarker();
+            }
+        }
+    }
+
+    private void NotifyMessagesUpdatedIfCurrent(ChatSessionItemViewModel session)
+    {
+        if (ReferenceEquals(session, _currentSession))
+        {
+            MessagesUpdated?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void SyncCurrentSessionGeneratingState(bool triggerHappy)
+    {
+        var next = _currentSession.IsGenerating;
+        if (triggerHappy)
+        {
+            _lastGenerationSucceeded = _currentSession.LastGenerationSucceeded;
+            var changed = IsGenerating != next;
+            IsGenerating = next;
+            if (!changed)
+            {
+                RefreshStageLanaState(force: false);
+            }
+
+            return;
+        }
+
+        _suppressHappyOnGeneratingChange = true;
+        try
+        {
+            var changed = IsGenerating != next;
+            IsGenerating = next;
+            if (!changed)
+            {
+                _wasGenerating = next;
+                RefreshStageLanaState(force: true);
+            }
+        }
+        finally
+        {
+            _suppressHappyOnGeneratingChange = false;
+        }
     }
 
     private void OnModelStoreChanged(object? sender, EventArgs e) => UiDispatcher.PostIfNeeded(() =>
@@ -2840,11 +3096,27 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         StageLanaState = IsComposerFocused ? LanaVisualState.Listening : LanaVisualState.Idle;
     }
 
-    partial void OnIsPageActiveChanged(bool value) => RefreshStageLanaState(force: true);
+    partial void OnIsPageActiveChanged(bool value)
+    {
+        if (value)
+        {
+            EnsurePersistedSessionsLoaded();
+        }
+
+        RefreshStageLanaState(force: true);
+    }
     partial void OnIsComposerFocusedChanged(bool value) => RefreshStageLanaState();
     partial void OnDraftInputChanged(string value) => OnPropertyChanged(nameof(CanSend));
     partial void OnIsGeneratingChanged(bool value)
     {
+        if (_suppressHappyOnGeneratingChange)
+        {
+            _wasGenerating = value;
+            RefreshStageLanaState(force: true);
+            OnPropertyChanged(nameof(CanSend));
+            return;
+        }
+
         if (value)
         {
             _wasGenerating = true;
@@ -2884,7 +3156,13 @@ public sealed partial class AssistantPageViewModel : ObservableObject, IDisposab
         }
 
         _disposed = true;
-        StopGeneration();
+        _currentSession.CancelActiveRun();
+        foreach (var s in Sessions)
+        {
+            s.CancelActiveRun();
+        }
+
+        SyncCurrentSessionGeneratingState(triggerHappy: false);
         _host?.Dispose();
         _modelStore.Changed -= OnModelStoreChanged;
         _modelStore.ActiveChanged -= OnModelStoreChanged;

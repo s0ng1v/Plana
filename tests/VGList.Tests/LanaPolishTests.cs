@@ -514,10 +514,10 @@ public sealed class LanaPolishTests
         Assert.Equal("Anthropic Sans Web", mappings["Anthropic Sans"].Name);
         Assert.Equal("Anthropic Mono Variable", mappings["Anthropic Mono"].Name);
 
-        // 中文思源字体同样映射到内嵌集合（ADR-0063），未安装系统思源的机器不再回退微软雅黑
-        Assert.Equal(AnthropicFontCollection.CollectionKey, mappings["Noto Sans SC"].Key?.Source);
+        // 中文思源字体隔离映射至各自内嵌集合（ADR-0063 / ADR-0071），未安装系统思源的机器不再回退微软雅黑/宋体
+        Assert.Equal(AnthropicFontCollection.NotoSansSCKey, mappings["Noto Sans SC"].Key?.Source);
         Assert.Equal("Noto Sans SC", mappings["Noto Sans SC"].Name);
-        Assert.Equal(AnthropicFontCollection.CollectionKey, mappings["Noto Serif SC"].Key?.Source);
+        Assert.Equal(AnthropicFontCollection.NotoSerifSCKey, mappings["Noto Serif SC"].Key?.Source);
         Assert.Equal("Noto Serif SC", mappings["Noto Serif SC"].Name);
 
         // 字体文件的旧家族名（nameID 1，带 Text 后缀）也指向同一嵌入家族，避免平台按不同 name 记录解析时回退
@@ -541,10 +541,10 @@ public sealed class LanaPolishTests
     }
 
     [Theory]
-    [InlineData(null, "Anthropic Sans", "Anthropic Serif", "Anthropic Mono")]
-    [InlineData(FontPresetMode.AnthropicSerif, "Anthropic Sans", "Anthropic Serif", "Anthropic Mono")]
-    [InlineData(FontPresetMode.AnthropicClassic, "Anthropic Sans", "Anthropic Serif", "Anthropic Mono")]
-    [InlineData(FontPresetMode.CleanSans, "Noto Sans SC", "Noto Sans SC", "Anthropic Mono")]
+    [InlineData(null, "Anthropic Sans Web", "Anthropic Serif Web", "Anthropic Mono Variable")]
+    [InlineData(FontPresetMode.AnthropicSerif, "Anthropic Sans Web", "Anthropic Serif Web", "Anthropic Mono Variable")]
+    [InlineData(FontPresetMode.AnthropicClassic, "Anthropic Sans Web", "Anthropic Serif Web", "Anthropic Mono Variable")]
+    [InlineData(FontPresetMode.CleanSans, "Noto Sans SC", "Noto Sans SC", "Anthropic Mono Variable")]
     public void FontPresets_StartWithEmbeddedFamilies(string? preset, string ui, string display, string mono)
     {
         var (uiFont, displayFont, monoFont) = AppTheme.ResolveFonts(preset);
@@ -576,8 +576,8 @@ public sealed class LanaPolishTests
             // 默认 Anthropic + 思源宋体；旧版 Default 也解析为新默认
             Assert.True(vm.SettingsPage.IsFontAnthropicSerif);
             var (defUi, defDisplay, _) = AppTheme.ResolveFonts(FontPresetMode.Default);
-            Assert.Contains("Anthropic Sans", defUi.FamilyNames);
-            Assert.Contains("Anthropic Serif", defDisplay.FamilyNames);
+            Assert.Contains("Anthropic Sans Web", defUi.FamilyNames);
+            Assert.Contains("Anthropic Serif Web", defDisplay.FamilyNames);
             Assert.Contains("Noto Serif SC", defDisplay.FamilyNames);
 
             // 切换到 Anthropic + 思源宋体并验证持久化
@@ -585,7 +585,7 @@ public sealed class LanaPolishTests
             Assert.True(vm.SettingsPage.IsFontAnthropicSerif);
             Assert.Equal(FontPresetMode.AnthropicSerif, settingsStore.LoadMain().FontPreset);
             var (_, anthDisplay, _) = AppTheme.ResolveFonts(FontPresetMode.AnthropicSerif);
-            Assert.Contains("Anthropic Serif", anthDisplay.FamilyNames);
+            Assert.Contains("Anthropic Serif Web", anthDisplay.FamilyNames);
             Assert.Contains("Noto Serif SC", anthDisplay.FamilyNames);
 
             // 切换主题时保留已选字体预设
@@ -754,6 +754,352 @@ public sealed class LanaPolishTests
         finally
         {
             Directory.Delete(tmpDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void AssistantPageViewModel_LazilyHydratesPersistedSessionsAndMessagesAcrossRestarts()
+    {
+        var tmpDir = Path.Combine(Path.GetTempPath(), "vglist-lana-history-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tmpDir);
+        try
+        {
+            using var db = SqliteDatabase.Open(Path.Combine(tmpDir, "plana.db"));
+            using var repo = new SqliteTaskRepository(db);
+            var store = new SqliteConversationStore(db);
+
+            // 模拟上一版本运行期间已经落盘的 2 个历史会话与多轮消息
+            store.CreateSession("s-old-1", "旧会话一");
+            store.AppendMessage(new ConversationMessageRecord("m1", "s-old-1", 1, "user", "第一轮提问", null, null, DateTimeOffset.Now.AddMinutes(-10)));
+            store.AppendMessage(new ConversationMessageRecord("m2", "s-old-1", 2, "assistant", "第一轮回复", "DeepSeek · deepseek-flash", null, DateTimeOffset.Now.AddMinutes(-9)));
+            store.AppendMessage(new ConversationMessageRecord("m3", "s-old-1", 3, "user", "第二轮提问", null, [new AttachmentRef("plan.md", string.Empty, 128, "文档")], DateTimeOffset.Now.AddMinutes(-8)));
+            store.AppendMessage(new ConversationMessageRecord("m4", "s-old-1", 4, "assistant", "第二轮回复", "DeepSeek · deepseek-flash", null, DateTimeOffset.Now.AddMinutes(-7)));
+
+            store.CreateSession("s-old-2", "八股延后算法重启");
+            store.AppendMessage(new ConversationMessageRecord("m5", "s-old-2", 1, "user", "延后八股", null, null, DateTimeOffset.Now.AddMinutes(-2)));
+            store.AppendMessage(new ConversationMessageRecord("m6", "s-old-2", 2, "assistant", "已调好啦", "DeepSeek · deepseek-flash", null, DateTimeOffset.Now.AddMinutes(-1)));
+
+            // 模拟覆盖升级后重开主程序：未打开助理页前不拉取历史（严守懒加载）
+            var settingsStore = new SettingsStore(Path.Combine(tmpDir, "settings.json"));
+            var coordinator = new WidgetCoordinator(repo, settingsStore);
+            var modelStore = new ModelProfileStore(new NoopProtector(), Path.Combine(tmpDir, "models.json"));
+            using var vm = new MainWindowViewModel(repo, coordinator, modelStore);
+
+            Assert.Single(vm.AssistantPage.Sessions);
+            Assert.Equal("新对话", vm.AssistantPage.Sessions[0].Title);
+
+            // 打开助理页 → 懒加载最近持久化会话列表，保持「新对话」在首位
+            vm.ShowAssistantCommand.Execute(null);
+            Assert.Equal(3, vm.AssistantPage.Sessions.Count);
+            Assert.Equal("新对话", vm.AssistantPage.Sessions[0].Title);
+            Assert.Equal("s-old-2", vm.AssistantPage.Sessions[1].Id);
+            Assert.Equal("八股延后算法重启", vm.AssistantPage.Sessions[1].Title);
+            Assert.Equal("s-old-1", vm.AssistantPage.Sessions[2].Id);
+
+            // 点击历史会话 → 按需加载该会话消息，并正确标注最新助理头像与历史静影
+            var old1 = vm.AssistantPage.Sessions[2];
+            Assert.False(old1.HasLoadedStoredMessages);
+            vm.AssistantPage.SelectSession(old1);
+            Assert.True(old1.HasLoadedStoredMessages);
+            Assert.Equal(4, vm.AssistantPage.Messages.Count);
+            Assert.True(vm.AssistantPage.Messages[2].HasAttachments);
+            Assert.Equal("plan.md", vm.AssistantPage.Messages[2].Attachments[0].Name);
+            Assert.True(vm.AssistantPage.Messages[1].ShowPastStaticAvatar);
+            Assert.True(vm.AssistantPage.Messages[3].IsLatestAssistantMessage);
+            Assert.False(vm.AssistantPage.Messages[3].ShowPastStaticAvatar);
+
+            // 点「新对话」复用现有空白「新对话」条目，不产生重复条目
+            vm.AssistantPage.StartNewSession();
+            Assert.Equal(3, vm.AssistantPage.Sessions.Count);
+            Assert.Empty(vm.AssistantPage.Messages);
+
+            // 即使尚未发起模型调用，直接删除历史会话也应同步清理 SQLite，下次启动不再复活
+            vm.AssistantPage.DeleteSession(old1);
+            Assert.Equal(2, vm.AssistantPage.Sessions.Count);
+            Assert.Single(store.ListSessions(30));
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            Directory.Delete(tmpDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void FontFallback_EmbeddedCjkAndEmojiResolveFromIsolatedCollections()
+    {
+        var builder = AppBuilder.Configure<Application>()
+            .UseStandardRuntimePlatformSubsystem()
+            .UseSkia()
+            .UseHarfBuzz();
+        builder.RuntimePlatformServicesInitializer?.Invoke();
+        builder.RenderingSubsystemInitializer?.Invoke();
+        builder.TextShapingSubsystemInitializer?.Invoke();
+
+        var fm = FontManager.Current;
+        if (!fm.TryGetGlyphTypeface(new Typeface(new FontFamily("fonts:NotoSerifSC#Noto Serif SC")), out _))
+        {
+            AnthropicFontCollection.RegisterAll(fm);
+        }
+        var (uiFont, displayFont, _) = AppTheme.ResolveFonts(FontPresetMode.AnthropicSerif);
+
+        // Display 链表：英文落入 fonts:Anthropic，中文必须精确落入 fonts:NotoSerifSC（不能串到 NotoSansSC，也不能落到 SystemFonts）
+        Assert.True(fm.TryMatchCharacter('L', FontStyle.Normal, FontWeight.Normal, FontStretch.Normal, displayFont, null, out var tfLatinDisplay));
+        Assert.Equal("Anthropic Serif Web Text", tfLatinDisplay.FontFamily.Name);
+        Assert.Equal(AnthropicFontCollection.CollectionKey.ToString(), tfLatinDisplay.FontFamily.Key?.ToString());
+
+        Assert.True(fm.TryMatchCharacter('松', FontStyle.Normal, FontWeight.Normal, FontStretch.Normal, displayFont, null, out var tfCjkDisplay));
+        Assert.Equal("Noto Serif SC", tfCjkDisplay.FontFamily.Name);
+        Assert.Equal(AnthropicFontCollection.NotoSerifSCKey.ToString(), tfCjkDisplay.FontFamily.Key?.ToString());
+
+        // Emoji 仍可正常回退系统彩色字体
+        Assert.True(fm.TryMatchCharacter(0x1F5D3, FontStyle.Normal, FontWeight.Normal, FontStretch.Normal, displayFont, null, out var tfEmoji));
+        Assert.False(string.IsNullOrWhiteSpace(tfEmoji.FontFamily.Name));
+
+        // UI 链表：英文落入 fonts:Anthropic，中文必须精确落入 fonts:NotoSansSC
+        Assert.True(fm.TryMatchCharacter('L', FontStyle.Normal, FontWeight.Normal, FontStretch.Normal, uiFont, null, out var tfLatinUi));
+        Assert.Equal("Anthropic Sans Web Text", tfLatinUi.FontFamily.Name);
+        Assert.Equal(AnthropicFontCollection.CollectionKey.ToString(), tfLatinUi.FontFamily.Key?.ToString());
+
+        Assert.True(fm.TryMatchCharacter('松', FontStyle.Normal, FontWeight.Normal, FontStretch.Normal, uiFont, null, out var tfCjkUi));
+        Assert.Equal("Noto Sans SC", tfCjkUi.FontFamily.Name);
+        Assert.Equal(AnthropicFontCollection.NotoSansSCKey.ToString(), tfCjkUi.FontFamily.Key?.ToString());
+    }
+
+    [Fact]
+    public void LanaThinkingReveal_WaitsUntilNearArrivalAndSweepsLeftToRight()
+    {
+        var firstThreshold = LanaStageMotion.GetThinkingRevealThreshold(LanaFlightKind.FirstTurn);
+        var nextThreshold = LanaStageMotion.GetThinkingRevealThreshold(LanaFlightKind.NextTurn);
+        Assert.InRange(firstThreshold, 0.70, 0.90);
+        Assert.InRange(nextThreshold, 0.65, 0.85);
+        Assert.True(LanaStageMotion.EvaluateEase(LanaFlightKind.FirstTurn, firstThreshold) >= 0.90);
+
+        // 自左向右渐显曲线在 0 全透明、在 1 全不透明，中间单调从左向右推进
+        Assert.Equal(0.0, LanaThinkingOrb.ComputeRevealAlpha(0.0, 0.0), 4);
+        Assert.Equal(0.0, LanaThinkingOrb.ComputeRevealAlpha(0.5, 0.0), 4);
+        Assert.Equal(1.0, LanaThinkingOrb.ComputeRevealAlpha(0.0, 1.0), 4);
+        Assert.Equal(1.0, LanaThinkingOrb.ComputeRevealAlpha(1.0, 1.0), 4);
+
+        double[] samples = [0.0, 0.25, 0.5, 0.75, 1.0];
+        var alphas = samples.Select(x => LanaThinkingOrb.ComputeRevealAlpha(x, 0.5)).ToArray();
+        Assert.Equal(1.0, alphas[0], 4);
+        Assert.Equal(0.0, alphas[^1], 4);
+        for (var i = 1; i < alphas.Length; i++)
+        {
+            Assert.True(alphas[i] <= alphas[i - 1], $"左向右显现透明权重应单调非增: pos={samples[i]}");
+        }
+
+        // 消息卡片：在飞行就位放行前隐藏思考文字且不提前露出操作按钮，放行后立即可见
+        var aiMsg = new ChatMessageViewModel(isUser: false, string.Empty)
+        {
+            IsThinking = true,
+            IsThinkingRevealed = false,
+            IsStreaming = true,
+        };
+        Assert.False(aiMsg.ShowThinkingOrb);
+        Assert.False(aiMsg.ShowActionRow);
+
+        aiMsg.IsThinkingRevealed = true;
+        Assert.True(aiMsg.ShowThinkingOrb);
+    }
+
+    [Fact]
+    public async Task AssistantPageViewModel_SwitchingOrCreatingSessionDoesNotInterruptBackgroundGeneration()
+    {
+        var tmpDir = Path.Combine(Path.GetTempPath(), "vglist-bg-sessions-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tmpDir);
+        try
+        {
+            var store = new ModelProfileStore(new NoopProtector(), Path.Combine(tmpDir, "models.json"));
+            store.SaveProfile(new ModelProfile
+            {
+                Id = "p-deepseek",
+                PresetId = "deepseek",
+                Name = "DeepSeek",
+                BaseUrl = "https://api.deepseek.com/v1",
+                Model = "deepseek-chat",
+                Protocol = ModelProtocol.OpenAi,
+            }, "sk-1111", setAsActive: true);
+
+            var fakeHost = new ControlledFakeAssistantHost();
+            using var vm = new AssistantPageViewModel(
+                new InMemoryTaskRepository(),
+                store,
+                new ToastService(),
+                () => { },
+                Today,
+                hostFactory: () => fakeHost,
+                profileStore: new UserProfileStore(tmpDir));
+            vm.IsPageActive = true;
+
+            // 1. 在会话 A 发起提问
+            var sessionA = vm.Sessions[0];
+            vm.DraftInput = "整理本周周报计划";
+            var taskA = vm.SendAsync();
+            var runA = await fakeHost.WaitForRunStartedAsync(sessionA.Id);
+
+            Assert.True(sessionA.IsGenerating);
+            Assert.True(vm.IsGenerating);
+            Assert.Equal(LanaVisualState.Thinking, vm.StageLanaState);
+
+            // 2. 在 A 仍在干活时点击「新建会话」：绝不取消 A，新会话可立即正常发送且不会误触 Happy
+            vm.StartNewSession();
+            var sessionB = vm.Sessions[0];
+            Assert.NotSame(sessionA, sessionB);
+            Assert.False(runA.CancellationToken.IsCancellationRequested);
+            Assert.True(sessionA.IsGenerating);
+            Assert.False(sessionB.IsGenerating);
+            Assert.False(vm.IsGenerating);
+            Assert.True(vm.StageLanaState is LanaVisualState.Idle or LanaVisualState.Listening);
+
+            // 3. 在会话 B 同时发起提问：A 与 B 并发生成
+            vm.DraftInput = "安排明天上午代码评审";
+            var taskB = vm.SendAsync();
+            var runB = await fakeHost.WaitForRunStartedAsync(sessionB.Id);
+
+            Assert.True(sessionA.IsGenerating);
+            Assert.True(sessionB.IsGenerating);
+            Assert.True(vm.IsGenerating);
+
+            // 4. 在当前停留在会话 B 时让后台 A 先生成完毕：B 与当前舞台均不被干扰，A 完整保存结果
+            runA.EmitTextAndComplete("会话 A 后台完成的结果 ✨");
+            await taskA;
+
+            Assert.False(sessionA.IsGenerating);
+            Assert.Contains("会话 A 后台完成的结果 ✨", sessionA.StoredMessages.Last().Text);
+            Assert.True(sessionB.IsGenerating);
+            Assert.True(vm.IsGenerating);
+
+            // 5. 切回 A 可直接看到结果；切回 B 仍继续处于生成态，最后 B 完成后正常触发 Happy
+            vm.SelectSession(sessionA);
+            Assert.False(vm.IsGenerating);
+            Assert.Contains("会话 A 后台完成的结果 ✨", vm.Messages.Last().Text);
+
+            vm.SelectSession(sessionB);
+            Assert.True(vm.IsGenerating);
+            Assert.Equal(LanaVisualState.Thinking, vm.StageLanaState);
+
+            runB.EmitTextAndComplete("会话 B 最终完成 👍");
+            await taskB;
+
+            Assert.False(sessionB.IsGenerating);
+            Assert.False(vm.IsGenerating);
+            Assert.Equal(LanaVisualState.Happy, vm.StageLanaState);
+
+            // 6. 验证 StopGeneration 只停当前会话（B），DeleteSession 只停被删后台会话（A），互不牵连
+            vm.SelectSession(sessionA);
+            vm.DraftInput = "A 第二轮";
+            var taskA2 = vm.SendAsync();
+            var runA2 = await fakeHost.WaitForRunStartedAsync(sessionA.Id, occurrence: 2);
+
+            vm.SelectSession(sessionB);
+            vm.DraftInput = "B 第二轮";
+            var taskB2 = vm.SendAsync();
+            var runB2 = await fakeHost.WaitForRunStartedAsync(sessionB.Id, occurrence: 2);
+
+            vm.StopGeneration();
+            await taskB2.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.False(taskA2.IsCompleted);
+            Assert.True(runB2.CancellationToken.IsCancellationRequested);
+            Assert.False(runA2.CancellationToken.IsCancellationRequested);
+            Assert.False(sessionB.IsGenerating);
+            Assert.True(sessionA.IsGenerating);
+
+            // 清理前验证 DeleteSession(A) 精准取消后台运行的 A
+            vm.DeleteSession(sessionA);
+            Assert.True(runA2.CancellationToken.IsCancellationRequested);
+            await taskA2.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        finally
+        {
+            Directory.Delete(tmpDir, recursive: true);
+        }
+    }
+
+    private sealed class ControlledFakeAssistantHost : IAssistantHost
+    {
+        private readonly object _gate = new();
+        private readonly Dictionary<string, List<FakeRunHandle>> _runsBySession = new(StringComparer.Ordinal);
+        private readonly List<(string SessionId, int Occurrence, TaskCompletionSource<FakeRunHandle> Waiter)> _waiters = [];
+
+        public IReadOnlyList<SessionSummary> Sessions => [];
+        public SessionSummary CreateSession(string title = "新对话") => new(Guid.NewGuid().ToString("N"), title, DateTimeOffset.Now);
+        public IReadOnlyList<ConversationMessageRecord> LoadSessionMessages(string sessionId) => [];
+        public void DeleteSession(string sessionId) { }
+        public void TruncateSessionMessages(string sessionId, int keepCount) { }
+        public void UpdateSessionTitle(string sessionId, string title) { }
+        public Task<string?> GenerateSessionTitleAsync(string sessionId, string firstUserMessage, CancellationToken ct = default) =>
+            Task.FromResult<string?>(null);
+        public bool UpdateProposalItemOperation(string proposalId, string itemId, ScheduleOp updatedOperation) => false;
+        public Task<ProposalApplyResult> ApplyProposalAsync(string proposalId, IReadOnlyCollection<string> selectedItemIds, CancellationToken ct = default) =>
+            Task.FromResult(new ProposalApplyResult(false, null, 0, []));
+        public void DiscardProposal(string proposalId) { }
+        public Task<UndoResult> UndoAsync(string changeSetId) => Task.FromResult(new UndoResult(false, 0, []));
+        public Task<UndoResult> UndoEntriesAsync(string changeSetId, IReadOnlyCollection<string> entityIds) =>
+            Task.FromResult(new UndoResult(false, 0, []));
+        public Task<UndoResult?> UndoLastAsync(ChangeSource[] sources, TimeSpan within) =>
+            Task.FromResult<UndoResult?>(null);
+        public void Dispose() { }
+
+        public Task<FakeRunHandle> WaitForRunStartedAsync(string sessionId, int occurrence = 1)
+        {
+            lock (_gate)
+            {
+                if (_runsBySession.TryGetValue(sessionId, out var list) && list.Count >= occurrence)
+                {
+                    return Task.FromResult(list[occurrence - 1]);
+                }
+
+                var tcs = new TaskCompletionSource<FakeRunHandle>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _waiters.Add((sessionId, occurrence, tcs));
+                return tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            }
+        }
+
+        public async IAsyncEnumerable<AssistantEvent> RunAsync(
+            AssistantRequest request,
+            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+        {
+            var handle = new FakeRunHandle(ct);
+            lock (_gate)
+            {
+                if (!_runsBySession.TryGetValue(request.SessionId, out var list))
+                {
+                    list = [];
+                    _runsBySession[request.SessionId] = list;
+                }
+
+                list.Add(handle);
+                var count = list.Count;
+                for (var i = _waiters.Count - 1; i >= 0; i--)
+                {
+                    if (string.Equals(_waiters[i].SessionId, request.SessionId, StringComparison.Ordinal) &&
+                        _waiters[i].Occurrence == count)
+                    {
+                        _waiters[i].Waiter.TrySetResult(handle);
+                        _waiters.RemoveAt(i);
+                    }
+                }
+            }
+
+            var reply = await handle.WaitForReplyAsync(ct);
+            yield return new TextDeltaEvent(reply);
+            yield return new DoneEvent(request.SessionId, reply);
+        }
+
+        public sealed class FakeRunHandle(CancellationToken ct)
+        {
+            private readonly TaskCompletionSource<string> _replyTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            public CancellationToken CancellationToken { get; } = ct;
+
+            public void EmitTextAndComplete(string reply) => _replyTcs.TrySetResult(reply);
+
+            public async Task<string> WaitForReplyAsync(CancellationToken ct)
+            {
+                using var reg = ct.Register(() => _replyTcs.TrySetCanceled(ct));
+                return await _replyTcs.Task;
+            }
         }
     }
 

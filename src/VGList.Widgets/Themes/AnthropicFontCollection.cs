@@ -1,25 +1,60 @@
 using Avalonia.Media;
 using Avalonia.Media.Fonts;
+using Avalonia.Platform;
 
 namespace VGList.Widgets.Themes;
 
 /// <summary>
-/// 内嵌应用字体集合（ADR-0050 / ADR-0063）：
-/// 加载随包打包的 AnthropicSerifWebText / AnthropicSansWebText / AnthropicMonoVariable，
-/// 以及中文思源 NotoSansSC / NotoSerifSC（可变字体，字重轴已重定基为 400..900、默认 400，见 ADR-0067），
-/// 配合 FontManagerOptions.FontFamilyMappings 让 XAML 中的 "Anthropic Serif" / "Anthropic Sans" / "Anthropic Mono"
-/// / "Noto Sans SC" / "Noto Serif SC" 自动解析到真实内嵌字体，
-/// 保证未安装系统字体的机器上中文渲染一致（不再回退微软雅黑），
-/// 同时保留完整系统回退链（如中文 SimSun 与彩色 Emoji）。
+/// 按嵌入式字体资源名加载的轻量 FontCollectionBase（ADR-0071）：
+/// 只注册指定的字体文件，避免不同汉字回退字体（Noto Sans SC / Noto Serif SC）混在同一集合中时，
+/// 因西文字体缺字引发集合内遍历而误命中另一种中文字体。
 /// </summary>
-public sealed class AnthropicFontCollection : EmbeddedFontCollection
+public abstract class BundledFontCollection : FontCollectionBase
+{
+    public override Uri Key { get; }
+
+    protected BundledFontCollection(Uri key, params string[] fontAssetNames)
+    {
+        Key = key;
+        foreach (var fileName in fontAssetNames)
+        {
+            using var stream = AssetLoader.Open(new Uri($"avares://VGList.Widgets/Assets/Fonts/{fileName}", UriKind.Absolute));
+            TryAddGlyphTypeface(stream, out _);
+        }
+    }
+}
+
+/// <summary>
+/// 内嵌应用字体集合（ADR-0050 / ADR-0063 / ADR-0071）：
+/// 仅加载 AnthropicSerifWebText / AnthropicSansWebText / AnthropicMonoVariable，
+/// 与中文思源字体集合（NotoSansSCFontCollection / NotoSerifSCFontCollection）严格隔离，
+/// 使 FontFamily 链表中的显式集合 URI（fonts:NotoSansSC#... / fonts:NotoSerifSC#...）能在未安装系统思源的机器上精确生效，
+/// 同时保留系统字体与彩色 Emoji（Segoe UI Emoji）尾部回退。
+/// </summary>
+public sealed class AnthropicFontCollection : BundledFontCollection
 {
     public static readonly Uri CollectionKey = new("fonts:Anthropic", UriKind.Absolute);
+    public static readonly Uri NotoSansSCKey = new("fonts:NotoSansSC", UriKind.Absolute);
+    public static readonly Uri NotoSerifSCKey = new("fonts:NotoSerifSC", UriKind.Absolute);
     public static readonly Uri AssetsUri = new("avares://VGList.Widgets/Assets/Fonts", UriKind.Absolute);
 
     public AnthropicFontCollection()
-        : base(CollectionKey, AssetsUri)
+        : base(
+            CollectionKey,
+            "AnthropicSerifWebText.ttf",
+            "AnthropicSansWebText.ttf",
+            "AnthropicMonoVariable.ttf")
     {
+    }
+
+    /// <summary>
+    /// 向 Avalonia FontManager 注册全部三个隔离的内嵌字体集合。
+    /// </summary>
+    public static void RegisterAll(FontManager fontManager)
+    {
+        fontManager.AddFontCollection(new AnthropicFontCollection());
+        fontManager.AddFontCollection(new NotoSansSCFontCollection());
+        fontManager.AddFontCollection(new NotoSerifSCFontCollection());
     }
 
     public static IReadOnlyDictionary<string, FontFamily> CreateMappings() =>
@@ -35,8 +70,30 @@ public sealed class AnthropicFontCollection : EmbeddedFontCollection
             ["Anthropic Sans Web Text"] = new FontFamily("fonts:Anthropic#Anthropic Sans Web"),
             ["Anthropic Mono"] = new FontFamily("fonts:Anthropic#Anthropic Mono Variable"),
             ["Anthropic Mono Variable"] = new FontFamily("fonts:Anthropic#Anthropic Mono Variable"),
-            // 中文思源字体同样内嵌（ADR-0063）：未安装思源的机器不再回退微软雅黑
-            ["Noto Sans SC"] = new FontFamily("fonts:Anthropic#Noto Sans SC"),
-            ["Noto Serif SC"] = new FontFamily("fonts:Anthropic#Noto Serif SC"),
+            // 中文思源字体隔离于各自集合（ADR-0071），单独按名查找时也指向正确集合
+            ["Noto Sans SC"] = new FontFamily("fonts:NotoSansSC#Noto Sans SC"),
+            ["Noto Serif SC"] = new FontFamily("fonts:NotoSerifSC#Noto Serif SC"),
         };
+}
+
+/// <summary>
+/// 独立内嵌思源黑体集合（字重轴重定基 400..900，见 ADR-0067 / ADR-0071）。
+/// </summary>
+public sealed class NotoSansSCFontCollection : BundledFontCollection
+{
+    public NotoSansSCFontCollection()
+        : base(AnthropicFontCollection.NotoSansSCKey, "NotoSansSC-VF.ttf")
+    {
+    }
+}
+
+/// <summary>
+/// 独立内嵌思源宋体集合（字重轴重定基 400..900，见 ADR-0067 / ADR-0071）。
+/// </summary>
+public sealed class NotoSerifSCFontCollection : BundledFontCollection
+{
+    public NotoSerifSCFontCollection()
+        : base(AnthropicFontCollection.NotoSerifSCKey, "NotoSerifSC-VF.ttf")
+    {
+    }
 }

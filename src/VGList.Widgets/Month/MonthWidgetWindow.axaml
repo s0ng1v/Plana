@@ -560,15 +560,15 @@
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled"
                             IsVisible="{Binding QuickCreate.IsChecklistMode}">
-                <ItemsControl x:Name="AgendaSubtasksControl" ItemsSource="{Binding QuickCreate.Subtasks}">
+                <ItemsControl x:Name="AgendaSubtasksControl" Classes="stretch" ItemsSource="{Binding QuickCreate.Subtasks}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="s:QuickSubtaskItem">
                       <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,2">
                         <Grid ColumnDefinitions="Auto,*">
                           <Border Classes="agenda-check"
                                   Classes.done="{Binding IsCompleted}"
-                                  Margin="0,0,8,0"
-                                  VerticalAlignment="Center"
+                                  Margin="0,4,8,0"
+                                  VerticalAlignment="Top"
                                   PointerPressed="OnSubtaskCheckPressed">
                             <Path Data="M1,4.5 L4,7.5 L9.5,1.5"
                                   Stroke="{DynamicResource Text.OnAccent}"
@@ -585,7 +585,11 @@
                                    PlaceholderText="回车添加下一项"
                                    FontSize="13"
                                    MinHeight="26"
-                                   Padding="0,2" />
+                                   TextWrapping="Wrap"
+                                   AcceptsReturn="False"
+                                   VerticalContentAlignment="Top"
+                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                   Padding="0,2,8,2" />
                         </Grid>
                       </Border>
                     </DataTemplate>

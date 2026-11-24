@@ -11,7 +11,7 @@
     <AssemblyTitle>Plana</AssemblyTitle>
     <Product>Plana</Product>
     <Company>Plana</Company>
-    <Version>0.1.10</Version>
+    <Version>0.1.12</Version>
     <Description>Plana · 桌面任务与日程</Description>
     <NoWarn>$(NoWarn);AVLN3001</NoWarn>
   </PropertyGroup>

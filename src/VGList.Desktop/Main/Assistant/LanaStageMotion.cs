@@ -40,11 +40,22 @@ public static class LanaStageMotion
     public const double NextTurnDurationMs = 440.0;
     public const double ReturnHomeDurationMs = 420.0;
 
+    /// <summary>活体 Lana 飞向左侧槽位接近就位后再显现「正在思考」文字的归一化时间门槛。</summary>
+    public const double FirstTurnThinkingRevealThreshold = 0.78;
+    public const double NextTurnThinkingRevealThreshold = 0.72;
+
     public static double GetDurationMs(LanaFlightKind kind) => kind switch
     {
         LanaFlightKind.FirstTurn => FirstTurnDurationMs,
         LanaFlightKind.NextTurn => NextTurnDurationMs,
         LanaFlightKind.ReturnHome => ReturnHomeDurationMs,
+        _ => 0.0,
+    };
+
+    public static double GetThinkingRevealThreshold(LanaFlightKind kind) => kind switch
+    {
+        LanaFlightKind.FirstTurn => FirstTurnThinkingRevealThreshold,
+        LanaFlightKind.NextTurn => NextTurnThinkingRevealThreshold,
         _ => 0.0,
     };
 

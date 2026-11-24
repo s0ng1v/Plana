@@ -312,8 +312,8 @@
                           BorderBrush="{DynamicResource Priority.None}"
                           Background="Transparent"
                           Cursor="Hand"
-                          Margin="0,0,10,0"
-                          VerticalAlignment="Center"
+                          Margin="0,3,10,0"
+                          VerticalAlignment="Top"
                           IsVisible="{Binding !IsCompleted}"
                           PointerPressed="OnDetailSubtaskCheckPressed" />
                   <Border Width="16"
@@ -321,8 +321,8 @@
                           CornerRadius="4.5"
                           Background="{DynamicResource Main.Accent}"
                           Cursor="Hand"
-                          Margin="0,0,10,0"
-                          VerticalAlignment="Center"
+                          Margin="0,3,10,0"
+                          VerticalAlignment="Top"
                           IsVisible="{Binding IsCompleted}"
                           PointerPressed="OnDetailSubtaskCheckPressed">
                     <Path Data="M1,4.5 L3.8,7.3 L9,1.5"
@@ -341,7 +341,11 @@
                            PlaceholderText="回车添加下一项"
                            FontSize="14"
                            Foreground="{DynamicResource Main.Text.Primary}"
-                           Padding="0,2" />
+                           TextWrapping="Wrap"
+                           AcceptsReturn="False"
+                           VerticalContentAlignment="Top"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                           Padding="0,2,8,2" />
                 </Grid>
               </Border>
             </DataTemplate>

@@ -42,29 +42,34 @@ public static class AppTheme
         }
     }
 
+    private static readonly FontFamily UiAnthropic = new(
+        "fonts:Anthropic#Anthropic Sans Web, fonts:NotoSansSC#Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI");
+
+    private static readonly FontFamily DisplayAnthropicSerif = new(
+        "fonts:Anthropic#Anthropic Serif Web, fonts:NotoSerifSC#Noto Serif SC, Songti SC, STSong, Georgia, Microsoft YaHei UI, Segoe UI Emoji, serif");
+
+    private static readonly FontFamily DisplayAnthropicClassic = new(
+        "fonts:Anthropic#Anthropic Serif Web, SimSun, STSong, fonts:NotoSerifSC#Noto Serif SC, Songti SC, Microsoft YaHei UI, Georgia, Segoe UI Emoji, serif");
+
+    private static readonly FontFamily UiCleanSans = new(
+        "fonts:NotoSansSC#Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI");
+
+    private static readonly FontFamily MonoAnthropic = new(
+        "fonts:Anthropic#Anthropic Mono Variable, Cascadia Mono, Menlo, Consolas, Courier New, fonts:NotoSansSC#Noto Sans SC, monospace");
+
+    private static readonly FontFamily UiSystem = new(
+        "PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI");
+
+    private static readonly FontFamily MonoSystem = new(
+        "Cascadia Mono, Menlo, Consolas, Courier New, monospace");
+
     public static (FontFamily Ui, FontFamily Display, FontFamily Mono) ResolveFonts(string? fontPreset) =>
         FontPresetMode.Normalize(fontPreset) switch
         {
-            FontPresetMode.AnthropicSerif => (
-                new FontFamily("Anthropic Sans, Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Anthropic Serif, Noto Serif SC, Songti SC, STSong, Georgia, Microsoft YaHei UI, serif"),
-                new FontFamily("Anthropic Mono, Cascadia Mono, Menlo, Consolas, Courier New, monospace")),
-            FontPresetMode.AnthropicClassic => (
-                new FontFamily("Anthropic Sans, Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Anthropic Serif, SimSun, STSong, Noto Serif SC, Songti SC, STSong, Georgia, serif"),
-                new FontFamily("Anthropic Mono, Cascadia Mono, Menlo, Consolas, Courier New, monospace")),
-            FontPresetMode.CleanSans => (
-                new FontFamily("Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Anthropic Mono, Cascadia Mono, Menlo, Consolas, Courier New, monospace")),
-            FontPresetMode.System => (
-                new FontFamily("PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Cascadia Mono, Menlo, Consolas, Courier New, monospace")),
-            _ => (
-                new FontFamily("Anthropic Sans, Noto Sans SC, PingFang SC, Hiragino Sans GB, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI"),
-                new FontFamily("Anthropic Serif, Noto Serif SC, Songti SC, STSong, Georgia, Microsoft YaHei UI, serif"),
-                new FontFamily("Anthropic Mono, Cascadia Mono, Menlo, Consolas, Courier New, monospace")),
+            FontPresetMode.AnthropicClassic => (UiAnthropic, DisplayAnthropicClassic, MonoAnthropic),
+            FontPresetMode.CleanSans => (UiCleanSans, UiCleanSans, MonoAnthropic),
+            FontPresetMode.System => (UiSystem, UiSystem, MonoSystem),
+            _ => (UiAnthropic, DisplayAnthropicSerif, MonoAnthropic),
         };
 
     public static void ApplyFontPreset(string? fontPreset)

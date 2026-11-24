@@ -872,5 +872,39 @@
   2. 为 `Pill` 增加透明留白外边距（`Margin="24,12,24,28"`，并在 `MainWindow.axaml` 将宿主 `ToastBanner` 的 `Margin` 调整为 `0` 以维持胶囊距顶栏 12px 的视觉位置），保证进场位移与阴影扩张空间充分。
 - 影响：`ToastBanner.axaml`、`MainWindow.axaml`。
 
+### ADR-0070 · 恢复打开 Lana 页面时懒加载持久化历史会话与消息（2026-11-24）
+- 状态：accepted
+- 背景：用户反馈覆盖升级后 Lana 历史对话似乎被抹除。核查 `%LOCALAPPDATA%\VGList\plana.db` 后确认 `assistant_sessions`（30 条）与 `assistant_messages`（154 条）均完整保留，安装脚本并未清库；真实根因是 `AssistantPageViewModel` 仅在内存中初始化一条「新对话」，从未在打开助理页时从 `IConversationStore` 读取已有会话与消息，导致每次重启或覆盖升级重开进程后历史栏空白。
+- 决策：
+  1. **严守懒加载边界读取历史（Constitution 第 13 条）**：`AssistantPageViewModel` 直接使用常驻数据层的 `IConversationStore`（`SqliteConversationStore`，位于 `VGList.Data`，不引入 `VGList.Agent`），且延迟到首次进入助理页（`IsPageActive == true`）时调用 `EnsurePersistedSessionsLoaded()` 拉取最近 30 条持久化会话列于初始「新对话」下方，确保未打开助理页时零额外启动开销与零 Agent 程序集加载。
+  2. **按需加载单会话消息并支持续聊/编辑/删除**：点击历史会话时由 `SelectSession` 按 `SessionSummary.Id` 懒加载 `LoadMessages(sessionId)`（含文本、模型标签、附件元信息与时间戳），并延续原 `SessionId` 供后续追问无缝续接上下文；`DeleteSession`、`CommitEditMessageAsync` 与 `RetryMessageAsync` 在 `_host` 尚未实例化时同步回落操作 `_conversationStore`，避免删改失效。
+- 影响：`AssistantPageViewModel.cs`、`LanaPolishTests.cs`。
+
+### ADR-0071 · 拆分内嵌字体集合与显式集合 URI 修复无思源环境中文回退宋体失败（2026-11-24）
+- 状态：accepted
+- 背景：用户反馈在另一台未系统安装思源字体的电脑上安装 `0.1.10` 后（设置确认选为「Anthropic + 思源宋体」），对话页英文仍显示宋体/衬线，而中文完全回退系统宋体（`SimSun`），并非思源宋体。经 Avalonia 12 `FontManager.TryMatchCharacter` 实测确认两个叠加根因：
+  1. `FontFamilyMappings` 在 Avalonia 12 中不会用于复合 `FontFamily` 逗号列表里的回退家族（也不用于 `TryMatchCharacter` 的字符级回退）：写作 `"Anthropic Serif, Noto Serif SC, ..."` 时，遇到 `Anthropic Serif` 缺字的中文字符，`TryMatchCharacter` 直接向 `fonts:SystemFonts` 查找 `"Noto Serif SC"`；开发机恰好在 `C:\Windows\Fonts` 安装了 `NotoSerifSC-VF.ttf` 与 `NotoSansSC-VF.ttf` 掩盖了问题，未装思源的机器则跳过内嵌思源直落系统字体。
+  2. 将 `Anthropic`、`Noto Sans SC`、`Noto Serif SC` 全部放入同一 `EmbeddedFontCollection`（`fonts:Anthropic`）会导致集合内越权回退：`Anthropic Serif Web` 缺字时，`FontCollectionBase.TryMatchCharacter` 会在离开集合前遍历集合内其它字体，按顺序先命中 `Noto Sans SC`（黑体），根本不会走到后面的 `Noto Serif SC`。
+- 决策：
+  1. **按字族隔离为三个独立内嵌字体集合**：
+     - `AnthropicFontCollection`（`fonts:Anthropic`）仅加载 `AnthropicSansWebText.ttf`、`AnthropicSerifWebText.ttf`、`AnthropicMonoVariable.ttf`，不再混入任何 CJK 字体，使中文字符查询干净返回未命中并进入下一回退项；
+     - 新增 `NotoSansSCFontCollection`（`fonts:NotoSansSC`）仅加载 `NotoSansSC-VF.ttf`；
+     - 新增 `NotoSerifSCFontCollection`（`fonts:NotoSerifSC`）仅加载 `NotoSerifSC-VF.ttf`。
+     由 `AnthropicFontCollection.RegisterAll(FontManager)` 统一注册三者，且保留各自 `CollectionKey` 供单测与显式引用。
+  2. **`Font.Ui` / `Font.Display` / `Font.Mono` 使用显式 `fonts:<Key>#<Family>` 复合链表**：`AppTheme.ResolveFonts` 及 `BlueTokens.axaml` / `PlanaTokens.axaml` 中的内嵌族统一以 `fonts:Anthropic#...`、`fonts:NotoSerifSC#Noto Serif SC`、`fonts:NotoSansSC#Noto Sans SC` 声明，尾部保留系统字体与 Emoji（`Segoe UI Emoji` 等）系统回退。
+  3. **`CreateMappings()` 同步更新映射目标**：`"Noto Sans SC"` 映射到 `fonts:NotoSansSC#Noto Sans SC`，`"Noto Serif SC"` 映射到 `fonts:NotoSerifSC#Noto Serif SC`，避免单独引用名称时指向错误集合。
+- 影响：`AnthropicFontCollection.cs`、`Program.cs`、`AppTheme.cs`、`BlueTokens.axaml`、`PlanaTokens.axaml`、`harness/design-system.md`、`LanaPolishTests.cs`。
+
+### ADR-0072 · Lana 飞抵左侧后自左向右显现思考文字与多会话后台独立生成（2026-11-24）
+- 状态：accepted
+- 背景：
+  1. 新一轮发起回复时，活体 `Lana` 正在从欢迎区（108×108）或上一轮位置飞向当前回复左侧槽位，`LanaThinkingOrb`（“Lana 正在思考…”）就已整句提前冒出，视觉上缺乏“就位后再开口思考”的顺畅感。
+  2. `AssistantPageViewModel` 原先使用单一全局 `_runCts` / `IsGenerating` 管理模型流，导致用户在 Lana 回复期间点击「新对话」或切换到其他会话时调用 `StopGeneration()`，直接掐断上一会话正在进行的回复或工具调用。
+- 决策：
+  1. **就位门槛 + 240ms 自左向右轻柔显现**：`LanaStageMotion` 定义转场显现阈值（`FirstTurn` `t >= 0.78`，`NextTurn` `t >= 0.72`），由 `AssistantPageView` 门控 `ChatMessageViewModel.IsThinkingRevealed`；放行或无飞行时立即揭示，并在 `LanaThinkingOrb` 上通过 `RevealOnShow=True` 以 `240ms QuadEaseOut` 羽化渐变透明度自左向右流畅显现；开启「减少动效」或切回/取消飞行时立即完整显示，不拖沓且不卡死。
+  2. **按会话粒度隔离生成生命周期**：将 `ActiveRunCts`、`IsGenerating`、`LastGenerationSucceeded` 收归每个 `ChatSessionItemViewModel` 独立持有；`StartNewSession()` 与 `SelectSession()` 不再调用 `StopGeneration()`，原会话继续在后台静默运行、更新消息块并落盘，多个会话可并发对话；切换会话时页面实时同步目标会话的 `IsGenerating` 与舞台状态（避免后台态误触 Happy 庆祝），左侧会话列表对正在后台生成的会话展示 11×11 `ToolSpinnerRing` 轻转圈指示。仅显式停止当前回复（`StopGeneration`）、删除运行中会话（`DeleteSession`）或视图模型释放（`Dispose`）时取消对应运行。
+- 影响：`LanaStageMotion.cs`、`LanaThinkingOrb.cs`、`AssistantPageView.axaml`、`AssistantPageView.axaml.cs`、`AssistantPageViewModel.cs`、`harness/features/assistant.md`、`LanaPolishTests.cs`。
+
+
 
 

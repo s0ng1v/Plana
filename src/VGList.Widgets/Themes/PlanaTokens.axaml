@@ -3,9 +3,9 @@
 
   <!-- Plana 淡粉主题（默认，ADR-0045）：纯净瓷白底 + 樱雾柔粉点缀，浅色主窗 + 暖玫炭深色小组件。 -->
 
-  <FontFamily x:Key="Font.Ui">Anthropic Sans, Noto Sans SC, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI</FontFamily>
-  <FontFamily x:Key="Font.Display">Anthropic Serif, Noto Serif SC, Georgia, Microsoft YaHei UI, serif</FontFamily>
-  <FontFamily x:Key="Font.Mono">Anthropic Mono, Cascadia Mono, Consolas, Courier New, monospace</FontFamily>
+  <FontFamily x:Key="Font.Ui">fonts:Anthropic#Anthropic Sans Web, fonts:NotoSansSC#Noto Sans SC, Segoe UI Variable Text, Microsoft YaHei UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Display">fonts:Anthropic#Anthropic Serif Web, fonts:NotoSerifSC#Noto Serif SC, Georgia, Microsoft YaHei UI, Segoe UI Emoji, serif</FontFamily>
+  <FontFamily x:Key="Font.Mono">fonts:Anthropic#Anthropic Mono Variable, Cascadia Mono, Consolas, Courier New, fonts:NotoSansSC#Noto Sans SC, monospace</FontFamily>
 
   <!-- Lana 名字与流光品牌渐变（粉紫蓝柔光） -->
   <LinearGradientBrush x:Key="Lana.NameGradient" StartPoint="0%,0%" EndPoint="100%,100%">

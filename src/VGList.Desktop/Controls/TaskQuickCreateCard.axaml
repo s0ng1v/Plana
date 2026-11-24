@@ -215,7 +215,8 @@
                     <Grid ColumnDefinitions="Auto,*">
                       <Border Classes="qc-subcheck"
                               Classes.done="{Binding IsCompleted}"
-                              Margin="2,0,8,0"
+                              Margin="2,4,8,0"
+                              VerticalAlignment="Top"
                               PointerPressed="OnSubtaskCheckPressed">
                         <Path Data="M1,4.5 L3.8,7.3 L9,1.5"
                               Stroke="{DynamicResource Text.OnAccent}"
@@ -232,7 +233,11 @@
                                PlaceholderText="回车添加下一项"
                                FontSize="13.5"
                                Foreground="{DynamicResource Main.Text.Primary}"
-                               Padding="0,2" />
+                               TextWrapping="Wrap"
+                               AcceptsReturn="False"
+                               VerticalContentAlignment="Top"
+                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               Padding="0,2,8,2" />
                     </Grid>
                   </Border>
                 </DataTemplate>

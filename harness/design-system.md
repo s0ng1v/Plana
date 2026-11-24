@@ -170,7 +170,7 @@
 | 日期、chip | 12 / Regular | 今天、月历农历 |
 | 辅助与计数 | 11–12 / Regular | 已完成 (3)、清单名、分组计数 |
 
-字体族：内嵌 `Anthropic Sans` / `Anthropic Serif` / `Anthropic Mono` + 内嵌 `Noto Sans SC` / `Noto Serif SC`，系统字体（Segoe UI、微软雅黑等）仅作尾部回退；「系统」预设按定义使用系统字体。主窗口与小组件窗口统一继承 `Font.Ui`（ADR-0063）。中文思源可变字体的字重轴已重定基为 400..900、默认 400，避免正文落到 100/200 的极细默认实例（ADR-0067）。
+字体族：内嵌 `Anthropic Sans` / `Anthropic Serif` / `Anthropic Mono` + 内嵌 `Noto Sans SC` / `Noto Serif SC`（分为 `fonts:Anthropic`、`fonts:NotoSansSC`、`fonts:NotoSerifSC` 三个独立集合并在字体链中以 `fonts:<Key>#<Family>` 显式声明，确保未装系统思源的机器也能准确命中对应宋体/黑体回退而不串扰或直落系统字体，ADR-0071），系统字体（Segoe UI、微软雅黑、Segoe UI Emoji 等）仅作尾部回退；「系统」预设按定义使用系统字体。主窗口与小组件窗口统一继承 `Font.Ui`（ADR-0063）。中文思源可变字体的字重轴已重定基为 400..900、默认 400，避免正文落到 100/200 的极细默认实例（ADR-0067）。
 
 ## 5. 材质与层级
 

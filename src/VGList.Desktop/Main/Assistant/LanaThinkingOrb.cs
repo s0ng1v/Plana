@@ -42,6 +42,9 @@ public sealed class LanaThinkingOrb : Control
         "信息都拿到啦，Lana 正在整理…",
     ];
 
+    public const double RevealDurationMs = 240.0;
+    public const double RevealFeatherWidth = 0.22;
+
     private static int _phraseCursor;
 
     public static readonly StyledProperty<string> StatusTextProperty =
@@ -50,13 +53,18 @@ public sealed class LanaThinkingOrb : Control
     public static readonly StyledProperty<double> TextFontSizeProperty =
         AvaloniaProperty.Register<LanaThinkingOrb, double>(nameof(TextFontSize), 13.5);
 
+    public static readonly StyledProperty<bool> RevealOnShowProperty =
+        AvaloniaProperty.Register<LanaThinkingOrb, bool>(nameof(RevealOnShow), false);
+
     private DispatcherTimer? _timer;
     private long _startTickMs;
+    private long _revealStartTickMs;
     private double _phase;
+    private double _revealProgress = 1.0;
 
     static LanaThinkingOrb()
     {
-        AffectsRender<LanaThinkingOrb>(StatusTextProperty, TextFontSizeProperty);
+        AffectsRender<LanaThinkingOrb>(StatusTextProperty, TextFontSizeProperty, RevealOnShowProperty);
         AffectsMeasure<LanaThinkingOrb>(StatusTextProperty, TextFontSizeProperty);
     }
 
@@ -67,13 +75,30 @@ public sealed class LanaThinkingOrb : Control
         VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center;
         IsHitTestVisible = false;
 
-        AttachedToVisualTree += (_, _) => UpdateTimerState();
+        AttachedToVisualTree += (_, _) =>
+        {
+            if (IsVisible)
+            {
+                ResetReveal();
+            }
+
+            UpdateTimerState();
+        };
         DetachedFromVisualTree += (_, _) => StopTimer();
         PropertyChanged += (_, e) =>
         {
             if (e.Property == IsVisibleProperty)
             {
+                if (IsVisible)
+                {
+                    ResetReveal();
+                }
+
                 UpdateTimerState();
+            }
+            else if (e.Property == StatusTextProperty && IsVisible && this.IsAttachedToVisualTree())
+            {
+                ResetReveal();
             }
         };
     }
@@ -88,6 +113,42 @@ public sealed class LanaThinkingOrb : Control
     {
         get => GetValue(TextFontSizeProperty);
         set => SetValue(TextFontSizeProperty, value);
+    }
+
+    public bool RevealOnShow
+    {
+        get => GetValue(RevealOnShowProperty);
+        set => SetValue(RevealOnShowProperty, value);
+    }
+
+    /// <summary>计算自左向右柔和显现扫掠在归一化横向位置 x 处的透明权重（ADR-0072）。</summary>
+    public static double ComputeRevealAlpha(double normalizedX, double revealProgress)
+    {
+        var p = Math.Clamp(revealProgress, 0.0, 1.0);
+        if (p >= 1.0)
+        {
+            return 1.0;
+        }
+
+        if (p <= 0.0)
+        {
+            return 0.0;
+        }
+
+        var x = Math.Clamp(normalizedX, 0.0, 1.0);
+        var lead = p * (1.0 + RevealFeatherWidth) - RevealFeatherWidth;
+        var trail = lead + RevealFeatherWidth;
+        if (x <= lead)
+        {
+            return 1.0;
+        }
+
+        if (x >= trail)
+        {
+            return 0.0;
+        }
+
+        return Math.Clamp((trail - x) / RevealFeatherWidth, 0.0, 1.0);
     }
 
     public static string PickThinkingPhrase()
@@ -111,18 +172,48 @@ public sealed class LanaThinkingOrb : Control
 
     public override void Render(DrawingContext context)
     {
+        var effectiveReveal = (!RevealOnShow || MotionHelper.ReduceMotion) ? 1.0 : _revealProgress;
+        if (effectiveReveal <= 0.001)
+        {
+            return;
+        }
+
         // 舒缓丝滑的粉紫循环流光（步调从容、低饱和柔光，不闪烁不刺眼）
         var shift = MotionHelper.ReduceMotion ? 0.0 : (_phase * 0.24) % 1.0;
 
-        var stops = new GradientStops();
+        var positions = new List<double>(10);
         const int sampleCount = 7;
         for (var i = 0; i < sampleCount; i++)
         {
-            var pos = i / (double)(sampleCount - 1);
+            positions.Add(i / (double)(sampleCount - 1));
+        }
+
+        if (effectiveReveal < 1.0)
+        {
+            var lead = effectiveReveal * (1.0 + RevealFeatherWidth) - RevealFeatherWidth;
+            var trail = lead + RevealFeatherWidth;
+            positions.Add(Math.Clamp(lead, 0.0, 1.0));
+            positions.Add(Math.Clamp((lead + trail) * 0.5, 0.0, 1.0));
+            positions.Add(Math.Clamp(trail, 0.0, 1.0));
+            positions.Sort();
+        }
+
+        var stops = new GradientStops();
+        var prevPos = -1.0;
+        foreach (var pos in positions)
+        {
+            if (prevPos >= 0 && Math.Abs(pos - prevPos) < 1e-4)
+            {
+                continue;
+            }
+
+            prevPos = pos;
             // 宽波长（0.55）确保整句文字色调和谐连贯，避免两字一变色的花哨感
             var sampleT = (pos * 0.55 - shift) % 1.0;
             if (sampleT < 0) sampleT += 1.0;
-            stops.Add(new GradientStop(SamplePalette(sampleT), pos));
+            var c = SamplePalette(sampleT);
+            var alpha = (byte)Math.Round(255.0 * ComputeRevealAlpha(pos, effectiveReveal));
+            stops.Add(new GradientStop(Color.FromArgb(alpha, c.R, c.G, c.B), pos));
         }
 
         var brush = new LinearGradientBrush
@@ -168,6 +259,21 @@ public sealed class LanaThinkingOrb : Control
             (byte)(a.B + (b.B - a.B) * smooth));
     }
 
+    private void ResetReveal()
+    {
+        if (RevealOnShow && !MotionHelper.ReduceMotion)
+        {
+            _revealStartTickMs = Environment.TickCount64;
+            _revealProgress = 0.0;
+        }
+        else
+        {
+            _revealProgress = 1.0;
+        }
+
+        InvalidateVisual();
+    }
+
     private void UpdateTimerState()
     {
         if (IsVisible && this.IsAttachedToVisualTree() && !MotionHelper.ReduceMotion)
@@ -196,7 +302,14 @@ public sealed class LanaThinkingOrb : Control
             return;
         }
 
-        _phase = (Environment.TickCount64 - _startTickMs) / 1000.0;
+        var now = Environment.TickCount64;
+        _phase = (now - _startTickMs) / 1000.0;
+        if (RevealOnShow && _revealProgress < 1.0)
+        {
+            var u = Math.Clamp((now - _revealStartTickMs) / RevealDurationMs, 0.0, 1.0);
+            _revealProgress = 1.0 - (1.0 - u) * (1.0 - u);
+        }
+
         InvalidateVisual();
     }
 }

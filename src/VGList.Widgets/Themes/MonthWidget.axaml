@@ -8,7 +8,7 @@
   </Style>
 
   <!-- 单元格内芯片列表只横向铺满 -->
-  <Style Selector="ItemsControl.chip-list ContentPresenter">
+  <Style Selector="ItemsControl.chip-list ContentPresenter, ItemsControl.stretch ContentPresenter">
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Top" />
   </Style>

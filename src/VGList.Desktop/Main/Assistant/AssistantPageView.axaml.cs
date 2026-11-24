@@ -54,6 +54,7 @@ public partial class AssistantPageView : UserControl
 
     private bool _isFlightRunning;
     private bool _flightFrameRequested;
+    private bool _flightThinkingRevealed;
     private int _flightToken;
     private int _greetingFadeToken;
     private LanaFlightKind _activeFlightKind;
@@ -338,6 +339,12 @@ public partial class AssistantPageView : UserControl
 
         if (canFly)
         {
+            if (e.Kind is LanaFlightKind.FirstTurn or LanaFlightKind.NextTurn &&
+                e.TargetAssistantMessage is { IsThinking: true } targetMsg)
+            {
+                targetMsg.IsThinkingRevealed = false;
+            }
+
             var origin = LanaStageMotion.ClampFlightOriginToViewport(_currentLanaRect, _conversationStage.Bounds.Height);
             _hasPendingFlight = true;
             _pendingFlightKind = e.Kind;
@@ -348,6 +355,7 @@ public partial class AssistantPageView : UserControl
         }
         else
         {
+            ReleaseThinkingReveal(e.TargetAssistantMessage);
             SyncDockedLanaPosition();
             Dispatcher.UIThread.Post(SyncDockedLanaPosition, DispatcherPriority.Loaded);
         }
@@ -379,11 +387,14 @@ public partial class AssistantPageView : UserControl
             }
 
             _hasPendingFlight = false;
+            var pendingTarget = _pendingFlightTarget;
+            _pendingFlightTarget = null;
             var dist = double.Hypot(targetRect.X - _pendingFlightOrigin.X, targetRect.Y - _pendingFlightOrigin.Y);
             var sizeDiff = Math.Abs(targetRect.Width - _pendingFlightOrigin.Width);
             if (dist < 2.0 && sizeDiff < 1.0)
             {
                 ApplyLanaRect(targetRect, duringFlight: false);
+                ReleaseThinkingReveal(pendingTarget);
                 if (_pendingFlightKind is LanaFlightKind.FirstTurn or LanaFlightKind.NextTurn)
                 {
                     _stageLanaAvatar.TriggerBounce(-0.9);
@@ -391,7 +402,7 @@ public partial class AssistantPageView : UserControl
             }
             else
             {
-                StartLanaFlight(_pendingFlightOrigin, _pendingFlightTarget, _pendingFlightKind);
+                StartLanaFlight(_pendingFlightOrigin, pendingTarget, _pendingFlightKind);
             }
 
             return;
@@ -407,12 +418,14 @@ public partial class AssistantPageView : UserControl
     {
         if (_topLevel is null || MotionHelper.ReduceMotion)
         {
+            ReleaseThinkingReveal(targetMsg);
             SyncDockedLanaPosition();
             return;
         }
 
         var token = ++_flightToken;
         _isFlightRunning = true;
+        _flightThinkingRevealed = false;
         _activeFlightKind = kind;
         _activeFlightTarget = targetMsg;
         _activeFlightFrom = fromRect;
@@ -437,6 +450,8 @@ public partial class AssistantPageView : UserControl
         if (!_isFlightRunning || token != _flightToken || !IsEffectivelyVisible || _topLevel is null)
         {
             _isFlightRunning = false;
+            ReleaseThinkingReveal(_activeFlightTarget);
+            _activeFlightTarget = null;
             return;
         }
 
@@ -448,6 +463,12 @@ public partial class AssistantPageView : UserControl
         var durationMs = LanaStageMotion.GetDurationMs(_activeFlightKind);
         var elapsedMs = (timestamp - _flightStartTimestamp).TotalMilliseconds;
         var t = durationMs <= 0 ? 1.0 : Math.Clamp(elapsedMs / durationMs, 0.0, 1.0);
+
+        if (!_flightThinkingRevealed && t >= LanaStageMotion.GetThinkingRevealThreshold(_activeFlightKind))
+        {
+            _flightThinkingRevealed = true;
+            ReleaseThinkingReveal(_activeFlightTarget);
+        }
 
         var liveDest = ResolveTargetRect(_activeFlightTarget);
         if (liveDest is { } dest)
@@ -463,6 +484,8 @@ public partial class AssistantPageView : UserControl
         }
 
         _isFlightRunning = false;
+        ReleaseThinkingReveal(_activeFlightTarget);
+        _activeFlightTarget = null;
         var impulse = LanaStageMotion.GetLandingBounceImpulse(_activeFlightKind);
         if (impulse != 0)
         {
@@ -478,6 +501,19 @@ public partial class AssistantPageView : UserControl
         _hasPendingFlight = false;
         _isFlightRunning = false;
         _flightFrameRequested = false;
+        _flightThinkingRevealed = false;
+        ReleaseThinkingReveal(_pendingFlightTarget);
+        ReleaseThinkingReveal(_activeFlightTarget);
+        _pendingFlightTarget = null;
+        _activeFlightTarget = null;
+    }
+
+    private static void ReleaseThinkingReveal(ChatMessageViewModel? msg)
+    {
+        if (msg is not null && !msg.IsThinkingRevealed)
+        {
+            msg.IsThinkingRevealed = true;
+        }
     }
 
     private void SyncDockedLanaPosition()
