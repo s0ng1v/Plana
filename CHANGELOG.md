@@ -2,6 +2,15 @@
 
 All notable changes to **Plana** will be documented in this file.
 
+## [v0.1.12] - 2026-11-24
+
+### Lana Experience, Typography & Subtask Fixes
+
+- **Lana 持久化历史会话重启自动恢复（ADR-0070）**：严守懒加载边界，在首次进入助理页时从常驻 `SqliteConversationStore` 按需恢复最近 30 条会话与消息记录，覆盖升级或重开应用不再空白，支持续聊、删除与编辑截断。
+- **独立内嵌思源宋体 / 黑体集合隔离（ADR-0071）**：将 `Anthropic`、`NotoSansSC` 与 `NotoSerifSC` 拆分为三个隔离字体集合并在字体链中显式声明集合 URI，修复未系统安装思源字体的电脑回退系统宋体或串扰问题。
+- **子任务长文本自动换行**：为详情面板、快速新建/四象限悬浮编辑卡与月历弹层内的子任务输入框启用 `TextWrapping="Wrap"` 与复选框首行对齐，避免长文本在右侧边缘被裁切。
+- **Lana 就位显现与多会话后台独立运行（ADR-0072）**：活体 Lana 飞抵左侧基本就位后再于 240ms 内自左向右轻柔显现思考文字；新建对话或切换历史会话不再取消后台正在执行的回复与工具调用，支持多会话并发生成并展示侧栏轻转圈提示。
+
 ## [v0.1.10] - 2026-11-23
 
 ### Visual Polish & Release Fixes

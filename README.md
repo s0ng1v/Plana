@@ -13,12 +13,12 @@
 <p>
   <a href="README.md"><strong>简体中文</strong></a> ·
   <a href="README_EN.md">English</a> ·
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>下载最新版 (v0.1.10)</strong></a> ·
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>下载最新版 (v0.1.12)</strong></a> ·
   <a href="CHANGELOG.md">更新日志</a>
 </p>
 
 <p>
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.10-2F6BFF?style=flat-square" alt="Release v0.1.10" /></a>
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.12-2F6BFF?style=flat-square" alt="Release v0.1.12" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-1F8A5B?style=flat-square" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/.NET-10_LTS-512BD4?style=flat-square" alt=".NET 10 LTS" />
   <img src="https://img.shields.io/badge/Avalonia-12.1.6-8B5CF6?style=flat-square" alt="Avalonia 12.1.6" />
@@ -39,14 +39,14 @@ Lana 是内置在 Plana 里的原生 AI 日程助手——不打开时零存在�
 
 - **一句话排期与拆解**：直接说「把明天下午的评审提前 15 分钟提醒」「帮我把周报拆成三步」，Lana 会结合已有日程自动定日期、设提醒、判优先级并同步安排。
 - **看懂图片与各类文档**：支持拖入或粘贴截图、PDF、Word、Excel、PPT、`.ics` 日历、网页和代码文本（输入 `@` 精准引用），帮你把课程表、会议纪要直接整理成待办。
-- **实时进度与可微调/可撤销卡片**：工具查日程、读文件过程实时可见；生成的日程卡片里可直接切换优先级、调整提前或反复提醒，**支持单条撤销、多选撤销与 `Ctrl+Z` 整批撤销**。
-- **懂你的规则与长期记忆**：可设置每日任务上限、高优上限与休息日偏好，支持查看编辑本地画像与记忆记录，还能生成周复盘总结与改进建议。
+- **实时进度与多会话后台并发**：活体 Lana 飞抵左侧就位后轻柔显现思考状态；切换历史会话或新建对话不会打断后台仍在生成的回复，侧栏实时提示后台运行状态；生成的日程卡片里可直接切换优先级、调整提前或反复提醒，**支持单条撤销、多选撤销与 `Ctrl+Z` 整批撤销**。
+- **懂你的规则与长期记忆**：可设置每日任务上限、高优上限与休息日偏好，支持查看编辑本地画像、记忆记录与历史对话自动恢复，还能生成周复盘总结与改进建议。
 - **20 家模型服务 + 本地离线模型**：预置 DeepSeek、Claude、OpenAI、Gemini、Kimi、智谱、通义、豆包、OpenRouter 与本地 Ollama，密钥仅在本机加密保存。
 - **外部 AI 安全接入（MCP）**：按需开启本地 MCP 服务后，Claude Desktop、Cursor、Antigravity 等外部 AI 工具也能按规则安全读写你的 Plana 日程。
 
 ---
 
-## 🖼️ 界面预览（v0.1.10）
+## 🖼️ 界面预览（v0.1.12）
 
 ### 1. 任务工作台与详情面板
 
@@ -129,12 +129,12 @@ Lana 是内置在 Plana 里的原生 AI 日程助手——不打开时零存在�
 前往 **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)** 下载对应平台安装包：
 
 ### Windows 10 / 11 (x64)（主力支持）
-- **安装版（推荐）**：下载 `Plana-Setup-0.1.10.exe` 运行即可，免管理员权限安装到当前用户目录，后续覆盖升级自动保留全部任务、设置与记忆。
-- **绿色便携版**：下载 `Plana-win-x64-portable-0.1.10.zip` 解压后运行 `VGList.exe`。
+- **安装版（推荐）**：下载 `Plana-Setup-0.1.12.exe` 运行即可，免管理员权限安装到当前用户目录，后续覆盖升级自动保留全部任务、设置与记忆。
+- **绿色便携版**：下载 `Plana-win-x64-portable-0.1.12.zip` 解压后运行 `VGList.exe`。
 
 ### macOS（预览体验版）
-- **Apple Silicon (M1 / M2 / M3 / M4)**：下载 `Plana-mac-arm64-0.1.10.zip`。
-- **Intel Mac**：下载 `Plana-mac-x64-0.1.10.zip`。
+- **Apple Silicon (M1 / M2 / M3 / M4)**：下载 `Plana-mac-arm64-0.1.12.zip`。
+- **Intel Mac**：下载 `Plana-mac-x64-0.1.12.zip`。
 - 解压后保持 `Plana.app`、`首次运行.command` 与 `安装说明.txt` 在同一目录，**双击（或右键 → 打开）`首次运行.command`** 完成首次签名准备并启动。
 
 > **macOS 预览版提示**：暂无 Apple Developer ID 签名与公证；开机自启、点击穿透与剪贴板图片/文件粘贴暂未在 macOS 端实现，完整体验建议优先使用 Windows 版。
@@ -156,15 +156,15 @@ dotnet run --project src/VGList.Desktop/VGList.Desktop.csproj -f net10.0-windows
 # 3. 运行单元测试
 dotnet test tests/VGList.Tests/VGList.Tests.csproj -c Release
 
-# 4. 打包 Windows 安装程序（需 Inno Setup 6，输出至 dist/Plana-Setup-0.1.10.exe）
-pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.10
+# 4. 打包 Windows 安装程序（需 Inno Setup 6，输出至 dist/Plana-Setup-0.1.12.exe）
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.12
 ```
 
 在 macOS 上构建双架构预览包：
 
 ```bash
 chmod +x scripts/build-macos.sh
-bash scripts/build-macos.sh 0.1.10
+bash scripts/build-macos.sh 0.1.12
 ```
 
 ---
