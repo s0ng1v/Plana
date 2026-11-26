@@ -370,6 +370,8 @@ public partial class TodayWidgetWindow : Window
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
+    public void SetKeepOnDesktop(bool enabled) => _host.SetKeepOnDesktop(enabled);
+
     public void SetShowInput(bool showInput)
     {
         _inputPanel.IsVisible = showInput;

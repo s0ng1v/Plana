@@ -114,4 +114,7 @@ public sealed class MainSettings
 
     /// <summary>P1：开机自启时静默隐藏主窗口至系统托盘（保留桌面小组件）。</summary>
     public bool StartMinimizedToTray { get; set; } = true;
+
+    /// <summary>Windows 点击右下角「显示桌面」或按 Win+D 时保持桌面小组件可见（默认开，可在设置中关闭，ADR-0073）。</summary>
+    public bool KeepWidgetsOnShowDesktop { get; set; } = true;
 }

@@ -44,6 +44,8 @@ internal sealed class NoopWindowEffects : IWindowEffects
     public bool TrySetToolWindow(IntPtr windowHandle) => false;
 
     public bool TrySetClickThrough(IntPtr windowHandle, bool enabled) => false;
+
+    public bool TrySetKeepOnDesktop(IntPtr windowHandle, bool enabled) => false;
 }
 
 internal sealed class NoopNotificationService : INotificationService

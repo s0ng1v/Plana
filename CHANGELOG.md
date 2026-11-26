@@ -2,6 +2,13 @@
 
 All notable changes to **Plana** will be documented in this file.
 
+## [v0.1.13] - 2026-11-26
+
+### Desktop Widget Persistence on "Show Desktop" & AtomGit Mirror
+
+- **Windows「显示桌面」桌面小组件常驻可见（ADR-0073）**：新增 `KeepWidgetsOnShowDesktop` 设置项（默认开启，可在「设置 → 桌面小组件 → 通用行为」随时关闭）；点击右下角「显示桌面」、按下 `Win+D` 或悬停触发桌面速览（Aero Peek）时，今日日程与月历小组件自动保持附着在桌面之上且保留完整点击、拖动、录入交互，切回普通应用窗口时仍自然被覆盖不抢占焦点，兼容 Windows 10 与 Windows 11 24H2+。
+- **双源直下镜像支持**：新增 AtomGit 国内高速发布通道，双语 README 提供国内直链点击直接下载安装包与便携版。
+
 ## [v0.1.12] - 2026-11-24
 
 ### Lana Experience, Typography & Subtask Fixes

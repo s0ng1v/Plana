@@ -169,4 +169,10 @@ public static class WindowEffects
             return false;
         }
     }
+
+    /// <summary>
+    /// 控制窗口是否在 Windows「显示桌面」（Win+D / 右下角按钮）时保持位于桌面宿主之上（ADR-0073）。
+    /// </summary>
+    public static bool TrySetKeepOnDesktop(IntPtr windowHandle, bool enabled) =>
+        Win32.ShowDesktopGuard.SetEnabled(windowHandle, enabled);
 }

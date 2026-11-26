@@ -1653,6 +1653,24 @@
                          Foreground="{DynamicResource Main.Text.Secondary}" />
             </StackPanel>
 
+            <!-- 通用行为 -->
+            <StackPanel>
+              <TextBlock Classes="set-section" Text="通用行为" />
+              <Border Classes="set-card">
+                <Border Classes="set-row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2" VerticalAlignment="Center">
+                      <TextBlock Classes="set-title" Text="显示桌面时保持可见" />
+                      <TextBlock Classes="set-desc" Text="点击 Windows 右下角「显示桌面」或按 Win+D 时不隐藏桌面小组件，随时一眼查看" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="1"
+                              Classes="m-toggle"
+                              IsChecked="{Binding KeepWidgetsOnShowDesktop, Mode=TwoWay}" />
+                  </Grid>
+                </Border>
+              </Border>
+            </StackPanel>
+
             <!-- 今日日程小组件 -->
             <StackPanel>
               <TextBlock Classes="set-section" Text="今日日程小组件" />

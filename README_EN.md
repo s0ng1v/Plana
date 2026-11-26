@@ -13,12 +13,14 @@ Keep what matters today right on your desktop — visible at a glance, editable 
 <p>
   <a href="README.md">简体中文</a> ·
   <a href="README_EN.md"><strong>English</strong></a> ·
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>Download Latest (v0.1.12)</strong></a> ·
+  <a href="https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe"><strong>Direct Download (AtomGit CN, v0.1.13)</strong></a> ·
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>GitHub Releases</strong></a> ·
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 <p>
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.12-2F6BFF?style=flat-square" alt="Release v0.1.12" /></a>
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.13-2F6BFF?style=flat-square" alt="Release v0.1.13" /></a>
+  <a href="https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe"><img src="https://img.shields.io/badge/AtomGit_Direct-v0.1.13-0EA5B7?style=flat-square" alt="AtomGit Direct Download v0.1.13" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-1F8A5B?style=flat-square" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/.NET-10_LTS-512BD4?style=flat-square" alt=".NET 10 LTS" />
   <img src="https://img.shields.io/badge/Avalonia-12.1.6-8B5CF6?style=flat-square" alt="Avalonia 12.1.6" />
@@ -46,7 +48,7 @@ Lana lives inside Plana — lazy-loaded so the app stays featherweight until you
 
 ---
 
-## 🖼️ Screenshots (v0.1.12)
+## 🖼️ Screenshots (v0.1.13)
 
 ### 1. Tasks Workspace & Detail Panel
 
@@ -66,7 +68,7 @@ Opens in the default Classic Blue theme with time-aware greetings, lunar date su
 
 ### 3. Desktop Today & Month Widgets
 
-Borderless transparent tool windows (hidden from taskbar and `Alt+Tab`) synced instantaneously with the main window — featuring 40%–100% opacity, free scaling, lock & click-through modes, and one-click overdue postponement.
+Borderless transparent tool windows (hidden from taskbar and `Alt+Tab`) synced instantaneously with the main window — **staying attached/visible on your Windows desktop by default even when you click "Show Desktop" or press `Win+D`** (toggleable in Settings) while naturally sitting behind opened app windows; featuring 40%–100% opacity, free scaling, lock & click-through modes, and one-click overdue postponement.
 
 <img src="docs/screenshots/07-desktop-widgets.png" alt="Plana Today and Month Desktop Widgets" width="100%" />
 
@@ -106,13 +108,17 @@ Switch live between **Classic Blue** (default) and **Plana Cherry Pink** themes 
 
 ## 📦 Installation
 
-Download the latest release binaries from **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)**:
+### Windows 10 / 11 (x64)
 
-- **Windows 10 / 11 (x64)**:
-  - Run `Plana-Setup-0.1.12.exe` (user-level Inno Setup installer, no admin required; seamlessly upgrades while preserving `%LOCALAPPDATA%\VGList\`), or extract `Plana-win-x64-portable-0.1.12.zip` and launch `VGList.exe`.
-- **macOS (Preview)**:
-  - Download `Plana-mac-arm64-0.1.12.zip` (Apple Silicon) or `Plana-mac-x64-0.1.12.zip` (Intel).
-  - Extract the archive and double-click (or right-click → Open) `首次运行.command` to clear quarantine attributes, apply ad-hoc signing, and launch `Plana.app`. *(Note: macOS preview builds are unsigned/unnotarized; full feature parity such as click-through widgets and native notification click-back is prioritized on Windows.)*
+| Mirror | Installer (Recommended, user-level upgrade preserving `%LOCALAPPDATA%\VGList\`) | Portable Archive | Releases Page |
+|---|---|---|---|
+| **AtomGit CDN (Fast in China)** | [**Direct Download `Plana-Setup-0.1.13.exe`**](https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe) | [**Direct Download `Plana-win-x64-portable-0.1.13.zip`**](https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-win-x64-portable-0.1.13.zip) | [AtomGit Releases](https://atomgit.com/gcw_dkdsv0bD/Plana/releases) |
+| **GitHub Official** | [Download `Plana-Setup-0.1.13.exe`](https://github.com/s0ng1v/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe) | [Download `Plana-win-x64-portable-0.1.13.zip`](https://github.com/s0ng1v/Plana/releases/download/v0.1.13/Plana-win-x64-portable-0.1.13.zip) | [GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest) |
+
+### macOS (Preview)
+Download from **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)** or **[AtomGit Releases](https://atomgit.com/gcw_dkdsv0bD/Plana/releases)**:
+- `Plana-mac-arm64-0.1.13.zip` (Apple Silicon) or `Plana-mac-x64-0.1.13.zip` (Intel).
+- Extract the archive and double-click (or right-click → Open) `首次运行.command` to clear quarantine attributes, apply ad-hoc signing, and launch `Plana.app`. *(Note: macOS preview builds are unsigned/unnotarized; full feature parity such as click-through widgets, desktop Show Desktop persistence, and native notification click-back is prioritized on Windows.)*
 
 ---
 
@@ -129,14 +135,14 @@ dotnet build src/VGList.Desktop/VGList.Desktop.csproj -c Release -f net10.0-wind
 dotnet test tests/VGList.Tests/VGList.Tests.csproj -c Release
 
 # Build Windows installer (requires Inno Setup 6)
-pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.12
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.13
 ```
 
 On macOS:
 
 ```bash
 chmod +x scripts/build-macos.sh
-bash scripts/build-macos.sh 0.1.12
+bash scripts/build-macos.sh 0.1.13
 ```
 
 ---

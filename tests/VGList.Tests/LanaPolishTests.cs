@@ -1017,6 +1017,65 @@ public sealed class LanaPolishTests
         }
     }
 
+    [Fact]
+    public void KeepWidgetsOnShowDesktop_DefaultsTruePersistsAndShowDesktopGuardLogicIsSound()
+    {
+        // 1. 默认开启，且 SettingsPageViewModel 切换立即持久化到 settings.json
+        Assert.True(new MainSettings().KeepWidgetsOnShowDesktop);
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), "vglist-show-desktop-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tmpDir);
+        try
+        {
+            var settingsStore = new SettingsStore(Path.Combine(tmpDir, "settings.json"));
+            var repo = new InMemoryTaskRepository();
+            var coordinator = new WidgetCoordinator(repo, settingsStore);
+            var modelStore = new ModelProfileStore(new NoopProtector(), Path.Combine(tmpDir, "models.json"));
+            using var vm = new MainWindowViewModel(repo, coordinator, modelStore);
+
+            Assert.True(vm.SettingsPage.KeepWidgetsOnShowDesktop);
+            Assert.True(settingsStore.LoadMain().KeepWidgetsOnShowDesktop);
+
+            vm.SettingsPage.KeepWidgetsOnShowDesktop = false;
+            Assert.False(settingsStore.LoadMain().KeepWidgetsOnShowDesktop);
+            Assert.False(coordinator.MainSettings.KeepWidgetsOnShowDesktop);
+
+            vm.SettingsPage.KeepWidgetsOnShowDesktop = true;
+            Assert.True(settingsStore.LoadMain().KeepWidgetsOnShowDesktop);
+            Assert.True(coordinator.MainSettings.KeepWidgetsOnShowDesktop);
+        }
+        finally
+        {
+            Directory.Delete(tmpDir, recursive: true);
+        }
+
+        // 2. Win32 外壳类名识别与 Z 序插入点纯函数校验
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("Progman"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("WorkerW"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("SHELLDLL_DefView"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("SysListView32"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("Shell_TrayWnd"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("Shell_SecondaryTrayWnd"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("TrayShowDesktopButtonWClass"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("MSTaskSwWClass"));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("MSTaskListWClass"));
+        Assert.False(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass("Chrome_WidgetWin_1"));
+        Assert.False(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass(null));
+        Assert.False(VGList.Platform.Win.Win32.ShowDesktopGuard.IsShellOrDesktopClass(string.Empty));
+
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.ShouldSkipAsInsertAfter(isVisible: false, isCloaked: false, isShellOrDesktop: false));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.ShouldSkipAsInsertAfter(isVisible: true, isCloaked: true, isShellOrDesktop: false));
+        Assert.True(VGList.Platform.Win.Win32.ShowDesktopGuard.ShouldSkipAsInsertAfter(isVisible: true, isCloaked: false, isShellOrDesktop: true));
+        Assert.False(VGList.Platform.Win.Win32.ShowDesktopGuard.ShouldSkipAsInsertAfter(isVisible: true, isCloaked: false, isShellOrDesktop: false));
+
+        var widgetHwnd = new IntPtr(0x1001);
+        var normalAppHwnd = new IntPtr(0x2002);
+        Assert.Equal(IntPtr.Zero, VGList.Platform.Win.Win32.ShowDesktopGuard.ResolveInsertAfter(widgetHwnd, IntPtr.Zero, prevIsTopmost: false));
+        Assert.Equal(IntPtr.Zero, VGList.Platform.Win.Win32.ShowDesktopGuard.ResolveInsertAfter(widgetHwnd, new IntPtr(0x3003), prevIsTopmost: true));
+        Assert.Equal(normalAppHwnd, VGList.Platform.Win.Win32.ShowDesktopGuard.ResolveInsertAfter(widgetHwnd, normalAppHwnd, prevIsTopmost: false));
+        Assert.Equal(widgetHwnd, VGList.Platform.Win.Win32.ShowDesktopGuard.ResolveInsertAfter(widgetHwnd, widgetHwnd, prevIsTopmost: false));
+    }
+
     private sealed class ControlledFakeAssistantHost : IAssistantHost
     {
         private readonly object _gate = new();

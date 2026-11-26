@@ -335,6 +335,15 @@ public sealed class WidgetCoordinator
         SetMonthClickThrough(false);
     }
 
+    public void SetKeepWidgetsOnShowDesktop(bool enabled)
+    {
+        _mainSettings.KeepWidgetsOnShowDesktop = enabled;
+        _settingsStore.SaveMain(_mainSettings);
+        _todayWindow?.SetKeepOnDesktop(enabled);
+        _monthWindow?.SetKeepOnDesktop(enabled);
+        StateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public bool SetLaunchAtStartup(bool enabled)
     {
         var ok = _startupRegistrySync(enabled, _mainSettings.StartMinimizedToTray);

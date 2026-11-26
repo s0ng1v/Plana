@@ -180,6 +180,8 @@ public partial class MonthWidgetWindow : Window
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
+    public void SetKeepOnDesktop(bool enabled) => _host.SetKeepOnDesktop(enabled);
+
     public void SetShowCompleted(bool showCompleted)
     {
         _vm.ShowCompleted = showCompleted;

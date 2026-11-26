@@ -95,6 +95,9 @@ public sealed partial class SettingsPageViewModel : ObservableObject, IDisposabl
     private bool _isConfirmingResetSample;
 
     [ObservableProperty]
+    private bool _keepWidgetsOnShowDesktop = true;
+
+    [ObservableProperty]
     private bool _showTodayWidget;
 
     [ObservableProperty]
@@ -370,6 +373,14 @@ public sealed partial class SettingsPageViewModel : ObservableObject, IDisposabl
         }
     }
 
+    partial void OnKeepWidgetsOnShowDesktopChanged(bool value)
+    {
+        if (!_syncing)
+        {
+            _coordinator.SetKeepWidgetsOnShowDesktop(value);
+        }
+    }
+
     partial void OnShowTodayWidgetChanged(bool value)
     {
         if (!_syncing)
@@ -503,6 +514,7 @@ public sealed partial class SettingsPageViewModel : ObservableObject, IDisposabl
             MorningBriefEnabled = main.MorningBriefEnabled;
             LaunchAtStartup = main.LaunchAtStartup;
             StartMinimizedToTray = main.StartMinimizedToTray;
+            KeepWidgetsOnShowDesktop = main.KeepWidgetsOnShowDesktop;
             ShowTodayWidget = main.ShowTodayWidget;
             TodayTopmost = today.IsTopmost;
             TodayLocked = today.IsLocked;

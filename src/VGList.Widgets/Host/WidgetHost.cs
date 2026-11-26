@@ -28,6 +28,8 @@ public sealed class WidgetHost
     private readonly WidgetSettings? _sibling;
     private readonly double _siblingBaseWidth;
     private readonly bool _hasStoredPosition;
+    private bool _keepOnDesktop;
+    private IntPtr _platformHandle;
     private bool _applyingSize;
 
     public WidgetHost(
@@ -45,6 +47,7 @@ public sealed class WidgetHost
         _baseHeight = baseHeight;
         _slot = slot;
         _settings = slot == WidgetSlot.Month ? store.LoadMonth() : store.LoadWidget();
+        _keepOnDesktop = store.LoadMain().KeepWidgetsOnShowDesktop;
         _hasStoredPosition = _settings.X is not null && _settings.Y is not null;
         _sibling = siblingSettings;
         _siblingBaseWidth = siblingBaseWidth;
@@ -69,6 +72,7 @@ public sealed class WidgetHost
         _window.PositionChanged += OnPositionChanged;
         _window.SizeChanged += OnWindowSizeChanged;
         _window.Closing += OnClosing;
+        _window.Closed += OnClosed;
     }
 
     public void BeginDrag(PointerPressedEventArgs e)
@@ -87,11 +91,17 @@ public sealed class WidgetHost
     private void OnOpened(object? sender, EventArgs e)
     {
         var handle = _window.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+        _platformHandle = handle;
         // 透明无边框小组件由 Avalonia 自身绘制圆角与细描边；禁用 DWM 8px 圆角框与系统描边，避免四角偏白残影。
         PlatformServices.WindowEffects.TryDisableDwmChrome(handle);
 
         // 小组件是桌面挂件：从任务栏与 Alt+Tab 隐藏，不占用「程序」位置。
         PlatformServices.WindowEffects.TrySetToolWindow(handle);
+
+        if (_keepOnDesktop)
+        {
+            PlatformServices.WindowEffects.TrySetKeepOnDesktop(handle, true);
+        }
 
         if (_settings.IsClickThrough)
         {
@@ -167,7 +177,27 @@ public sealed class WidgetHost
 
     private void OnClosing(object? sender, WindowClosingEventArgs e) => Save();
 
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        if (_platformHandle != IntPtr.Zero)
+        {
+            PlatformServices.WindowEffects.TrySetKeepOnDesktop(_platformHandle, false);
+            _platformHandle = IntPtr.Zero;
+        }
+    }
+
     public void SaveSettings() => Save();
+
+    /// <summary>「显示桌面时保持可见」开关（ADR-0073）。</summary>
+    public void SetKeepOnDesktop(bool enabled)
+    {
+        _keepOnDesktop = enabled;
+        var handle = _window.TryGetPlatformHandle()?.Handle ?? _platformHandle;
+        if (handle != IntPtr.Zero)
+        {
+            PlatformServices.WindowEffects.TrySetKeepOnDesktop(handle, enabled);
+        }
+    }
 
     /// <summary>「置于顶层」开关。</summary>
     public void SetTopmost(bool value)

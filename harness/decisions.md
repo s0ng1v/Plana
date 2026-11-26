@@ -905,6 +905,19 @@
   2. **按会话粒度隔离生成生命周期**：将 `ActiveRunCts`、`IsGenerating`、`LastGenerationSucceeded` 收归每个 `ChatSessionItemViewModel` 独立持有；`StartNewSession()` 与 `SelectSession()` 不再调用 `StopGeneration()`，原会话继续在后台静默运行、更新消息块并落盘，多个会话可并发对话；切换会话时页面实时同步目标会话的 `IsGenerating` 与舞台状态（避免后台态误触 Happy 庆祝），左侧会话列表对正在后台生成的会话展示 11×11 `ToolSpinnerRing` 轻转圈指示。仅显式停止当前回复（`StopGeneration`）、删除运行中会话（`DeleteSession`）或视图模型释放（`Dispose`）时取消对应运行。
 - 影响：`LanaStageMotion.cs`、`LanaThinkingOrb.cs`、`AssistantPageView.axaml`、`AssistantPageView.axaml.cs`、`AssistantPageViewModel.cs`、`harness/features/assistant.md`、`LanaPolishTests.cs`。
 
+### ADR-0073 · Windows 显示桌面时保持桌面小组件可见（默认开，设置可关）（2026-11-24）
+- 状态：accepted
+- 背景：用户反馈在开启多个其他应用时，点击 Windows 右下角「显示桌面」（或按 `Win+D`）应只隐藏普通应用并让桌面小组件保持可见。按 ADR-0024，直接 `SetParent` 挂载到 `Progman`/`WorkerW` 会导致桌面图标层拦截点击、阻断交互并破坏 DirectComposition；同时 Windows 11 24H2/25H2 改写了「显示桌面」的窗口切换流程，静态 `GWLP_HWNDPARENT` 方案亦会失效。
+- 决策：
+  1. **新增开关并默认开启**：`MainSettings.KeepWidgetsOnShowDesktop` 默认 `true`，在「设置 → 桌面小组件 → 通用行为」中提供「显示桌面时保持可见」实时开关并持久化到 `settings.json`。
+  2. **跨平台接口扩展**：`IWindowEffects` 新增 `TrySetKeepOnDesktop(IntPtr windowHandle, bool enabled)`；macOS 与无头降级实现返回 `false`。
+  3. **Windows 事件驱动 Z 序守护（`ShowDesktopGuard`）**：保留小组件独立顶层非置顶窗口身份不改动所有权/父窗口关系，仅通过 `SetWinEventHook` 监听外部进程 `EVENT_SYSTEM_FOREGROUND` 与 `EVENT_SYSTEM_MINIMIZESTART`（`WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS`）。当桌面宿主（`Progman` / 含 `SHELLDLL_DefView` 的 `WorkerW`）被置前或小组件被最小化时，仅将其恢复并精确重排在当前桌面宿主正上方（`SetWindowPos(..., insertAfter, ..., SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE)`；若桌面宿主上方为置顶窗口则使用 `HWND_TOP` 落在非置顶带顶部，绝不反向遮挡其它普通应用），并在 50ms / 180ms 做两次合并延时复查以兼容 Win11 24H2+ 动画。开关关闭或全部小组件关闭时立即 `UnhookWinEvent`，零常驻轮询开销。
+- 影响：`MainSettings.cs`、`IWindowEffects.cs`、`PlatformServices.cs`、`MacWindowEffects.cs`、`NativeMethods.cs`、`ShowDesktopGuard.cs`、`WindowEffects.cs`、`WinPlatformAdapters.cs`、`WidgetHost.cs`、`TodayWidgetWindow.axaml.cs`、`MonthWidgetWindow.axaml.cs`、`WidgetCoordinator.cs`、`SettingsPageViewModel.cs`、`SettingsPageView.axaml`、`harness/features/settings.md`、`LanaPolishTests.cs`。
+- 补充加固（2026-11-26，v0.1.13）：
+  1. 为跟踪的小组件设置 `DWMWA_EXCLUDED_FROM_PEEK`（关闭时还原为 0），保证鼠标悬停右下角「显示桌面」桌面速览（Aero Peek）时同样保持可见。
+  2. 扩展事件钩子覆盖范围：保留 `EVENT_SYSTEM_FOREGROUND`（`SKIPOWNPROCESS`），移除 `EVENT_SYSTEM_MINIMIZESTART` 的 `SKIPOWNPROCESS` 避免漏接自身窗口被外壳直接最小化；增加 `EVENT_SYSTEM_DESKTOPSWITCH` 与仅针对 `explorer.exe`（桌面宿主所在进程）的 `EVENT_OBJECT_REORDER`（过滤 `OBJID_WINDOW` 与外壳类名），捕获 Win11 24H2+「显示桌面」仅重排 Z 序而不切前景的情况；外壳类名表补充 `TrayShowDesktopButtonWClass`、`MSTaskSwWClass`、`MSTaskListWClass`。
+  3. Z 序插槽计算（`FindInsertAfterAboveDesktop`）沿 `GW_HWNDPREV` 向上跳过不可见、UWP Cloak（`DWMWA_CLOAKED`）或外壳辅助窗口后再判定紧邻普通应用/置顶窗口，并在 `SetWindowPos` 后复核 Z 序，若仍位于桌面宿主之下则退回 `HWND_TOP`；`IsIconic` 恢复失败时回退 `SW_RESTORE`，延时复查扩至 50ms / 180ms / 360ms 三阶段。
+
 
 
 

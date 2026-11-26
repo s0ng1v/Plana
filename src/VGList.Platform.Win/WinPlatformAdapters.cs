@@ -13,6 +13,9 @@ public sealed class WinWindowEffects : IWindowEffects
 
     public bool TrySetClickThrough(IntPtr windowHandle, bool enabled) =>
         WindowEffects.TrySetClickThrough(windowHandle, enabled);
+
+    public bool TrySetKeepOnDesktop(IntPtr windowHandle, bool enabled) =>
+        WindowEffects.TrySetKeepOnDesktop(windowHandle, enabled);
 }
 
 public sealed class WinStartupManager : IStartupManager

@@ -8,4 +8,6 @@ public interface IWindowEffects
     bool TrySetToolWindow(IntPtr windowHandle);
 
     bool TrySetClickThrough(IntPtr windowHandle, bool enabled);
+
+    bool TrySetKeepOnDesktop(IntPtr windowHandle, bool enabled);
 }

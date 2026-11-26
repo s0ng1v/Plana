@@ -13,12 +13,14 @@
 <p>
   <a href="README.md"><strong>简体中文</strong></a> ·
   <a href="README_EN.md">English</a> ·
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>下载最新版 (v0.1.12)</strong></a> ·
+  <a href="https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe"><strong>国内高速下载 (v0.1.13)</strong></a> ·
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><strong>GitHub Releases</strong></a> ·
   <a href="CHANGELOG.md">更新日志</a>
 </p>
 
 <p>
-  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.12-2F6BFF?style=flat-square" alt="Release v0.1.12" /></a>
+  <a href="https://github.com/s0ng1v/Plana/releases/latest"><img src="https://img.shields.io/badge/Release-v0.1.13-2F6BFF?style=flat-square" alt="Release v0.1.13" /></a>
+  <a href="https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe"><img src="https://img.shields.io/badge/AtomGit_直链下载-v0.1.13-0EA5B7?style=flat-square" alt="AtomGit Direct Download v0.1.13" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-1F8A5B?style=flat-square" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/.NET-10_LTS-512BD4?style=flat-square" alt=".NET 10 LTS" />
   <img src="https://img.shields.io/badge/Avalonia-12.1.6-8B5CF6?style=flat-square" alt="Avalonia 12.1.6" />
@@ -46,7 +48,7 @@ Lana 是内置在 Plana 里的原生 AI 日程助手——不打开时零存在�
 
 ---
 
-## 🖼️ 界面预览（v0.1.12）
+## 🖼️ 界面预览（v0.1.13）
 
 ### 1. 任务工作台与详情面板
 
@@ -66,7 +68,7 @@ Lana 是内置在 Plana 里的原生 AI 日程助手——不打开时零存在�
 
 ### 3. 今日日程 + 月历桌面小组件
 
-两个无边框透明工具窗口（不占任务栏与 `Alt+Tab`），与主窗口共享同一本地数据库毫秒级同步；支持 40%–100% 透明度调节、自由缩放、位置尺寸锁定、鼠标点击穿透（托盘一键解除），以及逾期任务一键「顺延到今天」。
+两个无边框透明工具窗口（不占任务栏与 `Alt+Tab`），与主窗口共享同一本地数据库毫秒级同步；**默认支持点击 Windows 右下角「显示桌面」或按 `Win+D` 时依然附着停留在桌面上**（可在「设置 → 桌面小组件」随时关闭），点回其他应用后自然退居其后；同时支持 40%–100% 透明度调节、自由缩放、位置尺寸锁定、鼠标点击穿透（托盘一键解除），以及逾期任务一键「顺延到今天」。
 
 <img src="docs/screenshots/07-desktop-widgets.png" alt="Plana 今日日程与月历桌面小组件" width="100%" />
 
@@ -126,15 +128,17 @@ Lana 是内置在 Plana 里的原生 AI 日程助手——不打开时零存在�
 
 ## 📦 下载与安装
 
-前往 **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)** 下载对应平台安装包：
-
 ### Windows 10 / 11 (x64)（主力支持）
-- **安装版（推荐）**：下载 `Plana-Setup-0.1.12.exe` 运行即可，免管理员权限安装到当前用户目录，后续覆盖升级自动保留全部任务、设置与记忆。
-- **绿色便携版**：下载 `Plana-win-x64-portable-0.1.12.zip` 解压后运行 `VGList.exe`。
+
+| 下载通道 | 安装版（推荐，免管理员权限自动保留数据升级） | 绿色便携版（解压即用） | 版本归档 |
+|---|---|---|---|
+| **国内高速下载（AtomGit CDN）** | [**直接下载 `Plana-Setup-0.1.13.exe`**](https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe) | [**直接下载 `Plana-win-x64-portable-0.1.13.zip`**](https://atomgit.com/gcw_dkdsv0bD/Plana/releases/download/v0.1.13/Plana-win-x64-portable-0.1.13.zip) | [AtomGit Releases](https://atomgit.com/gcw_dkdsv0bD/Plana/releases) |
+| **GitHub 官方下载** | [直接下载 `Plana-Setup-0.1.13.exe`](https://github.com/s0ng1v/Plana/releases/download/v0.1.13/Plana-Setup-0.1.13.exe) | [直接下载 `Plana-win-x64-portable-0.1.13.zip`](https://github.com/s0ng1v/Plana/releases/download/v0.1.13/Plana-win-x64-portable-0.1.13.zip) | [GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest) |
 
 ### macOS（预览体验版）
-- **Apple Silicon (M1 / M2 / M3 / M4)**：下载 `Plana-mac-arm64-0.1.12.zip`。
-- **Intel Mac**：下载 `Plana-mac-x64-0.1.12.zip`。
+前往 **[GitHub Releases](https://github.com/s0ng1v/Plana/releases/latest)**（或 **[AtomGit Releases](https://atomgit.com/gcw_dkdsv0bD/Plana/releases)**）下载：
+- **Apple Silicon (M1 / M2 / M3 / M4)**：`Plana-mac-arm64-0.1.13.zip`
+- **Intel Mac**：`Plana-mac-x64-0.1.13.zip`
 - 解压后保持 `Plana.app`、`首次运行.command` 与 `安装说明.txt` 在同一目录，**双击（或右键 → 打开）`首次运行.command`** 完成首次签名准备并启动。
 
 > **macOS 预览版提示**：暂无 Apple Developer ID 签名与公证；开机自启、点击穿透与剪贴板图片/文件粘贴暂未在 macOS 端实现，完整体验建议优先使用 Windows 版。
@@ -156,15 +160,15 @@ dotnet run --project src/VGList.Desktop/VGList.Desktop.csproj -f net10.0-windows
 # 3. 运行单元测试
 dotnet test tests/VGList.Tests/VGList.Tests.csproj -c Release
 
-# 4. 打包 Windows 安装程序（需 Inno Setup 6，输出至 dist/Plana-Setup-0.1.12.exe）
-pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.12
+# 4. 打包 Windows 安装程序（需 Inno Setup 6，输出至 dist/Plana-Setup-0.1.13.exe）
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-installer.ps1 -Version 0.1.13
 ```
 
 在 macOS 上构建双架构预览包：
 
 ```bash
 chmod +x scripts/build-macos.sh
-bash scripts/build-macos.sh 0.1.12
+bash scripts/build-macos.sh 0.1.13
 ```
 
 ---

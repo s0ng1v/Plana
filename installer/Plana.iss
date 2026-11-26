@@ -5,7 +5,7 @@
 ; 3. 用户数据全部存于 %LOCALAPPDATA%\VGList\，覆盖安装或卸载均绝不删除用户数据。
 
 #ifndef MyAppVersion
-  #define MyAppVersion "0.1.12"
+  #define MyAppVersion "0.1.13"
 #endif
 
 #ifndef StageDir
